@@ -28,7 +28,7 @@ export default function UploadPage() {
       const filePath = `uploads/${fileName}`
 
       const { error: uploadError } = await supabase.storage
-        .from('sheet-music')
+        .from('music-sheets')
         .upload(filePath, file)
 
       if (uploadError) {
