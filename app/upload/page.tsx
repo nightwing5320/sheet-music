@@ -38,17 +38,17 @@ export default function UploadPage() {
       const filePath = `uploads/${fileName}`
 
       const { error: uploadError } = await supabase.storage
-        .from('sheet-music')
+        .from('music-sheets')
         .upload(filePath, file)
 
       if (uploadError) throw uploadError
 
       const { data: urlData } = supabase.storage
-        .from('sheet-music')
+        .from('music-sheets')
         .getPublicUrl(filePath)
 
       const { error: dbError } = await supabase
-        .from('sheets')
+        .from('music_sheets')
         .insert([{ title, artist: keyName, file_url: urlData.publicUrl }])
 
       if (dbError) throw dbError
