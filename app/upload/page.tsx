@@ -22,7 +22,7 @@ export default function UploadPage() {
     try {
       setUploading(true)
 
-      // 1. 上傳圖片到 Supabase Storage (sheet-music bucket)
+      // 1. 上傳圖片到 Supabase Storage (music-sheets bucket)
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}.${fileExt}`
       const filePath = `uploads/${fileName}`
@@ -37,7 +37,7 @@ export default function UploadPage() {
 
       // 2. 取得圖片公開 URL
       const { data: urlData } = supabase.storage
-        .from('sheet-music')
+        .from('music-sheets')
         .getPublicUrl(filePath)
 
       const fileUrl = urlData.publicUrl
