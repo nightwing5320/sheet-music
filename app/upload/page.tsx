@@ -1,118 +1,131 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { supabase } from '../../lib/supabase'
 
 export default function UploadPage() {
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [artist, setArtist] = useState('')
-  const [instrument, setInstrument] = useState('吉他')
-  const [files, setFiles] = useState<FileList | null>(null)
+  const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
 
-  const handleUpload = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!files || files.length === 0) return alert('請選擇至少一張樂譜照片！')
-
-    setUploading(true)
-    const imageUrls: string[] = []
+    if (!file || !title) {
+      alert('請填寫樂譜名稱並選擇圖片！')
+      return
+    }
 
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${Date.now()}_${i}.${fileExt}`
+      setUploading(true)
 
-        // 上傳到 Supabase Storage
-        const { data, error: uploadError } = await supabase.storage
-          .from('music-sheets')
-          .upload(fileName, file)
+      // 1. 上傳圖片到 Supabase Storage (sheet-music bucket)
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}.${fileExt}`
+      const filePath = `uploads/${fileName}`
 
-        if (uploadError) throw uploadError
+      const { error: uploadError } = await supabase.storage
+        .from('sheet-music')
+        .upload(filePath, file)
 
-        // 取得公開下載網址
-        const { data: publicUrlData } = supabase.storage
-          .from('music-sheets')
-          .getPublicUrl(fileName)
-
-        imageUrls.push(publicUrlData.publicUrl)
+      if (uploadError) {
+        throw uploadError
       }
 
-      // 寫入 Database
+      // 2. 取得圖片公開 URL
+      const { data: urlData } = supabase.storage
+        .from('sheet-music')
+        .getPublicUrl(filePath)
+
+      const fileUrl = urlData.publicUrl
+
+      // 3. 寫入資料庫記錄 (sheets table)
       const { error: dbError } = await supabase
         .from('sheets')
-        .insert([{ title, artist, instrument, image_urls: imageUrls }])
+        .insert([
+          {
+            title: title,
+            artist: artist,
+            file_url: fileUrl,
+          },
+        ])
 
-      if (dbError) throw dbError
+      if (dbError) {
+        throw dbError
+      }
 
       alert('樂譜上傳成功！')
       router.push('/')
+      router.refresh()
     } catch (error: any) {
-      alert('上傳失敗：' + error.message)
+      alert('上傳失敗：' + (error.message || '未知錯誤'))
     } finally {
       setUploading(false)
     }
   }
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
-      <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">上傳新樂譜照片</h1>
-      <form onSubmit={handleUpload} className="space-y-4 text-gray-700">
+    <main style={{ maxWidth: '500px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
+      <Link href="/" style={{ color: '#0070f3', textDecoration: 'none', marginBottom: '16px', display: 'inline-block' }}>
+        ← 返回首頁
+      </Link>
+      <h1 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '20px' }}>上傳新樂譜</h1>
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div>
-          <label className="block text-sm font-medium mb-1">歌名</label>
+          <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>樂譜名稱 *</label>
           <input
             type="text"
-            required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="例如：晴天"
+            required
+            placeholder="例如：Op. 9 No. 2 夜曲"
+            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
+
         <div>
-          <label className="block text-sm font-medium mb-1">歌手/創作者</label>
+          <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>創作者 / 歌手</label>
           <input
             type="text"
-            required
             value={artist}
             onChange={(e) => setArtist(e.target.value)}
-            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="例如：周杰倫"
+            placeholder="例如：蕭邦 Chopin"
+            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
+
         <div>
-          <label className="block text-sm font-medium mb-1">樂器種類</label>
-          <select
-            value={instrument}
-            onChange={(e) => setInstrument(e.target.value)}
-            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="吉他">吉他</option>
-            <option value="鋼琴">鋼琴</option>
-            <option value="烏克麗麗">烏克麗麗</option>
-            <option value="其他">其他</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">選擇樂譜照片 (可多選)</label>
+          <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>樂譜圖片 *</label>
           <input
             type="file"
-            multiple
             accept="image/*"
-            onChange={(e) => setFiles(e.target.files)}
-            className="w-full p-1 border rounded"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            required
+            style={{ width: '100%' }}
           />
         </div>
+
         <button
           type="submit"
           disabled={uploading}
-          className="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 disabled:bg-gray-400"
+          style={{
+            backgroundColor: uploading ? '#ccc' : '#0070f3',
+            color: 'white',
+            padding: '10px',
+            borderRadius: '6px',
+            border: 'none',
+            cursor: uploading ? 'not-allowed' : 'pointer',
+            fontSize: '16px',
+            fontWeight: 'bold',
+          }}
         >
-          {uploading ? '上傳中...' : '確定上傳'}
+          {uploading ? '上傳中...' : '確認上傳'}
         </button>
       </form>
-    </div>
+    </main>
   )
 }
