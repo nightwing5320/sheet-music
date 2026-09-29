@@ -79,7 +79,7 @@ export default function UploadPage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            placeholder="例如：卡農 Canon in D"
+            placeholder="例如：稱謝進入祢的門"
             style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px', boxSizing: 'border-box' }}
           />
         </div>
