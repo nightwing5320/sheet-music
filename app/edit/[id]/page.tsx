@@ -12,6 +12,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
 
   const [title, setTitle] = useState('')
   const [artist, setArtist] = useState('')
+  const [tempo, setTempo] = useState<string>('') // 📌 新增：tempo 狀態
   const [fileUrl, setFileUrl] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -32,6 +33,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
       if (data) {
         setTitle(data.title || '')
         setArtist(data.artist || '')
+        setTempo(data.tempo || '') // 📌 讀取資料庫中的 tempo 值
         setFileUrl(data.file_url || '')
       }
     } catch (err: any) {
@@ -48,7 +50,11 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
       setSaving(true)
       const { error } = await supabase
         .from('sheets')
-        .update({ title, artist })
+        .update({ 
+          title, 
+          artist, 
+          tempo: tempo || null // 📌 存入速度分類，若未選擇則寫入 null（對應未分類）
+        })
         .eq('id', id)
 
       if (error) throw error
@@ -101,6 +107,29 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
             onChange={(e) => setArtist(e.target.value)}
             style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px', boxSizing: 'border-box' }}
           />
+        </div>
+
+        {/* 📌 新增：速度分類下拉選單 */}
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>速度分類</label>
+          <select
+            value={tempo}
+            onChange={(e) => setTempo(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: '8px',
+              border: '1px solid #cbd5e1',
+              fontSize: '15px',
+              boxSizing: 'border-box',
+              backgroundColor: 'white',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="">❓ 未分類</option>
+            <option value="fast">⚡ 快歌</option>
+            <option value="slow">🌙 慢歌</option>
+          </select>
         </div>
 
         <button
