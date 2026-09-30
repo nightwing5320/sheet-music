@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { supabase } from '../lib/supabase'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 
 interface Sheet {
   id: number
@@ -21,6 +22,9 @@ export default function Home() {
   const [activeSheetImages, setActiveSheetImages] = useState<string[]>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
+  const router = useRouter()
+  const supabase = createClient()
+
   useEffect(() => {
     fetchSheets()
   }, [])
@@ -35,13 +39,20 @@ export default function Home() {
       if (error) {
         console.error('Error fetching sheets:', error)
       } else if (data) {
-        setSheets(data)
+        setSheets(data as Sheet[])
       }
     } catch (err) {
       console.error('Unexpected error:', err)
     } finally {
       setLoading(false)
     }
+  }
+
+  // 登出邏輯
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
   }
 
   const handleDelete = async (id: number, title: string) => {
@@ -76,27 +87,46 @@ export default function Home() {
 
   return (
     <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px 20px', color: 'var(--text-primary)' }}>
-      {/* 頂部標題 */}
+      {/* 頂部標題與功能按鈕 */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>🎼 樂譜庫</h1>
           <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: 'var(--text-secondary)' }}>Sheet Music Library</p>
         </div>
-        <Link 
-          href="/upload" 
-          style={{ 
-            backgroundColor: '#0070f3', 
-            color: 'white', 
-            padding: '10px 20px', 
-            borderRadius: '8px', 
-            textDecoration: 'none',
-            fontWeight: '600',
-            fontSize: '14px',
-            boxShadow: '0 2px 8px rgba(0, 112, 243, 0.25)',
-          }}
-        >
-          + 上傳新樂譜
-        </Link>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <Link 
+            href="/upload" 
+            style={{ 
+              backgroundColor: '#0070f3', 
+              color: 'white', 
+              padding: '10px 18px', 
+              borderRadius: '8px', 
+              textDecoration: 'none',
+              fontWeight: '600',
+              fontSize: '14px',
+              boxShadow: '0 2px 8px rgba(0, 112, 243, 0.25)',
+            }}
+          >
+            + 上傳新樂譜
+          </Link>
+          <button
+            onClick={handleLogout}
+            style={{
+              backgroundColor: '#ef4444',
+              color: 'white',
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              fontWeight: '600',
+              fontSize: '14px',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.25)',
+              transition: 'background-color 0.2s'
+            }}
+          >
+            🔒 登出
+          </button>
+        </div>
       </header>
 
       {/* 搜尋欄 */}

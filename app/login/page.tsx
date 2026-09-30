@@ -18,7 +18,6 @@ export default function LoginPage() {
     setLoading(true);
     setErrorMsg('');
 
-    // 登入驗證 (預設會自動記憶登入 Token 於 LocalStorage)
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -28,7 +27,7 @@ export default function LoginPage() {
       setErrorMsg('帳號或密碼錯誤！');
       setLoading(false);
     } else {
-      router.push('/admin'); // 登入成功前往管理後台
+      router.push('/'); // 登入成功，進入樂譜庫首頁
       router.refresh();
     }
   };
@@ -36,7 +35,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <form onSubmit={handleLogin} className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">管理員登入</h1>
+        <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">樂譜庫身份認證</h1>
         
         {errorMsg && (
           <div className="mb-4 rounded bg-red-100 p-3 text-sm text-red-600">
@@ -71,7 +70,7 @@ export default function LoginPage() {
           disabled={loading}
           className="w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? '登入中...' : '登入'}
+          {loading ? '驗證中...' : '登入進入樂譜庫'}
         </button>
       </form>
     </div>
