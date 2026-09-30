@@ -13,17 +13,14 @@ export default function UploadPage() {
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
 
-  // 1. 處理多檔案選擇
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || [])
     setFiles(selectedFiles)
     
-    // 建立每一頁的本地預覽圖網址
     const urls = selectedFiles.map(file => URL.createObjectURL(file))
     setPreviewUrls(urls)
   }
 
-  // 2. 表單提交上傳
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (files.length === 0 || !title) {
@@ -35,21 +32,18 @@ export default function UploadPage() {
       setUploading(true)
       const uploadedUrls: string[] = []
 
-      // 迴圈處理每一張選取的圖片
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
         const fileExt = file.name.split('.').pop()
         const fileName = `${Date.now()}_page${i + 1}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`
         const filePath = `uploads/${fileName}`
 
-        // 上傳至 music-sheets bucket
         const { error: uploadError } = await supabase.storage
           .from('music-sheets')
           .upload(filePath, file)
 
         if (uploadError) throw uploadError
 
-        // 取得公開 URL
         const { data: urlData } = supabase.storage
           .from('music-sheets')
           .getPublicUrl(filePath)
@@ -57,7 +51,6 @@ export default function UploadPage() {
         uploadedUrls.push(urlData.publicUrl)
       }
 
-      // 寫入資料庫：同時寫入 file_url (第一頁) 與 image_urls (所有頁數陣列)
       const { error: dbError } = await supabase
         .from('sheets')
         .insert([{ 
@@ -111,16 +104,43 @@ export default function UploadPage() {
           />
         </div>
 
+        {/* 帶框線與視覺提示的上傳區域 */}
         <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>樂譜圖片（可一次選取多張）*</label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple // 👈 關鍵：必須加上 multiple 才能在手機/電腦上複選圖片
-            onChange={handleFileChange}
-            required
-            style={{ width: '100%', fontSize: '14px' }}
-          />
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>樂譜圖片 *</label>
+          <label 
+            htmlFor="file-upload"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '28px 16px',
+              border: '2px dashed var(--border-color)',
+              borderRadius: '12px',
+              backgroundColor: 'var(--card-bg)',
+              cursor: 'pointer',
+              textAlign: 'center',
+              transition: 'all 0.2s ease',
+              boxSizing: 'border-box'
+            }}
+          >
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📄</div>
+            <span style={{ fontSize: '15px', fontWeight: '600', color: '#0070f3', marginBottom: '4px' }}>
+              點擊選擇樂譜圖片
+            </span>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+              支援多頁上傳（可在相簿或檔案中複選多張圖）
+            </span>
+            <input
+              id="file-upload"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileChange}
+              required={files.length === 0}
+              style={{ display: 'none' }} // 隱藏預設按鈕，改用上面美化的 label 點擊
+            />
+          </label>
         </div>
 
         {/* 預覽選擇的頁數 */}
