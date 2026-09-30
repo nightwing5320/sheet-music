@@ -30,19 +30,42 @@ export default function LoginPage() {
       if (error) {
         setMessage({ type: 'error', text: error.message || '註冊失敗，請重試！' });
       } else {
-        setMessage({ type: 'success', text: '註冊成功！如果已設定驗證信箱，請至信箱點擊確認信。' });
+        setMessage({ type: 'success', text: '註冊成功！您的帳號需等待管理員審核通過後方可登入使用。' });
       }
     } else {
       // 登入邏輯
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: { user }, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
         setMessage({ type: 'error', text: '帳號或密碼錯誤！' });
-      } else {
-        router.push('/'); // 登入成功進入樂譜庫
+        setLoading(false);
+        return;
+      } 
+
+      if (user) {
+        // 檢查是否已獲得管理員審核
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('is_approved')
+            .eq('id', user.id)
+            .single();
+
+        if (!profile || !profile.is_approved) {
+            // 尚未審核通過 -> 強制登出並提示
+            await supabase.auth.signOut();
+            setMessage({ 
+            type: 'error', 
+            text: '您的帳號正在等待管理員審核中，通過後方可使用！' 
+            });
+            setLoading(false);
+            return;
+        }
+
+        // 審核通過，進入系統
+        router.push('/');
         router.refresh();
       }
     }
