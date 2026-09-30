@@ -9,6 +9,7 @@ export default function UploadPage() {
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [keyName, setKeyName] = useState('')
+  const [tempo, setTempo] = useState<string>('') // 📌 新增：tempo 狀態
   const [files, setFiles] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
@@ -51,11 +52,13 @@ export default function UploadPage() {
         uploadedUrls.push(urlData.publicUrl)
       }
 
+      // 📌 將 tempo 寫入 Supabase 資料庫
       const { error: dbError } = await supabase
         .from('sheets')
         .insert([{ 
           title, 
           artist: keyName, 
+          tempo: tempo || null, // 若未選擇則存入 null（對應未分類）
           file_url: uploadedUrls[0], 
           image_urls: uploadedUrls 
         }])
@@ -104,6 +107,30 @@ export default function UploadPage() {
           />
         </div>
 
+        {/* 📌 新增：速度分類選單 */}
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>速度分類</label>
+          <select
+            value={tempo}
+            onChange={(e) => setTempo(e.target.value)}
+            style={{ 
+              width: '100%', 
+              padding: '10px 12px', 
+              borderRadius: '8px', 
+              border: '1px solid var(--border-color)', 
+              backgroundColor: 'var(--input-bg)', 
+              color: 'var(--text-primary)', 
+              fontSize: '15px', 
+              boxSizing: 'border-box',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="">❓ 未分類</option>
+            <option value="fast">⚡ 快歌</option>
+            <option value="slow">🌙 慢歌</option>
+          </select>
+        </div>
+
         {/* 帶框線與視覺提示的上傳區域 */}
         <div>
           <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>樂譜圖片 *</label>
@@ -138,7 +165,7 @@ export default function UploadPage() {
               multiple
               onChange={handleFileChange}
               required={files.length === 0}
-              style={{ display: 'none' }} // 隱藏預設按鈕，改用上面美化的 label 點擊
+              style={{ display: 'none' }}
             />
           </label>
         </div>
