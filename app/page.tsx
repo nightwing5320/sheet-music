@@ -9,6 +9,7 @@ interface Sheet {
   id: number
   title: string
   artist: string | null
+  tempo?: 'fast' | 'slow' | string | null // 快歌 / 慢歌 分類
   file_url: string
   image_urls?: string[] | null
   created_at: string
@@ -18,6 +19,7 @@ export default function Home() {
   const [sheets, setSheets] = useState<Sheet[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [activeTab, setActiveTab] = useState<'all' | 'fast' | 'slow'>('all') // 當前選中的分類
   
   const [activeSheetImages, setActiveSheetImages] = useState<string[]>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -46,7 +48,7 @@ export default function Home() {
     try {
       const { data, error } = await supabase
         .from('sheets')
-        .select('id, title, artist, file_url, image_urls, created_at')
+        .select('id, title, artist, tempo, file_url, image_urls, created_at')
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -61,7 +63,6 @@ export default function Home() {
     }
   }
 
-  // 登出邏輯
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
@@ -91,11 +92,24 @@ export default function Home() {
     setCurrentImageIndex(0)
   }
 
-  const filteredSheets = sheets.filter((sheet) => {
+  // 1. 關鍵字搜尋過濾
+  const searchFilteredSheets = sheets.filter((sheet) => {
     const term = searchTerm.toLowerCase()
     const matchesTitle = sheet.title.toLowerCase().includes(term)
     const matchesKey = sheet.artist?.toLowerCase().includes(term) ?? false
     return matchesTitle || matchesKey
+  })
+
+  // 2. 計算各分類的樂譜數量 (基於搜尋後的結果)
+  const countAll = searchFilteredSheets.length
+  const countFast = searchFilteredSheets.filter((s) => s.tempo === 'fast').length
+  const countSlow = searchFilteredSheets.filter((s) => s.tempo === 'slow').length
+
+  // 3. 依據頁籤 (Tab) 篩選出最終顯示的樂譜
+  const filteredSheets = searchFilteredSheets.filter((sheet) => {
+    if (activeTab === 'fast') return sheet.tempo === 'fast'
+    if (activeTab === 'slow') return sheet.tempo === 'slow'
+    return true // 'all' 顯示全部
   })
 
   return (
@@ -143,7 +157,7 @@ export default function Home() {
       </header>
 
       {/* 搜尋欄 */}
-      <div style={{ marginBottom: '24px' }}>
+      <div style={{ marginBottom: '20px' }}>
         <input
           type="text"
           placeholder="🔍 搜尋樂譜名稱或調性 (例如：C, G, Am)..."
@@ -164,11 +178,67 @@ export default function Home() {
         />
       </div>
 
+      {/* 📌 快歌 / 慢歌 分類頁籤 (Tabs) */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px' }}>
+        <button
+          onClick={() => setActiveTab('all')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '20px',
+            border: 'none',
+            fontWeight: '700',
+            fontSize: '14px',
+            cursor: 'pointer',
+            backgroundColor: activeTab === 'all' ? '#0070f3' : 'var(--card-bg)',
+            color: activeTab === 'all' ? 'white' : 'var(--text-secondary)',
+            transition: 'all 0.2s'
+          }}
+        >
+          🎵 全部 ({countAll})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('fast')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '20px',
+            border: 'none',
+            fontWeight: '700',
+            fontSize: '14px',
+            cursor: 'pointer',
+            backgroundColor: activeTab === 'fast' ? '#f59e0b' : 'var(--card-bg)', // 橙黃色代表快歌
+            color: activeTab === 'fast' ? 'white' : 'var(--text-secondary)',
+            transition: 'all 0.2s'
+          }}
+        >
+          ⚡ 快歌 ({countFast})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('slow')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '20px',
+            border: 'none',
+            fontWeight: '700',
+            fontSize: '14px',
+            cursor: 'pointer',
+            backgroundColor: activeTab === 'slow' ? '#10b981' : 'var(--card-bg)', // 綠色代表慢歌
+            color: activeTab === 'slow' ? 'white' : 'var(--text-secondary)',
+            transition: 'all 0.2s'
+          }}
+        >
+          🌙 慢歌 ({countSlow})
+        </button>
+      </div>
+
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary)' }}>載入樂譜庫中...</div>
       ) : filteredSheets.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 0', backgroundColor: 'var(--card-bg)', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
-          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>{searchTerm ? '找不到符合條件的樂譜' : '目前還沒有樂譜，點擊右上角新增吧！'}</p>
+          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
+            {searchTerm ? '找不到符合條件的樂譜' : '這個分類目前還沒有樂譜！'}
+          </p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
@@ -201,6 +271,22 @@ export default function Home() {
                   <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.7)', color: 'white', padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>
                     📄 {pageCount} 頁
                   </div>
+                  
+                  {/* 分類標籤 (快歌 / 慢歌) */}
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: '8px', 
+                    left: '8px', 
+                    backgroundColor: sheet.tempo === 'slow' ? 'rgba(16, 185, 129, 0.9)' : 'rgba(245, 158, 11, 0.9)', 
+                    color: 'white', 
+                    padding: '3px 8px', 
+                    borderRadius: '6px', 
+                    fontSize: '11px', 
+                    fontWeight: 'bold' 
+                  }}>
+                    {sheet.tempo === 'slow' ? '🌙 慢歌' : '⚡ 快歌'}
+                  </div>
+
                   <div style={{ position: 'absolute', bottom: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px' }}>
                     點擊放大
                   </div>
@@ -237,7 +323,7 @@ export default function Home() {
       {/* 全螢幕滿版燈箱 Modal */}
       {activeSheetImages.length > 0 && (
         <div 
-          onClick={() => setActiveSheetImages([])} // 點擊背景區域即可關閉
+          onClick={() => setActiveSheetImages([])}
           style={{
             position: 'fixed',
             top: 0,
@@ -247,15 +333,15 @@ export default function Home() {
             backgroundColor: 'rgba(0, 0, 0, 0.95)',
             backdropFilter: 'blur(4px)',
             display: 'flex',
-            //flexDirection: 'column',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 9999,
-            padding: 0, // 移除預設 padding，避免圖片被擠壓
+            padding: 0,
             boxSizing: 'border-box'
           }}
         >
-          {/* 📌 右上角退出按鈕 */}
+          {/* 📌 右上角顯眼退出按鈕 */}
           <button 
             onClick={(e) => {
               e.stopPropagation()
@@ -264,79 +350,66 @@ export default function Home() {
             title="關閉全螢幕 (Esc)"
             style={{ 
               position: 'fixed', 
-              top: '20px', 
-              right: '20px', 
-              width: '50px',
-              height: '50px',
+              top: '24px', 
+              right: '24px', 
+              width: '52px',
+              height: '52px',
               borderRadius: '50%',
               backgroundColor: 'rgba(0, 0, 0, 0.75)',
-              border: '1px solid #000000',
-              color: 'white', 
-              fontSize: '26px', 
+              border: '2px solid #ffffff',
+              color: '#ffffff', 
+              fontSize: '28px', 
+              fontWeight: 'bold',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 10001,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.5)',
               backdropFilter: 'blur(8px)'
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.8)'
-              e.currentTarget.style.borderColor = '#ef4444'
-              e.currentTarget.style.transform = 'scale(1.1)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.75)'
-              e.currentTarget.style.borderColor = '#000000'
-              e.currentTarget.style.transform = 'scale(1)'
-            }}
-            
           >
             ✕
           </button>
 
-          {/* 滿版圖片主體 */}
+          {/* 滿版圖片 */}
           <div 
             style={{ 
-              width: '100%', 
+              width: '100vw', 
               height: '100vh', 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center' 
             }}
-            onClick={(e) => e.stopPropagation()} // 阻止點擊圖片觸發背景關閉
+            onClick={(e) => e.stopPropagation()}
           >
             <img 
               src={activeSheetImages[currentImageIndex]} 
               alt="樂譜內容" 
               style={{ 
-                maxWidth: '100%', 
-                maxHeight: '100%', 
-                objectFit: 'contain', 
-                borderRadius: '4px',
-                userSelect: 'none',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                userSelect: 'none'
               }} 
             />
           </div>
 
-          {/* 底部導覽切換 (多頁時顯示) */}
+          {/* 底部導覽切換 */}
           <div 
             style={{ 
               position: 'fixed',
               bottom: '20px',
-              zIndex: 10001,
               display: 'flex', 
               alignItems: 'center', 
               gap: '16px', 
               color: 'white',
-              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              backgroundColor: 'rgba(0, 0, 0, 0.75)',
               padding: '8px 20px',
               borderRadius: '30px',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(8px)'
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 10001
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -359,7 +432,7 @@ export default function Home() {
               </button>
             )}
 
-            <span style={{ fontSize: '14px', fontWeight: '600', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '14px', fontWeight: '600' }}>
               第 {currentImageIndex + 1} / {activeSheetImages.length} 頁
             </span>
 
