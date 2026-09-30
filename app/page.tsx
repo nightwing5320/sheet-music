@@ -67,8 +67,8 @@ export default function Home() {
     <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px 20px', fontFamily: 'system-ui, -apple-system, sans-serif', color: '#1a1a1a' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
         <div>
-          <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' , color:'e2e8f0'}}>🎼 樂譜庫</h1>
-          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#e2e8f0' }}>Sheet Music Library</p>
+          <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>🎼 樂譜庫</h1>
+          <p style={{ margin: '4px 0 0 0', fontSize: '14px'}}>Sheet Music Library</p>
         </div>
         <Link 
           href="/upload" 
@@ -155,13 +155,13 @@ export default function Home() {
                     href={`/edit/${sheet.id}`}
                     style={{ fontSize: '13px', color: '#0070f3', textDecoration: 'none', fontWeight: '600' }}
                   >
-                    ✏️ 編輯
+                    編輯
                   </Link>
                   <button
                     onClick={() => handleDelete(sheet.id, sheet.title)}
                     style={{ fontSize: '13px', color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer', fontWeight: '600' }}
                   >
-                    🗑️ 刪除
+                    刪除
                   </button>
                 </div>
               </div>
