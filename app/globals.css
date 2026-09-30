@@ -42,3 +42,25 @@ body {
   margin: 0;
   transition: background-color 0.3s, color 0.3s;
 }
+
+/* 1. 確保所有 input 輸入框文字深色、背景白色 */
+input, select, textarea {
+  color: #111827 !important;
+  background-color: #ffffff !important;
+}
+
+/* 2. 解決 Chrome / Edge / Safari 瀏覽器「自動填入 (Autofill)」變色問題 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #111827 !important; /* 強制填入字體為深灰色/黑色 */
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important; /* 用白色內陰影覆蓋預設黃藍底色 */
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* 3. 設定 Placeholder 占位文字顏色 */
+input::placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
+}
