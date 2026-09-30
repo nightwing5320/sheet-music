@@ -28,7 +28,7 @@ export default function Home() {
   const fetchSheets = async () => {
     try {
       const { data, error } = await supabase
-        .from('music-sheets')
+        .from('sheets')
         .select('id, title, artist, file_url, image_urls, created_at')
         .order('created_at', { ascending: false })
 
