@@ -247,11 +247,11 @@ export default function Home() {
             backgroundColor: 'rgba(0, 0, 0, 0.95)',
             backdropFilter: 'blur(4px)',
             display: 'flex',
-            flexDirection: 'column',
+            //flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 9999,
-            padding: '16px',
+            padding: 0, // 移除預設 padding，避免圖片被擠壓
             boxSizing: 'border-box'
           }}
         >
@@ -263,7 +263,7 @@ export default function Home() {
             }}
             title="關閉全螢幕 (Esc)"
             style={{ 
-              position: 'absolute', 
+              position: 'fixed', 
               top: '20px', 
               right: '20px', 
               width: '44px',
@@ -277,7 +277,7 @@ export default function Home() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              zIndex: 10000,
+              zIndex: 10001,
               transition: 'all 0.2s ease',
               backdropFilter: 'blur(8px)'
             }}
@@ -291,7 +291,7 @@ export default function Home() {
           <div 
             style={{ 
               width: '100%', 
-              height: 'calc(100vh - 100px)', 
+              height: '100vh', 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center' 
@@ -315,8 +315,9 @@ export default function Home() {
           {/* 底部導覽切換 (多頁時顯示) */}
           <div 
             style={{ 
-              position: 'absolute',
+              position: 'fixed',
               bottom: '20px',
+              zIndex: 10001,
               display: 'flex', 
               alignItems: 'center', 
               gap: '16px', 
