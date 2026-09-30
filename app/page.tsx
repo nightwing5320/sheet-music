@@ -29,6 +29,19 @@ export default function Home() {
     fetchSheets()
   }, [])
 
+  // 支援 Esc 鍵關閉全螢幕燈箱
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActiveSheetImages([])
+      }
+    }
+    if (activeSheetImages.length > 0) {
+      window.addEventListener('keydown', handleKeyDown)
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [activeSheetImages])
+
   const fetchSheets = async () => {
     try {
       const { data, error } = await supabase
@@ -221,49 +234,121 @@ export default function Home() {
         </div>
       )}
 
-      {/* 燈箱 Modal */}
+      {/* 全螢幕滿版燈箱 Modal */}
       {activeSheetImages.length > 0 && (
         <div 
+          onClick={() => setActiveSheetImages([])} // 點擊背景區域即可關閉
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.9)',
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            backdropFilter: 'blur(4px)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 1000,
-            padding: '20px',
+            zIndex: 9999,
+            padding: '16px',
+            boxSizing: 'border-box'
           }}
         >
+          {/* 📌 右上角退出按鈕 */}
           <button 
-            onClick={() => setActiveSheetImages([])}
-            style={{ position: 'absolute', top: '20px', right: '20px', backgroundColor: 'transparent', border: 'none', color: 'white', fontSize: '28px', cursor: 'pointer' }}
+            onClick={(e) => {
+              e.stopPropagation()
+              setActiveSheetImages([])
+            }}
+            title="關閉全螢幕 (Esc)"
+            style={{ 
+              position: 'absolute', 
+              top: '20px', 
+              right: '20px', 
+              width: '44px',
+              height: '44px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              color: 'white', 
+              fontSize: '22px', 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10000,
+              transition: 'all 0.2s ease',
+              backdropFilter: 'blur(8px)'
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.8)')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)')}
           >
             ✕
           </button>
 
-          <img 
-            src={activeSheetImages[currentImageIndex]} 
-            alt="樂譜內容" 
-            style={{ maxWidth: '90%', maxHeight: '80vh', objectFit: 'contain', borderRadius: '8px' }} 
-          />
+          {/* 滿版圖片主體 */}
+          <div 
+            style={{ 
+              width: '100%', 
+              height: 'calc(100vh - 100px)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center' 
+            }}
+            onClick={(e) => e.stopPropagation()} // 阻止點擊圖片觸發背景關閉
+          >
+            <img 
+              src={activeSheetImages[currentImageIndex]} 
+              alt="樂譜內容" 
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: '100%', 
+                objectFit: 'contain', 
+                borderRadius: '4px',
+                userSelect: 'none',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+              }} 
+            />
+          </div>
 
-          <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '20px', color: 'white' }}>
+          {/* 底部導覽切換 (多頁時顯示) */}
+          <div 
+            style={{ 
+              position: 'absolute',
+              bottom: '20px',
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '16px', 
+              color: 'white',
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              padding: '8px 20px',
+              borderRadius: '30px',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(8px)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             {activeSheetImages.length > 1 && (
               <button 
                 onClick={() => setCurrentImageIndex(prev => Math.max(0, prev - 1))}
                 disabled={currentImageIndex === 0}
-                style={{ padding: '8px 16px', borderRadius: '6px', backgroundColor: currentImageIndex === 0 ? '#444' : '#0070f3', color: 'white', border: 'none', cursor: currentImageIndex === 0 ? 'not-allowed' : 'pointer' }}
+                style={{ 
+                  padding: '6px 14px', 
+                  borderRadius: '20px', 
+                  backgroundColor: currentImageIndex === 0 ? 'rgba(255,255,255,0.1)' : '#0070f3', 
+                  color: currentImageIndex === 0 ? '#888' : 'white', 
+                  border: 'none', 
+                  cursor: currentImageIndex === 0 ? 'not-allowed' : 'pointer',
+                  fontWeight: '600',
+                  fontSize: '13px'
+                }}
               >
                 ← 上頁
               </button>
             )}
 
-            <span style={{ fontSize: '14px', fontWeight: '600' }}>
+            <span style={{ fontSize: '14px', fontWeight: '600', letterSpacing: '0.5px' }}>
               第 {currentImageIndex + 1} / {activeSheetImages.length} 頁
             </span>
 
@@ -271,7 +356,16 @@ export default function Home() {
               <button 
                 onClick={() => setCurrentImageIndex(prev => Math.min(activeSheetImages.length - 1, prev + 1))}
                 disabled={currentImageIndex === activeSheetImages.length - 1}
-                style={{ padding: '8px 16px', borderRadius: '6px', backgroundColor: currentImageIndex === activeSheetImages.length - 1 ? '#444' : '#0070f3', color: 'white', border: 'none', cursor: currentImageIndex === activeSheetImages.length - 1 ? 'not-allowed' : 'pointer' }}
+                style={{ 
+                  padding: '6px 14px', 
+                  borderRadius: '20px', 
+                  backgroundColor: currentImageIndex === activeSheetImages.length - 1 ? 'rgba(255,255,255,0.1)' : '#0070f3', 
+                  color: currentImageIndex === activeSheetImages.length - 1 ? '#888' : 'white', 
+                  border: 'none', 
+                  cursor: currentImageIndex === activeSheetImages.length - 1 ? 'not-allowed' : 'pointer',
+                  fontWeight: '600',
+                  fontSize: '13px'
+                }}
               >
                 下頁 →
               </button>
