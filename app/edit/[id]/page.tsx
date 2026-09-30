@@ -94,7 +94,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>創作者 / 作曲家</label>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>調性（Key）</label>
           <input
             type="text"
             value={artist}
