@@ -35,7 +35,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <form onSubmit={handleLogin} className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">樂譜庫身份認證</h1>
+        <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">身份認證</h1>
         
         {errorMsg && (
           <div className="mb-4 rounded bg-red-100 p-3 text-sm text-red-600">
@@ -70,7 +70,7 @@ export default function LoginPage() {
           disabled={loading}
           className="w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? '驗證中...' : '登入進入樂譜庫'}
+          {loading ? '驗證中...' : '進入樂譜庫'}
         </button>
       </form>
     </div>
