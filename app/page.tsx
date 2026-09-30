@@ -266,23 +266,33 @@ export default function Home() {
               position: 'fixed', 
               top: '20px', 
               right: '20px', 
-              width: '44px',
-              height: '44px',
+              width: '50px',
+              height: '50px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
+              backgroundColor: 'rgba(0, 0, 0, 0.75)',
+              border: '1px solid #000000',
               color: 'white', 
-              fontSize: '22px', 
+              fontSize: '26px', 
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 10001,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
               transition: 'all 0.2s ease',
               backdropFilter: 'blur(8px)'
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.8)')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)')}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.8)'
+              e.currentTarget.style.borderColor = '#ef4444'
+              e.currentTarget.style.transform = 'scale(1.1)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.75)'
+              e.currentTarget.style.borderColor = '#000000'
+              e.currentTarget.style.transform = 'scale(1)'
+            }}
+            
           >
             ✕
           </button>
