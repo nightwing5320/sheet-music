@@ -98,7 +98,7 @@ export function SheetCard({
               padding: '6px 12px',
               borderRadius: '6px',
               border: 'none',
-              backgroundColor: isInSetlist ? '#26c944' : '#0070f3',
+              backgroundColor: isInSetlist ? '#26c944' : '#7d1195',
               color: 'white',
               fontWeight: '600',
               fontSize: '13px',
