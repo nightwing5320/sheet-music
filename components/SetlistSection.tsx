@@ -73,24 +73,9 @@ export function SetlistSection({
                 )}
               </div>
 
-              {/* 右側按鈕區：編輯 / 排序 / 刪除 / 右下角放大提示 */}
+              {/* 右側按鈕區：排序 / 刪除 / 右下角放大提示 */}
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                {editingId === sheet.id ? (
-                  <button
-                    onClick={() => handleSaveEdit(sheet.id)}
-                    style={{ padding: '4px 8px', borderRadius: '4px', border: 'none', backgroundColor: '#10b981', color: 'white', cursor: 'pointer', fontSize: '12px' }}
-                  >
-                    儲存
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleStartEdit(sheet)}
-                    style={{ padding: '4px 8px', borderRadius: '4px', border: 'none', backgroundColor: '#3b82f6', color: 'white', cursor: 'pointer', fontSize: '12px' }}
-                  >
-                    ✏️ 編輯
-                  </button>
-                )}
-
+                
                 <button
                   onClick={() => onMoveTrack(index, 'up')}
                   disabled={index === 0}
