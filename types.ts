@@ -7,4 +7,5 @@ export interface Sheet {
   file_url: string
   image_urls?: string[] | null
   created_at: string // 統一設定為 string
+  annotation?: string // 新增欄位：存放塗鴉資料的 JSON 字串
 }

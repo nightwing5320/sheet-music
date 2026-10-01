@@ -1,133 +1,89 @@
 'use client'
 
-import { Sheet } from '@/types' // 📌 匯入統一型態
-
-/*
-interface Sheet {
-  id: number
-  title: string
-  artist: string | null
-  tempo?: string | null
-  file_url: string
-  image_urls?: string[] | null
-  created_at?: string
-}
-*/
+import { useState } from 'react'
+import { Sheet } from '@/types'
+import { SheetAnnotator } from './SheetAnnotator'
 
 interface SetlistSectionProps {
   setlist: Sheet[]
-  onOpenModal: (sheet: Sheet, index: number) => void
-  onMoveTrack: (index: number, direction: 'up' | 'down') => void
-  onRemoveTrack: (id: number) => void
-  onClearSetlist: () => void
+  onUpdateSetlist: (newSetlist: Sheet[]) => void // 📌 傳入更新歌單的函式
+  onRemoveFromSetlist: (id: number) => void
+  onOpenViewer: (index: number) => void
 }
 
 export function SetlistSection({
   setlist,
-  onOpenModal,
-  onMoveTrack,
-  onRemoveTrack,
-  onClearSetlist,
+  onUpdateSetlist,
+  onRemoveFromSetlist,
+  onOpenViewer,
 }: SetlistSectionProps) {
+  // 正在編輯筆記的歌單項目
+  const [editingSheetIndex, setEditingSheetIndex] = useState<number | null>(null)
+
+  // 儲存筆記至今日歌單
+  const handleSaveAnnotation = (savedDataJson: string) => {
+    if (editingSheetIndex === null) return
+
+    const updatedSetlist = [...setlist]
+    updatedSetlist[editingSheetIndex] = {
+      ...updatedSetlist[editingSheetIndex],
+      annotation: savedDataJson // 📌 將筆劃 JSON 寫入該首歌曲
+    }
+
+    onUpdateSetlist(updatedSetlist) // 更新歌單 State 與 localStorage
+    localStorage.setItem('worship_setlist', JSON.stringify(updatedSetlist)) // 寫入快取儲存
+    alert('歌單筆記已儲存！')
+    setEditingSheetIndex(null)
+  }
+
+  const activeSheet = editingSheetIndex !== null ? setlist[editingSheetIndex] : null
+  const activeImageUrl = activeSheet?.image_urls?.[0] || activeSheet?.file_url
+
   return (
-    <div style={{
-      backgroundColor: 'var(--card-bg)',
-      border: '2px solid #8b5cf6',
-      borderRadius: '12px',
-      padding: '20px',
-      marginBottom: '28px',
-      boxShadow: '0 4px 20px rgba(139, 92, 246, 0.15)'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#8b5cf6', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          📋 今日敬拜歌單 ({setlist.length} 首)
-        </h2>
-        {setlist.length > 0 && (
-          <button
-            onClick={onClearSetlist}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '6px',
-              backgroundColor: '#fee2e2',
-              color: '#ef4444',
-              border: 'none',
-              fontSize: '13px',
-              fontWeight: '700',
-              cursor: 'pointer'
-            }}
-          >
-            🗑️ 清除歌單
-          </button>
-        )}
-      </div>
+    <div style={{ backgroundColor: 'var(--card-bg)', padding: '20px', borderRadius: '12px', marginBottom: '24px', border: '1px solid var(--border-color)' }}>
+      <h2 style={{ marginTop: 0, fontSize: '20px', fontWeight: 'bold' }}>📋 今日敬拜歌單 ({setlist.length})</h2>
 
       {setlist.length === 0 ? (
-        <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0, textAlign: 'center', padding: '16px 0' }}>
-          歌單目前是空的！在下方樂譜卡片點擊「➕ 加至歌單」即可開始編排。
-        </p>
+        <p style={{ color: '#6b7280', fontSize: '14px' }}>歌單目前是空的，請從下方樂譜庫新增。</p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {setlist.map((item, index) => (
-            <div
-              key={item.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '10px 14px',
-                backgroundColor: 'var(--input-bg)',
-                borderRadius: '8px',
-                border: '1px solid var(--border-color)'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontWeight: '800', fontSize: '15px', color: '#8b5cf6', width: '24px' }}>
-                  #{index + 1}
-                </span>
-                <div>
-                  <span style={{ fontWeight: '700', fontSize: '15px', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => onOpenModal(item, index)}>
-                    {item.title}
-                  </span>
-                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginLeft: '10px' }}>
-                    🎵 Key: {item.artist || '未指定'} | {item.tempo === 'fast' ? '⚡快歌' : item.tempo === 'slow' ? '🌙慢歌' : '❓未分類'}
-                  </span>
-                </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
+          {setlist.map((sheet, index) => (
+            <div key={`${sheet.id}-${index}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: 'var(--bg-secondary)', borderRadius: '8px' }}>
+              <div onClick={() => onOpenViewer(index)} style={{ cursor: 'pointer', flex: 1 }}>
+                <span style={{ fontWeight: 'bold', marginRight: '8px' }}>{index + 1}.</span>
+                <span>{sheet.title}</span>
+                {sheet.annotation && <span style={{ marginLeft: '8px', fontSize: '12px', color: '#10b981' }}> (已附筆記 ✏️)</span>}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {/* 📌 專屬今日歌單的筆記按鈕 */}
                 <button
-                  onClick={() => onOpenModal(item, index)}
-                  style={{ padding: '4px 10px', borderRadius: '4px', backgroundColor: '#8b5cf6', color: 'white', border: 'none', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}
+                  onClick={() => setEditingSheetIndex(index)}
+                  style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
                 >
-                  ▶ 開始播放
+                  ✏️ 筆記
                 </button>
+
                 <button
-                  disabled={index === 0}
-                  onClick={() => onMoveTrack(index, 'up')}
-                  style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', cursor: index === 0 ? 'not-allowed' : 'pointer', opacity: index === 0 ? 0.3 : 1 }}
-                  title="向上移"
+                  onClick={() => onRemoveFromSetlist(sheet.id)}
+                  style={{ padding: '6px 10px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: 'white', cursor: 'pointer', fontSize: '13px' }}
                 >
-                  ▲
-                </button>
-                <button
-                  disabled={index === setlist.length - 1}
-                  onClick={() => onMoveTrack(index, 'down')}
-                  style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', cursor: index === setlist.length - 1 ? 'not-allowed' : 'pointer', opacity: index === setlist.length - 1 ? 0.3 : 1 }}
-                  title="向下移"
-                >
-                  ▼
-                </button>
-                <button
-                  onClick={() => onRemoveTrack(item.id)}
-                  style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: '#ef4444', color: 'white', border: 'none', fontSize: '12px', cursor: 'pointer' }}
-                  title="移出歌單"
-                >
-                  ✕
+                  移除
                 </button>
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* 📌 開啟筆記畫布，並帶入之前的筆記 */}
+      {editingSheetIndex !== null && activeImageUrl && (
+        <SheetAnnotator
+          imageUrl={activeImageUrl}
+          initialData={activeSheet?.annotation} // 帶入舊筆跡
+          onSave={handleSaveAnnotation}
+          onClose={() => setEditingSheetIndex(null)}
+        />
       )}
     </div>
   )
