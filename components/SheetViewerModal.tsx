@@ -1,18 +1,8 @@
 'use client'
 
-import { Sheet } from '@/types' // 📌 匯入統一型態
-
-/*
-interface Sheet {
-  id: number
-  title: string
-  artist: string | null
-  tempo?: string | null
-  file_url: string
-  image_urls?: string[] | null
-  created_at?: string
-}
-*/
+import { useRef, useEffect } from 'react'
+import { Sheet } from '@/types'
+import { ReactSketchCanvas, ReactSketchCanvasRef } from 'react-sketch-canvas'
 
 interface SheetViewerModalProps {
   activeSheetImages: string[]
@@ -37,10 +27,31 @@ export function SheetViewerModal({
   onTouchStart,
   onTouchEnd,
 }: SheetViewerModalProps) {
+  const canvasRef = useRef<ReactSketchCanvasRef>(null)
+
   if (activeSheetImages.length === 0) return null
 
   const isPrevDisabled = currentImageIndex === 0 && (currentSetlistIndex === null || currentSetlistIndex === 0)
   const isNextDisabled = currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)
+
+  // 📌 取得當前歌單項目的樂譜資料與筆劃紀錄
+  const currentSheet = currentSetlistIndex !== null ? setlist[currentSetlistIndex] : null
+  const currentAnnotation = currentSheet?.annotation
+
+  // 📌 當切換頁面或歌曲時，載入對應的筆劃紀錄
+  useEffect(() => {
+    if (currentAnnotation && canvasRef.current) {
+      try {
+        const paths = JSON.parse(currentAnnotation)
+        canvasRef.current.clearCanvas()
+        canvasRef.current.loadPaths(paths)
+      } catch (e) {
+        console.error('載入全螢幕筆記失敗:', e)
+      }
+    } else if (canvasRef.current) {
+      canvasRef.current.clearCanvas()
+    }
+  }, [currentAnnotation, currentImageIndex, currentSetlistIndex])
 
   return (
     <div 
@@ -112,19 +123,48 @@ export function SheetViewerModal({
           backdropFilter: 'blur(8px)'
         }}>
           📋 歌單首數 ({currentSetlistIndex + 1}/{setlist.length})：{setlist[currentSetlistIndex]?.title}
+          {currentAnnotation && <span style={{ marginLeft: '8px', color: '#6ee7b7' }}> (已載入筆記 ✏️️)</span>}
         </div>
       )}
 
-      {/* 樂譜圖片區域 */}
+      {/* 樂譜圖片與塗鴉畫布重疊區 */}
       <div 
-        style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        style={{ 
+          position: 'relative', 
+          width: '100vw', 
+          height: '100vh', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center' 
+        }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* 底層樂譜圖片 */}
         <img 
           src={activeSheetImages[currentImageIndex]} 
           alt="樂譜內容" 
           style={{ width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none' }} 
         />
+
+        {/* 頂層唯讀筆記畫布 (有筆記時才渲染) */}
+        {currentAnnotation && (
+          <div 
+            style={{ 
+              position: 'absolute', 
+              inset: 0, 
+              pointerEvents: 'none', // 📌 關鍵：讓點擊與滑動直接穿透到外層，不影響翻頁
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <ReactSketchCanvas
+              ref={canvasRef}
+              canvasColor="transparent"
+              style={{ width: '100%', height: '100%', border: 'none' }}
+            />
+          </div>
+        )}
       </div>
 
       {/* 底部切換導覽 */}

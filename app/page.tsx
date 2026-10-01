@@ -236,6 +236,10 @@ export default function Home() {
           onMoveTrack={moveSetlistTrack}
           onRemoveTrack={removeFromSetlist}
           onClearSetlist={clearSetlist}
+          onUpdateSetlist={(newSetlist) => {
+            setSetlist(newSetlist) // 📌 關鍵 1：更新 React State
+            localStorage.setItem('worship_setlist', JSON.stringify(newSetlist)) // 📌 關鍵 2：寫入 LocalStorage
+          }}
         />
       )}
 
