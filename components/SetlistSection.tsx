@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from 'react'
 import { Sheet } from '@/types'
-import { SheetAnnotator } from './SheetAnnotator'
 
 interface SetlistSectionProps {
   setlist: Sheet[]
@@ -10,7 +8,6 @@ interface SetlistSectionProps {
   onMoveTrack: (index: number, direction: 'up' | 'down') => void
   onRemoveTrack: (id: number) => void
   onClearSetlist: () => void
-  onUpdateSetlist?: (newSetlist: Sheet[]) => void
 }
 
 export function SetlistSection({
@@ -19,32 +16,7 @@ export function SetlistSection({
   onMoveTrack,
   onRemoveTrack,
   onClearSetlist,
-  onUpdateSetlist,
 }: SetlistSectionProps) {
-  // 紀錄當前正在繪製筆記的歌曲 index
-  const [editingSheetIndex, setEditingSheetIndex] = useState<number | null>(null)
-
-  // 儲存塗鴉筆記
-  const handleSaveAnnotation = (savedDataJson: string) => {
-    if (editingSheetIndex === null) return
-
-    const updatedSetlist = [...setlist]
-    updatedSetlist[editingSheetIndex] = {
-      ...updatedSetlist[editingSheetIndex],
-      annotation: savedDataJson
-    }
-
-    if (onUpdateSetlist) {
-      onUpdateSetlist(updatedSetlist)
-    }
-    localStorage.setItem('worship_setlist', JSON.stringify(updatedSetlist))
-    alert('今日歌單筆記已儲存！')
-    setEditingSheetIndex(null)
-  }
-
-  const activeSheet = editingSheetIndex !== null ? setlist[editingSheetIndex] : null
-  const activeImageUrl = activeSheet?.image_urls?.[0] || activeSheet?.file_url
-
   return (
     <div style={{ backgroundColor: 'var(--card-bg)', padding: '20px', borderRadius: '12px', marginBottom: '24px', border: '1px solid var(--border-color)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -66,29 +38,14 @@ export function SetlistSection({
           {setlist.map((sheet, index) => (
             <div key={`${sheet.id}-${index}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: 'var(--bg-secondary)', borderRadius: '8px' }}>
               
-              {/* 點擊標題開啟全螢幕檢視器 */}
+              {/* 點擊歌單標題開啟全螢幕檢視器 */}
               <div onClick={() => onOpenModal(sheet, index)} style={{ cursor: 'pointer', flex: 1, display: 'flex', alignItems: 'center' }}>
                 <span style={{ fontWeight: 'bold', marginRight: '8px' }}>{index + 1}.</span>
                 <span>{sheet.title}</span>
-                {sheet.annotation && (
-                  <span style={{ marginLeft: '8px', fontSize: '12px', color: '#10b981', backgroundColor: '#dcfce7', padding: '2px 8px', borderRadius: '10px' }}>
-                    ✏️ 已附筆記
-                  </span>
-                )}
               </div>
 
-              {/* 右側操作按鈕 */}
+              {/* 右側調整順序與刪除按鈕 */}
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                {/* 筆記按鈕 */}
-                <button
-                  onClick={() => setEditingSheetIndex(index)}
-                  style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)', cursor: 'pointer', fontSize: '13px' }}
-                  title="畫塗鴉筆記"
-                >
-                  ✏️ 筆記
-                </button>
-
-                {/* 順序調整按鈕 */}
                 <button
                   onClick={() => onMoveTrack(index, 'up')}
                   disabled={index === 0}
@@ -104,7 +61,6 @@ export function SetlistSection({
                   ▼
                 </button>
 
-                {/* 移除歌曲按鈕 */}
                 <button
                   onClick={() => onRemoveTrack(sheet.id)}
                   style={{ padding: '6px 10px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: 'white', cursor: 'pointer', fontSize: '13px', marginLeft: '4px' }}
@@ -115,16 +71,6 @@ export function SetlistSection({
             </div>
           ))}
         </div>
-      )}
-
-      {/* 塗鴉畫布 Modal */}
-      {editingSheetIndex !== null && activeImageUrl && (
-        <SheetAnnotator
-          imageUrl={activeImageUrl}
-          initialData={activeSheet?.annotation}
-          onSave={handleSaveAnnotation}
-          onClose={() => setEditingSheetIndex(null)}
-        />
       )}
     </div>
   )

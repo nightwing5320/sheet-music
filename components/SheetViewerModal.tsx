@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Sheet } from '@/types'
 
 interface SheetViewerModalProps {
@@ -26,44 +25,10 @@ export function SheetViewerModal({
   onTouchStart,
   onTouchEnd,
 }: SheetViewerModalProps) {
-  const [paths, setPaths] = useState<any[]>([])
-
   if (activeSheetImages.length === 0) return null
 
   const isPrevDisabled = currentImageIndex === 0 && (currentSetlistIndex === null || currentSetlistIndex === 0)
   const isNextDisabled = currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)
-
-  // 取得當前歌單樂譜
-  const currentSheet = currentSetlistIndex !== null ? setlist[currentSetlistIndex] : null
-  const currentAnnotation = currentSheet?.annotation
-
-  // 📌 核心修正：安全解析與格式轉換
-  useEffect(() => {
-    if (currentAnnotation) {
-      try {
-        const parsed = typeof currentAnnotation === 'string' ? JSON.parse(currentAnnotation) : currentAnnotation
-        if (Array.isArray(parsed)) {
-          setPaths(parsed)
-        } else {
-          setPaths([])
-        }
-      } catch (e) {
-        console.error('解析筆劃失敗:', e)
-        setPaths([])
-      }
-    } else {
-      setPaths([])
-    }
-  }, [currentAnnotation, currentImageIndex, currentSetlistIndex])
-
-  // 📌 輔助函式：將 react-sketch-canvas 的 paths 轉為標準 SVG path d 字串
-  const generatePathD = (pathPoints: any[]) => {
-    if (!Array.isArray(pathPoints) || pathPoints.length === 0) return ''
-    return pathPoints.map((point, index) => {
-      if (typeof point.x !== 'number' || typeof point.y !== 'number') return ''
-      return index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`
-    }).join(' ')
-  }
 
   return (
     <div 
@@ -130,14 +95,12 @@ export function SheetViewerModal({
           backdropFilter: 'blur(8px)'
         }}>
           📋 歌單首數 ({currentSetlistIndex + 1}/{setlist.length})：{setlist[currentSetlistIndex]?.title}
-          {paths.length > 0 && <span style={{ marginLeft: '8px', color: '#6ee7b7' }}> (已載入筆記 ✏)</span>}
         </div>
       )}
 
-      {/* 樂譜圖片與 SVG 筆記疊加區 */}
+      {/* 純樂譜圖片區域 */}
       <div 
         style={{ 
-          position: 'relative', 
           width: '100vw', 
           height: '100vh', 
           display: 'flex', 
@@ -146,44 +109,14 @@ export function SheetViewerModal({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 底層樂譜圖片 */}
         <img 
           src={activeSheetImages[currentImageIndex]} 
           alt="樂譜內容" 
           style={{ width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none' }} 
         />
-
-        {/* 頂層 SVG 向量筆跡疊加 */}
-        {paths.length > 0 && (
-          <svg 
-            style={{ 
-              position: 'absolute', 
-              inset: 0, 
-              width: '100%', 
-              height: '100%', 
-              pointerEvents: 'none'
-            }}
-          >
-            {paths.map((pathObj, index) => {
-              const d = generatePathD(pathObj.paths)
-              if (!d) return null
-              return (
-                <path
-                  key={index}
-                  d={d}
-                  stroke={pathObj.strokeColor || '#ff2a2a'}
-                  strokeWidth={pathObj.strokeWidth || 3}
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )
-            })}
-          </svg>
-        )}
       </div>
 
-      {/* 底部切換導覽 */}
+      {/* 底部導覽列 */}
       <div 
         style={{ 
           position: 'fixed',
