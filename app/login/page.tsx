@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false); // 控制登入/註冊狀態
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState(''); // 📌 新增：顯示名稱 State
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
 
@@ -21,10 +22,15 @@ export default function LoginPage() {
     setMessage(null);
 
     if (isSignUp) {
-      // 註冊邏輯
+      // 📌 註冊邏輯：將 display_name 寫入 Supabase Auth metadata
       const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            display_name: displayName,
+          },
+        },
       });
 
       if (error) {
@@ -57,8 +63,8 @@ export default function LoginPage() {
             // 尚未審核通過 -> 強制登出並提示
             await supabase.auth.signOut();
             setMessage({ 
-            type: 'error', 
-            text: '您的帳號正在等待管理員審核中，通過後方可使用！' 
+              type: 'error', 
+              text: '您的帳號正在等待管理員審核中，通過後方可使用！' 
             });
             setLoading(false);
             return;
@@ -79,7 +85,7 @@ export default function LoginPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#e9ecef', // 與圖片相同的淺灰背景
+      backgroundColor: '#e9ecef',
       padding: '20px',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
@@ -87,7 +93,7 @@ export default function LoginPage() {
         width: '100%',
         maxWidth: '420px',
         backgroundColor: '#ffffff',
-        borderRadius: '24px', // 圓角卡片
+        borderRadius: '24px',
         padding: '40px 32px',
         boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)',
         display: 'flex',
@@ -148,6 +154,40 @@ export default function LoginPage() {
 
         {/* 表單內容 */}
         <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+          {/* 📌 新增：顯示名稱輸入框（僅在切換至「註冊」時顯示） */}
+          {isSignUp && (
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontSize: '14px',
+                fontWeight: '700',
+                color: '#374151'
+              }}>
+                顯示名稱 / 姓名 *
+              </label>
+              <input
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="例如：大衛"
+                required={isSignUp}
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  fontSize: '15px',
+                  borderRadius: '12px',
+                  border: '1px solid #e5e7eb',
+                  backgroundColor: '#f9fafb',
+                  color: '#111827',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  transition: 'border-color 0.2s, background-color 0.2s'
+                }}
+              />
+            </div>
+          )}
+
           {/* Email 輸入框 */}
           <div style={{ marginBottom: '20px' }}>
             <label style={{
@@ -172,7 +212,7 @@ export default function LoginPage() {
                 borderRadius: '12px',
                 border: '1px solid #e5e7eb',
                 backgroundColor: '#f9fafb',
-                color: '#111827', // 明確設定文字顏色，防止白字
+                color: '#111827',
                 outline: 'none',
                 boxSizing: 'border-box',
                 transition: 'border-color 0.2s, background-color 0.2s'
@@ -197,6 +237,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••"
               required
+              minLength={6}
               style={{
                 width: '100%',
                 padding: '14px 16px',
@@ -204,7 +245,7 @@ export default function LoginPage() {
                 borderRadius: '12px',
                 border: '1px solid #e5e7eb',
                 backgroundColor: '#f9fafb',
-                color: '#111827', // 明確設定文字顏色
+                color: '#111827',
                 outline: 'none',
                 boxSizing: 'border-box',
                 transition: 'border-color 0.2s, background-color 0.2s'
@@ -212,7 +253,7 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* 送出按鈕 (深藍色底) */}
+          {/* 送出按鈕 */}
           <button
             type="submit"
             disabled={loading}
@@ -220,7 +261,7 @@ export default function LoginPage() {
               width: '100%',
               padding: '14px',
               borderRadius: '12px',
-              backgroundColor: '#1e3a8a', // 與圖片相同的經典深藍色
+              backgroundColor: '#1e3a8a',
               color: '#ffffff',
               fontWeight: '700',
               fontSize: '16px',
@@ -234,7 +275,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* 底部「還沒有帳號？立即註冊」與切換連結 */}
+        {/* 切換按鈕 */}
         <div style={{ marginTop: '24px', textAlign: 'center' }}>
           <button
             type="button"
