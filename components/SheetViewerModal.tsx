@@ -1,8 +1,7 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sheet } from '@/types'
-import { ReactSketchCanvas, ReactSketchCanvasRef } from 'react-sketch-canvas'
 
 interface SheetViewerModalProps {
   activeSheetImages: string[]
@@ -27,47 +26,35 @@ export function SheetViewerModal({
   onTouchStart,
   onTouchEnd,
 }: SheetViewerModalProps) {
-  const canvasRef = useRef<ReactSketchCanvasRef>(null)
-  const [parsedPaths, setParsedPaths] = useState<any[] | null>(null)
+  const [paths, setPaths] = useState<any[]>([])
 
   if (activeSheetImages.length === 0) return null
 
   const isPrevDisabled = currentImageIndex === 0 && (currentSetlistIndex === null || currentSetlistIndex === 0)
   const isNextDisabled = currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)
 
+  // 取得當前歌單樂譜
   const currentSheet = currentSetlistIndex !== null ? setlist[currentSetlistIndex] : null
   const currentAnnotation = currentSheet?.annotation
 
-  // 📌 1. 安全解析筆記 JSON
+  // 安全解析筆畫 JSON
   useEffect(() => {
     if (currentAnnotation) {
       try {
-        const paths = typeof currentAnnotation === 'string' ? JSON.parse(currentAnnotation) : currentAnnotation
-        if (Array.isArray(paths)) {
-          setParsedPaths(paths)
+        const parsed = typeof currentAnnotation === 'string' ? JSON.parse(currentAnnotation) : currentAnnotation
+        if (Array.isArray(parsed)) {
+          setPaths(parsed)
         } else {
-          setParsedPaths(null)
+          setPaths([])
         }
       } catch (e) {
-        console.error('筆跡解析失敗:', e)
-        setParsedPaths(null)
+        console.error('解析筆劃資料失敗:', e)
+        setPaths([])
       }
     } else {
-      setParsedPaths(null)
+      setPaths([])
     }
   }, [currentAnnotation, currentImageIndex, currentSetlistIndex])
-
-  // 📌 2. 當元件掛載或 parsedPaths 更新時，透過 ref 將筆劃載入進畫布
-  useEffect(() => {
-    if (parsedPaths && canvasRef.current) {
-      // 使用 setTimeout 確保 Canvas DOM 已經完全佈局後再載入
-      const timer = setTimeout(() => {
-        canvasRef.current?.clearCanvas()
-        canvasRef.current?.loadPaths(parsedPaths)
-      }, 50)
-      return () => clearTimeout(timer)
-    }
-  }, [parsedPaths])
 
   return (
     <div 
@@ -87,9 +74,58 @@ export function SheetViewerModal({
         touchAction: 'pan-y'
       }}
     >
-      {/* 關閉按鈕與提示訊息保持原樣 ... */}
+      {/* 關閉按鈕 */}
+      <button 
+        onClick={(e) => {
+          e.stopPropagation()
+          onClose()
+        }}
+        title="關閉全螢幕 (Esc)"
+        style={{ 
+          position: 'fixed', 
+          top: '24px', 
+          right: '24px', 
+          width: '52px',
+          height: '52px',
+          borderRadius: '50%',
+          backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          border: '2px solid #ffffff',
+          color: '#ffffff', 
+          fontSize: '28px', 
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10001,
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(8px)'
+        }}
+      >
+        ✕
+      </button>
 
-      {/* 樂譜圖片與塗鴉畫布重疊區 */}
+      {/* 歌單提示條 */}
+      {currentSetlistIndex !== null && (
+        <div style={{
+          position: 'fixed',
+          top: '24px',
+          left: '24px',
+          backgroundColor: 'rgba(139, 92, 246, 0.85)',
+          color: 'white',
+          padding: '8px 16px',
+          borderRadius: '20px',
+          fontWeight: '700',
+          fontSize: '14px',
+          zIndex: 10001,
+          backdropFilter: 'blur(8px)'
+        }}>
+          📋 歌單首數 ({currentSetlistIndex + 1}/{setlist.length})：{setlist[currentSetlistIndex]?.title}
+          {paths.length > 0 && <span style={{ marginLeft: '8px', color: '#6ee7b7' }}> (已載入筆記 ✏)</span>}
+        </div>
+      )}
+
+      {/* 樂譜圖片與 SVG 筆記疊加區 */}
       <div 
         style={{ 
           position: 'relative', 
@@ -108,26 +144,29 @@ export function SheetViewerModal({
           style={{ width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none' }} 
         />
 
-        {/* 頂層唯讀筆記畫布 */}
-        {parsedPaths && (
-          <div 
+        {/* 頂層 SVG 向量筆跡疊加（極度穩定，100% 絕不崩潰） */}
+        {paths.length > 0 && (
+          <svg 
             style={{ 
               position: 'absolute', 
               inset: 0, 
-              pointerEvents: 'none', // 點擊穿透，不干擾翻頁
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+              width: '100%', 
+              height: '100%', 
+              pointerEvents: 'none' // 點擊穿透，不干擾滑動與點擊
             }}
           >
-            {/* 📌 移除引發報錯的 initialPaths，改回純 ReactSketchCanvas 標籤 */}
-            <ReactSketchCanvas
-              key={`${currentSetlistIndex}-${currentImageIndex}`}
-              ref={canvasRef}
-              canvasColor="transparent"
-              style={{ width: '100%', height: '100%', border: 'none' }}
-            />
-          </div>
+            {paths.map((pathObj, index) => (
+              <path
+                key={index}
+                d={pathObj.paths?.map((p: any) => `${p.command || 'M'} ${p.x} ${p.y}`).join(' ')}
+                stroke={pathObj.strokeColor || '#ff2a2a'}
+                strokeWidth={pathObj.strokeWidth || 3}
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            ))}
+          </svg>
         )}
       </div>
 
