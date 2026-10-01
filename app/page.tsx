@@ -33,10 +33,14 @@ export default function Home() {
   // 📌 觸控手勢座標紀錄
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
 
+  // 📌 登入使用者的顯示名稱 State
+  const [userDisplayName, setUserDisplayName] = useState<string>('')
+
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
+    fetchUserProfile()
     fetchSheets()
     const savedSetlist = localStorage.getItem('worship_setlist')
     if (savedSetlist) {
@@ -47,6 +51,31 @@ export default function Home() {
       }
     }
   }, [])
+
+  // 📌 讀取登入使用者的 Profile 資料
+  const fetchUserProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // 從 profiles 抓取 display_name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', user.id)
+        .single()
+
+      if (profile && profile.display_name) {
+        setUserDisplayName(profile.display_name)
+      } else if (user.user_metadata?.display_name) {
+        setUserDisplayName(user.user_metadata.display_name)
+      } else if (user.email) {
+        setUserDisplayName(user.email.split('@')[0])
+      }
+    } catch (err) {
+      console.error('Error fetching user profile:', err)
+    }
+  }
 
   useEffect(() => {
     localStorage.setItem('worship_setlist', JSON.stringify(setlist))
@@ -160,10 +189,8 @@ export default function Home() {
   // 下一頁 / 下一首
   const goToNextPageOrTrack = () => {
     if (currentImageIndex < activeSheetImages.length - 1) {
-      // 1. 同首歌還有下一頁
       setCurrentImageIndex((prev) => prev + 1)
     } else if (currentSetlistIndex !== null && currentSetlistIndex < setlist.length - 1) {
-      // 2. 當前歌曲已到底，切換至歌單下一首
       const nextTrackIdx = currentSetlistIndex + 1
       openModal(setlist[nextTrackIdx], nextTrackIdx)
     }
@@ -172,10 +199,8 @@ export default function Home() {
   // 上一頁 / 上一首
   const goToPrevPageOrTrack = () => {
     if (currentImageIndex > 0) {
-      // 1. 回到同首歌上一頁
       setCurrentImageIndex((prev) => prev - 1)
     } else if (currentSetlistIndex !== null && currentSetlistIndex > 0) {
-      // 2. 當前頁在第一頁，回到歌單上一首
       const prevTrackIdx = currentSetlistIndex - 1
       const prevSheet = setlist[prevTrackIdx]
       const pages = (prevSheet.image_urls && prevSheet.image_urls.length > 0) 
@@ -183,7 +208,7 @@ export default function Home() {
         : [prevSheet.file_url]
       
       setActiveSheetImages(pages)
-      setCurrentImageIndex(pages.length - 1) // 直接定位到上一首的最後一頁
+      setCurrentImageIndex(pages.length - 1)
       setCurrentSetlistIndex(prevTrackIdx)
     }
   }
@@ -198,11 +223,10 @@ export default function Home() {
     const touchEndX = e.changedTouches[0].clientX
     const deltaX = touchEndX - touchStartX
 
-    // 滑動距離超過 50px 才觸發換頁/換歌
     if (deltaX < -50) {
-      goToNextPageOrTrack() // 左滑 -> 下一頁/下一首
+      goToNextPageOrTrack()
     } else if (deltaX > 50) {
-      goToPrevPageOrTrack() // 右滑 -> 上一頁/上一首
+      goToPrevPageOrTrack()
     }
     setTouchStartX(null)
   }
@@ -237,9 +261,30 @@ export default function Home() {
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>🎼 樂譜庫</h1>
-          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: 'var(--text-secondary)' }}>Sheet Music Library</p>
+          <p style={{ margin: '4px 0 0 0', fontSize: '15px', color: '#0070f3', fontWeight: '700' }}>
+            {userDisplayName ? `👋 嗨！${userDisplayName}` : 'Sheet Music Library'}
+          </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          {/* 📌 個人設定按鈕 */}
+          <Link
+            href="/profile"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-color)',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              fontWeight: '600',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            👤 個人設定
+          </Link>
           <button
             onClick={() => setIsSetlistOpen(!isSetlistOpen)}
             style={{
@@ -601,14 +646,26 @@ export default function Home() {
 
             <button 
               onClick={goToNextPageOrTrack}
-              disabled={currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)}
+              disabled={
+                currentImageIndex === activeSheetImages.length - 1 &&
+                (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)
+              }
               style={{ 
                 padding: '6px 14px', 
                 borderRadius: '20px', 
-                backgroundColor: (currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)) ? 'rgba(255,255,255,0.1)' : '#0070f3', 
-                color: (currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)) ? '#888' : 'white', 
+                backgroundColor: (
+                  currentImageIndex === activeSheetImages.length - 1 &&
+                  (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)
+                ) ? 'rgba(255,255,255,0.1)' : '#0070f3', 
+                color: (
+                  currentImageIndex === activeSheetImages.length - 1 &&
+                  (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)
+                ) ? '#888' : 'white', 
                 border: 'none', 
-                cursor: (currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)) ? 'not-allowed' : 'pointer', 
+                cursor: (
+                  currentImageIndex === activeSheetImages.length - 1 &&
+                  (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)
+                ) ? 'not-allowed' : 'pointer', 
                 fontWeight: '600', 
                 fontSize: '13px' 
               }}
