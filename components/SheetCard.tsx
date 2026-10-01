@@ -41,7 +41,7 @@ export function SheetCard({
       </div>
 
       <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-        <button onClick={() => onOpenModal(sheet)} style={{ flex: 1, padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: '#0070f3', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
+        <button onClick={() => onOpenModal(sheet)} style={{ flex: 1, padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: '#05344a', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
           👁️ 查看
         </button>
 
