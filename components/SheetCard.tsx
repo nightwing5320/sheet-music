@@ -77,11 +77,12 @@ export function SheetCard({
             href={`/edit/${sheet.id}`} 
             style={{ 
               fontSize: '13px', 
-              color: '#0070f3', 
+              color: 'white', 
               textDecoration: 'none', 
-              padding: '2px 6px', 
+              padding: '6px 10px', 
+              borderRadius: '6px',
               border: '1px solid #0070f3', 
-              borderRadius: '4px' 
+              backgroundColor: '#0070f3',
             }}
           >
             ✏️ 編輯
@@ -97,7 +98,7 @@ export function SheetCard({
               padding: '6px 12px',
               borderRadius: '6px',
               border: 'none',
-              backgroundColor: isInSetlist ? '#44ef63' : '#0070f3',
+              backgroundColor: isInSetlist ? '#26c944' : '#0070f3',
               color: 'white',
               fontWeight: '600',
               fontSize: '13px',
@@ -115,8 +116,8 @@ export function SheetCard({
                 padding: '6px 10px',
                 borderRadius: '6px',
                 border: '1px solid #ef4444',
-                backgroundColor: 'transparent',
-                color: '#ef4444',
+                backgroundColor: '#ef4444',
+                color: 'white',
                 fontSize: '13px',
                 cursor: 'pointer'
               }}
