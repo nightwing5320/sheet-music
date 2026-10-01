@@ -21,19 +21,23 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState<'all' | 'fast' | 'slow' | 'unclassified'>('all')
   
-  // 📌 敬拜歌單 State (預設會從 LocalStorage 載入)
+  // 📌 敬拜歌單 State
   const [setlist, setSetlist] = useState<Sheet[]>([])
-  const [isSetlistOpen, setIsSetlistOpen] = useState(false) // 展開/折疊歌單
+  const [isSetlistOpen, setIsSetlistOpen] = useState(false)
 
+  // 📌 燈箱狀態（擴充歌單播放情境）
   const [activeSheetImages, setActiveSheetImages] = useState<string[]>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [currentSetlistIndex, setCurrentSetlistIndex] = useState<number | null>(null) // 若為 null 代表非歌單播放模式
+
+  // 📌 觸控手勢座標紀錄
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
 
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
     fetchSheets()
-    // 初始化時從 LocalStorage 載入暫存歌單
     const savedSetlist = localStorage.getItem('worship_setlist')
     if (savedSetlist) {
       try {
@@ -44,21 +48,27 @@ export default function Home() {
     }
   }, [])
 
-  // 當歌單改變時自動同步回 LocalStorage
   useEffect(() => {
     localStorage.setItem('worship_setlist', JSON.stringify(setlist))
   }, [setlist])
 
-  // Esc 關閉燈箱
+  // 綁定鍵盤方向鍵 (← / → / Esc)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setActiveSheetImages([])
+      if (activeSheetImages.length === 0) return
+
+      if (e.key === 'Escape') {
+        closeModal()
+      } else if (e.key === 'ArrowRight') {
+        goToNextPageOrTrack()
+      } else if (e.key === 'ArrowLeft') {
+        goToPrevPageOrTrack()
+      }
     }
-    if (activeSheetImages.length > 0) {
-      window.addEventListener('keydown', handleKeyDown)
-    }
+
+    window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [activeSheetImages])
+  }, [activeSheetImages, currentImageIndex, currentSetlistIndex, setlist])
 
   const fetchSheets = async () => {
     try {
@@ -91,7 +101,6 @@ export default function Home() {
       if (error) throw error
 
       setSheets((prev) => prev.filter((sheet) => sheet.id !== id))
-      // 如果歌單裡也有，同步移除
       setSetlist((prev) => prev.filter((sheet) => sheet.id !== id))
       alert('刪除成功！')
     } catch (err: any) {
@@ -99,16 +108,14 @@ export default function Home() {
     }
   }
 
-  // ----------------------------------------------------
-  // 🎼 歌單操作邏輯 (新增、移除、排序、清除)
-  // ----------------------------------------------------
+  // 歌單操作
   const addToSetlist = (sheet: Sheet) => {
     if (setlist.some((item) => item.id === sheet.id)) {
       alert('此樂譜已經在歌單中了！')
       return
     }
     setSetlist((prev) => [...prev, sheet])
-    setIsSetlistOpen(true) // 自動展開歌單欄
+    setIsSetlistOpen(true)
   }
 
   const removeFromSetlist = (id: number) => {
@@ -133,15 +140,74 @@ export default function Home() {
     }
   }
 
-  const openModal = (sheet: Sheet) => {
+  // ----------------------------------------------------
+  // 🎼 全螢幕播放與左右切換邏輯
+  // ----------------------------------------------------
+  const openModal = (sheet: Sheet, setlistIdx: number | null = null) => {
     const pages = (sheet.image_urls && sheet.image_urls.length > 0) 
       ? sheet.image_urls 
       : [sheet.file_url]
     setActiveSheetImages(pages)
     setCurrentImageIndex(0)
+    setCurrentSetlistIndex(setlistIdx) // 紀錄是否為歌單模式及其索引
   }
 
-  // 關鍵字搜尋過濾
+  const closeModal = () => {
+    setActiveSheetImages([])
+    setCurrentSetlistIndex(null)
+  }
+
+  // 下一頁 / 下一首
+  const goToNextPageOrTrack = () => {
+    if (currentImageIndex < activeSheetImages.length - 1) {
+      // 1. 同首歌還有下一頁
+      setCurrentImageIndex((prev) => prev + 1)
+    } else if (currentSetlistIndex !== null && currentSetlistIndex < setlist.length - 1) {
+      // 2. 當前歌曲已到底，切換至歌單下一首
+      const nextTrackIdx = currentSetlistIndex + 1
+      openModal(setlist[nextTrackIdx], nextTrackIdx)
+    }
+  }
+
+  // 上一頁 / 上一首
+  const goToPrevPageOrTrack = () => {
+    if (currentImageIndex > 0) {
+      // 1. 回到同首歌上一頁
+      setCurrentImageIndex((prev) => prev - 1)
+    } else if (currentSetlistIndex !== null && currentSetlistIndex > 0) {
+      // 2. 當前頁在第一頁，回到歌單上一首
+      const prevTrackIdx = currentSetlistIndex - 1
+      const prevSheet = setlist[prevTrackIdx]
+      const pages = (prevSheet.image_urls && prevSheet.image_urls.length > 0) 
+        ? prevSheet.image_urls 
+        : [prevSheet.file_url]
+      
+      setActiveSheetImages(pages)
+      setCurrentImageIndex(pages.length - 1) // 直接定位到上一首的最後一頁
+      setCurrentSetlistIndex(prevTrackIdx)
+    }
+  }
+
+  // 觸控滑動處理 (Touch Events)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX)
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return
+    const touchEndX = e.changedTouches[0].clientX
+    const deltaX = touchEndX - touchStartX
+
+    // 滑動距離超過 50px 才觸發換頁/換歌
+    if (deltaX < -50) {
+      goToNextPageOrTrack() // 左滑 -> 下一頁/下一首
+    } else if (deltaX > 50) {
+      goToPrevPageOrTrack() // 右滑 -> 上一頁/上一首
+    }
+    setTouchStartX(null)
+  }
+
+  // 搜尋過濾
   const searchFilteredSheets = sheets.filter((sheet) => {
     const term = searchTerm.toLowerCase()
     const matchesTitle = sheet.title.toLowerCase().includes(term)
@@ -149,7 +215,6 @@ export default function Home() {
     return matchesTitle || matchesKey
   })
 
-  // 分類計數
   const countAll = searchFilteredSheets.length
   const countFast = searchFilteredSheets.filter((s) => s.tempo === 'fast').length
   const countSlow = searchFilteredSheets.filter((s) => s.tempo === 'slow').length
@@ -157,7 +222,6 @@ export default function Home() {
     (s) => !s.tempo || (s.tempo !== 'fast' && s.tempo !== 'slow')
   ).length
 
-  // 頁籤過濾
   const filteredSheets = searchFilteredSheets.filter((sheet) => {
     if (activeTab === 'fast') return sheet.tempo === 'fast'
     if (activeTab === 'slow') return sheet.tempo === 'slow'
@@ -229,7 +293,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 📌 當日敬拜歌單展折區塊 (Setlist Drawer) */}
+      {/* 當日敬拜歌單展折區 */}
       {isSetlistOpen && (
         <div style={{
           backgroundColor: 'var(--card-bg)',
@@ -286,7 +350,7 @@ export default function Home() {
                       #{index + 1}
                     </span>
                     <div>
-                      <span style={{ fontWeight: '700', fontSize: '15px', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => openModal(item)}>
+                      <span style={{ fontWeight: '700', fontSize: '15px', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => openModal(item, index)}>
                         {item.title}
                       </span>
                       <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginLeft: '10px' }}>
@@ -295,13 +359,12 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* 歌單功能按鈕：排序與刪除 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <button
-                      onClick={() => openModal(item)}
-                      style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: '#0070f3', color: 'white', border: 'none', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}
+                      onClick={() => openModal(item, index)}
+                      style={{ padding: '4px 10px', borderRadius: '4px', backgroundColor: '#8b5cf6', color: 'white', border: 'none', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}
                     >
-                      放大開啟
+                      ▶ 開始播放
                     </button>
                     <button
                       disabled={index === 0}
@@ -357,78 +420,17 @@ export default function Home() {
 
       {/* 分類頁籤 Tabs */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px', flexWrap: 'wrap' }}>
-        <button
-          onClick={() => setActiveTab('all')}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '20px',
-            border: 'none',
-            fontWeight: '700',
-            fontSize: '14px',
-            cursor: 'pointer',
-            backgroundColor: activeTab === 'all' ? '#0070f3' : 'var(--card-bg)',
-            color: activeTab === 'all' ? 'white' : 'var(--text-secondary)'
-          }}
-        >
-          🎵 全部 ({countAll})
-        </button>
-
-        <button
-          onClick={() => setActiveTab('fast')}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '20px',
-            border: 'none',
-            fontWeight: '700',
-            fontSize: '14px',
-            cursor: 'pointer',
-            backgroundColor: activeTab === 'fast' ? '#f59e0b' : 'var(--card-bg)',
-            color: activeTab === 'fast' ? 'white' : 'var(--text-secondary)'
-          }}
-        >
-          ⚡ 快歌 ({countFast})
-        </button>
-
-        <button
-          onClick={() => setActiveTab('slow')}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '20px',
-            border: 'none',
-            fontWeight: '700',
-            fontSize: '14px',
-            cursor: 'pointer',
-            backgroundColor: activeTab === 'slow' ? '#10b981' : 'var(--card-bg)',
-            color: activeTab === 'slow' ? 'white' : 'var(--text-secondary)'
-          }}
-        >
-          🌙 慢歌 ({countSlow})
-        </button>
-
-        <button
-          onClick={() => setActiveTab('unclassified')}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '20px',
-            border: 'none',
-            fontWeight: '700',
-            fontSize: '14px',
-            cursor: 'pointer',
-            backgroundColor: activeTab === 'unclassified' ? '#6b7280' : 'var(--card-bg)',
-            color: activeTab === 'unclassified' ? 'white' : 'var(--text-secondary)'
-          }}
-        >
-          ❓ 未分類 ({countUnclassified})
-        </button>
+        <button onClick={() => setActiveTab('all')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', fontWeight: '700', fontSize: '14px', cursor: 'pointer', backgroundColor: activeTab === 'all' ? '#0070f3' : 'var(--card-bg)', color: activeTab === 'all' ? 'white' : 'var(--text-secondary)' }}>🎵 全部 ({countAll})</button>
+        <button onClick={() => setActiveTab('fast')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', fontWeight: '700', fontSize: '14px', cursor: 'pointer', backgroundColor: activeTab === 'fast' ? '#f59e0b' : 'var(--card-bg)', color: activeTab === 'fast' ? 'white' : 'var(--text-secondary)' }}>⚡ 快歌 ({countFast})</button>
+        <button onClick={() => setActiveTab('slow')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', fontWeight: '700', fontSize: '14px', cursor: 'pointer', backgroundColor: activeTab === 'slow' ? '#10b981' : 'var(--card-bg)', color: activeTab === 'slow' ? 'white' : 'var(--text-secondary)' }}>🌙 慢歌 ({countSlow})</button>
+        <button onClick={() => setActiveTab('unclassified')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', fontWeight: '700', fontSize: '14px', cursor: 'pointer', backgroundColor: activeTab === 'unclassified' ? '#6b7280' : 'var(--card-bg)', color: activeTab === 'unclassified' ? 'white' : 'var(--text-secondary)' }}>❓ 未分類 ({countUnclassified})</button>
       </div>
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary)' }}>載入樂譜庫中...</div>
       ) : filteredSheets.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 0', backgroundColor: 'var(--card-bg)', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
-          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-            {searchTerm ? '找不到符合條件的樂譜' : '這個分類目前還沒有樂譜！'}
-          </p>
+          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>{searchTerm ? '找不到符合條件的樂譜' : '這個分類目前還沒有樂譜！'}</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
@@ -438,95 +440,32 @@ export default function Home() {
             const isInSetlist = setlist.some((item) => item.id === sheet.id)
 
             return (
-              <div 
-                key={sheet.id} 
-                style={{ 
-                  border: '1px solid var(--border-color)', 
-                  borderRadius: '12px', 
-                  overflow: 'hidden',
-                  backgroundColor: 'var(--card-bg)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}
-              >
-                <div 
-                  style={{ position: 'relative', cursor: 'pointer', backgroundColor: 'var(--border-color)', overflow: 'hidden' }}
-                  onClick={() => openModal(sheet)}
-                >
-                  <img 
-                    src={coverImage} 
-                    alt={sheet.title} 
-                    style={{ width: '100%', height: '260px', objectFit: 'cover', display: 'block' }} 
-                  />
-                  <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.7)', color: 'white', padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>
-                    📄 {pageCount} 頁
-                  </div>
-                  
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: '8px', 
-                    left: '8px', 
-                    backgroundColor: sheet.tempo === 'slow' 
-                      ? 'rgba(16, 185, 129, 0.9)' 
-                      : sheet.tempo === 'fast'
-                      ? 'rgba(245, 158, 11, 0.9)'
-                      : 'rgba(107, 114, 128, 0.9)', 
-                    color: 'white', 
-                    padding: '3px 8px', 
-                    borderRadius: '6px', 
-                    fontSize: '11px', 
-                    fontWeight: 'bold' 
-                  }}>
+              <div key={sheet.id} style={{ border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card-bg)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ position: 'relative', cursor: 'pointer', backgroundColor: 'var(--border-color)', overflow: 'hidden' }} onClick={() => openModal(sheet)}>
+                  <img src={coverImage} alt={sheet.title} style={{ width: '100%', height: '260px', objectFit: 'cover', display: 'block' }} />
+                  <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.7)', color: 'white', padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>📄 {pageCount} 頁</div>
+                  <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: sheet.tempo === 'slow' ? 'rgba(16, 185, 129, 0.9)' : sheet.tempo === 'fast' ? 'rgba(245, 158, 11, 0.9)' : 'rgba(107, 114, 128, 0.9)', color: 'white', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>
                     {sheet.tempo === 'slow' ? '🌙 慢歌' : sheet.tempo === 'fast' ? '⚡ 快歌' : '❓ 未分類'}
                   </div>
-
-                  <div style={{ position: 'absolute', bottom: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px' }}>
-                    點擊放大
-                  </div>
+                  <div style={{ position: 'absolute', bottom: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px' }}>點擊放大</div>
                 </div>
 
                 <div style={{ padding: '14px', flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   <div>
                     <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '700', lineHeight: '1.3', color: 'var(--text-primary)' }}>{sheet.title}</h3>
-                    <div style={{ display: 'inline-block', backgroundColor: 'var(--tag-bg)', color: 'var(--tag-text)', padding: '2px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }}>
-                      🎵 調性：{sheet.artist || '未指定'}
-                    </div>
+                    <div style={{ display: 'inline-block', backgroundColor: 'var(--tag-bg)', color: 'var(--tag-text)', padding: '2px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }}>🎵 調性：{sheet.artist || '未指定'}</div>
                   </div>
 
-                  {/* 📌 新增：加至歌單按鈕 */}
                   <button
                     onClick={() => addToSetlist(sheet)}
-                    style={{
-                      marginTop: '12px',
-                      width: '100%',
-                      padding: '8px',
-                      borderRadius: '6px',
-                      border: 'none',
-                      backgroundColor: isInSetlist ? '#e9d5ff' : '#8b5cf6',
-                      color: isInSetlist ? '#6b21a8' : 'white',
-                      fontWeight: '700',
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
+                    style={{ marginTop: '12px', width: '100%', padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: isInSetlist ? '#e9d5ff' : '#8b5cf6', color: isInSetlist ? '#6b21a8' : 'white', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
                   >
                     {isInSetlist ? '✓ 已在歌單中' : '➕ 加至歌單'}
                   </button>
 
                   <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Link 
-                      href={`/edit/${sheet.id}`}
-                      style={{ fontSize: '13px', color: '#0070f3', textDecoration: 'none', fontWeight: '600' }}
-                    >
-                      編輯
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(sheet.id, sheet.title)}
-                      style={{ fontSize: '13px', color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer', fontWeight: '600' }}
-                    >
-                      刪除
-                    </button>
+                    <Link href={`/edit/${sheet.id}`} style={{ fontSize: '13px', color: '#0070f3', textDecoration: 'none', fontWeight: '600' }}>編輯</Link>
+                    <button onClick={() => handleDelete(sheet.id, sheet.title)} style={{ fontSize: '13px', color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer', fontWeight: '600' }}>刪除</button>
                   </div>
                 </div>
               </div>
@@ -535,10 +474,12 @@ export default function Home() {
         </div>
       )}
 
-      {/* 滿版燈箱 Modal */}
+      {/* 📌 滿版燈箱 Modal (支援滑動/方向鍵換歌) */}
       {activeSheetImages.length > 0 && (
         <div 
-          onClick={() => setActiveSheetImages([])}
+          onClick={closeModal}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           style={{
             position: 'fixed',
             top: 0,
@@ -553,13 +494,15 @@ export default function Home() {
             justifyContent: 'center',
             zIndex: 9999,
             padding: 0,
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            touchAction: 'pan-y'
           }}
         >
+          {/* 右上角關閉按鈕 */}
           <button 
             onClick={(e) => {
               e.stopPropagation()
-              setActiveSheetImages([])
+              closeModal()
             }}
             title="關閉全螢幕 (Esc)"
             style={{ 
@@ -586,6 +529,26 @@ export default function Home() {
             ✕
           </button>
 
+          {/* 歌單資訊提示 (播放歌單時顯示) */}
+          {currentSetlistIndex !== null && (
+            <div style={{
+              position: 'fixed',
+              top: '24px',
+              left: '24px',
+              backgroundColor: 'rgba(139, 92, 246, 0.85)',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontWeight: '700',
+              fontSize: '14px',
+              zIndex: 10001,
+              backdropFilter: 'blur(8px)'
+            }}>
+              📋 歌單首數 ({currentSetlistIndex + 1}/{setlist.length})：{setlist[currentSetlistIndex]?.title}
+            </div>
+          )}
+
+          {/* 樂譜圖片區域 */}
           <div 
             style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             onClick={(e) => e.stopPropagation()}
@@ -597,6 +560,7 @@ export default function Home() {
             />
           </div>
 
+          {/* 底部切換導覽 */}
           <div 
             style={{ 
               position: 'fixed',
@@ -614,29 +578,43 @@ export default function Home() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {activeSheetImages.length > 1 && (
-              <button 
-                onClick={() => setCurrentImageIndex(prev => Math.max(0, prev - 1))}
-                disabled={currentImageIndex === 0}
-                style={{ padding: '6px 14px', borderRadius: '20px', backgroundColor: currentImageIndex === 0 ? 'rgba(255,255,255,0.1)' : '#0070f3', color: currentImageIndex === 0 ? '#888' : 'white', border: 'none', cursor: currentImageIndex === 0 ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px' }}
-              >
-                ← 上頁
-              </button>
-            )}
+            <button 
+              onClick={goToPrevPageOrTrack}
+              disabled={currentImageIndex === 0 && (currentSetlistIndex === null || currentSetlistIndex === 0)}
+              style={{ 
+                padding: '6px 14px', 
+                borderRadius: '20px', 
+                backgroundColor: (currentImageIndex === 0 && (currentSetlistIndex === null || currentSetlistIndex === 0)) ? 'rgba(255,255,255,0.1)' : '#0070f3', 
+                color: (currentImageIndex === 0 && (currentSetlistIndex === null || currentSetlistIndex === 0)) ? '#888' : 'white', 
+                border: 'none', 
+                cursor: (currentImageIndex === 0 && (currentSetlistIndex === null || currentSetlistIndex === 0)) ? 'not-allowed' : 'pointer', 
+                fontWeight: '600', 
+                fontSize: '13px' 
+              }}
+            >
+              ← 上一頁 / 上首
+            </button>
 
             <span style={{ fontSize: '14px', fontWeight: '600' }}>
               第 {currentImageIndex + 1} / {activeSheetImages.length} 頁
             </span>
 
-            {activeSheetImages.length > 1 && (
-              <button 
-                onClick={() => setCurrentImageIndex(prev => Math.min(activeSheetImages.length - 1, prev + 1))}
-                disabled={currentImageIndex === activeSheetImages.length - 1}
-                style={{ padding: '6px 14px', borderRadius: '20px', backgroundColor: currentImageIndex === activeSheetImages.length - 1 ? 'rgba(255,255,255,0.1)' : '#0070f3', color: currentImageIndex === activeSheetImages.length - 1 ? '#888' : 'white', border: 'none', cursor: currentImageIndex === activeSheetImages.length - 1 ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px' }}
-              >
-                下頁 →
-              </button>
-            )}
+            <button 
+              onClick={goToNextPageOrTrack}
+              disabled={currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)}
+              style={{ 
+                padding: '6px 14px', 
+                borderRadius: '20px', 
+                backgroundColor: (currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)) ? 'rgba(255,255,255,0.1)' : '#0070f3', 
+                color: (currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)) ? '#888' : 'white', 
+                border: 'none', 
+                cursor: (currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)) ? 'not-allowed' : 'pointer', 
+                fontWeight: '600', 
+                fontSize: '13px' 
+              }}
+            >
+              下一頁 / 下首 →
+            </button>
           </div>
         </div>
       )}
