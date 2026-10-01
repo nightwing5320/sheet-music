@@ -18,15 +18,28 @@ export function Header({
   onLogout,
 }: HeaderProps) {
   return (
-    <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
-      <div>
-        <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>🎼 樂譜庫</h1>
+    <header 
+      style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: '28px',
+        gap: '24px', // 📌 新增：確保手機或小螢幕時，標題與按鈕群之間至少保持 24px 間距
+        flexWrap: 'wrap' // 📌 新增：螢幕太窄時自動換行，避免按鈕擠爆或重疊
+      }}
+    >
+      {/* 左側：標題與歡迎詞 */}
+      <div style={{ minWidth: '200px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>
+          🎼 樂譜庫
+        </h1>
         <p style={{ margin: '4px 0 0 0', fontSize: '15px', color: '#0070f3', fontWeight: '700' }}>
           {userDisplayName ? `👋 嗨！${userDisplayName}` : 'Sheet Music Library'}
         </p>
       </div>
 
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      {/* 右側：按鈕區塊 */}
+      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
         <Link
           href="/profile"
           style={{
