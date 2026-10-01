@@ -37,7 +37,7 @@ export function SheetViewerModal({
   const currentSheet = currentSetlistIndex !== null ? setlist[currentSetlistIndex] : null
   const currentAnnotation = currentSheet?.annotation
 
-  // 安全解析筆畫 JSON
+  // 📌 核心修正：安全解析與格式轉換
   useEffect(() => {
     if (currentAnnotation) {
       try {
@@ -48,13 +48,22 @@ export function SheetViewerModal({
           setPaths([])
         }
       } catch (e) {
-        console.error('解析筆劃資料失敗:', e)
+        console.error('解析筆劃失敗:', e)
         setPaths([])
       }
     } else {
       setPaths([])
     }
   }, [currentAnnotation, currentImageIndex, currentSetlistIndex])
+
+  // 📌 輔助函式：將 react-sketch-canvas 的 paths 轉為標準 SVG path d 字串
+  const generatePathD = (pathPoints: any[]) => {
+    if (!Array.isArray(pathPoints) || pathPoints.length === 0) return ''
+    return pathPoints.map((point, index) => {
+      if (typeof point.x !== 'number' || typeof point.y !== 'number') return ''
+      return index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`
+    }).join(' ')
+  }
 
   return (
     <div 
@@ -144,7 +153,7 @@ export function SheetViewerModal({
           style={{ width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none' }} 
         />
 
-        {/* 頂層 SVG 向量筆跡疊加（極度穩定，100% 絕不崩潰） */}
+        {/* 頂層 SVG 向量筆跡疊加 */}
         {paths.length > 0 && (
           <svg 
             style={{ 
@@ -152,20 +161,24 @@ export function SheetViewerModal({
               inset: 0, 
               width: '100%', 
               height: '100%', 
-              pointerEvents: 'none' // 點擊穿透，不干擾滑動與點擊
+              pointerEvents: 'none'
             }}
           >
-            {paths.map((pathObj, index) => (
-              <path
-                key={index}
-                d={pathObj.paths?.map((p: any) => `${p.command || 'M'} ${p.x} ${p.y}`).join(' ')}
-                stroke={pathObj.strokeColor || '#ff2a2a'}
-                strokeWidth={pathObj.strokeWidth || 3}
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            ))}
+            {paths.map((pathObj, index) => {
+              const d = generatePathD(pathObj.paths)
+              if (!d) return null
+              return (
+                <path
+                  key={index}
+                  d={d}
+                  stroke={pathObj.strokeColor || '#ff2a2a'}
+                  strokeWidth={pathObj.strokeWidth || 3}
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )
+            })}
           </svg>
         )}
       </div>
