@@ -5,53 +5,106 @@ import { Sheet } from '@/types'
 interface SheetCardProps {
   sheet: Sheet
   isInSetlist: boolean
-  onOpenModal: (sheet: Sheet, index?: number | null) => void
   onAddToSetlist: (sheet: Sheet) => void
-  onDelete: (id: number, title: string) => void
+  onOpenModal: (sheet: Sheet) => void
+  onDeleteSheet?: (id: number, title: string) => void
 }
 
 export function SheetCard({
   sheet,
   isInSetlist,
-  onOpenModal,
   onAddToSetlist,
-  onDelete,
+  onOpenModal,
+  onDeleteSheet,
 }: SheetCardProps) {
   const imageUrl = sheet.image_urls?.[0] || sheet.file_url
 
   return (
-    <div
-      style={{
-        border: '1px solid var(--border-color)',
-        borderRadius: '12px',
-        padding: '16px',
-        backgroundColor: 'var(--card-bg)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        gap: '12px'
-      }}
-    >
-      <div onClick={() => onOpenModal(sheet)} style={{ cursor: 'pointer' }}>
-        <div style={{ position: 'relative', width: '100%', height: '180px', marginBottom: '12px', overflow: 'hidden', borderRadius: '8px' }}>
-          <img src={imageUrl} alt={sheet.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
-        <h3 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: 'bold' }}>{sheet.title}</h3>
-        <p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>Key: {sheet.artist || '未指定'}</p>
+    <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card-bg)', display: 'flex', flexDirection: 'column' }}>
+      
+      {/* 樂譜圖片容器 (右下角放放大按鈕) */}
+      <div 
+        style={{ position: 'relative', width: '100%', height: '200px', backgroundColor: '#f3f4f6', cursor: 'pointer' }}
+        onClick={() => onOpenModal(sheet)}
+      >
+        <img 
+          src={imageUrl} 
+          alt={sheet.title} 
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+
+        {/* 📌 圖片右下角：放大按鈕 */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation() // 避免觸發二次點擊
+            onOpenModal(sheet)
+          }}
+          title="全螢幕放大"
+          style={{
+            position: 'absolute',
+            bottom: '8px',
+            right: '8px',
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.4)',
+            borderRadius: '50%',
+            width: '36px',
+            height: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '16px',
+            backdropFilter: 'blur(4px)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+          }}
+        >
+          🔍
+        </button>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-        <button onClick={() => onOpenModal(sheet)} style={{ flex: 1, padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: '#05344a', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
-          👁️ 查看
-        </button>
+      {/* 下方標題與操作按鈕區 */}
+      <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>{sheet.title}</h3>
+        {sheet.artist && <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>{sheet.artist}</p>}
 
-        <button onClick={() => onAddToSetlist(sheet)} style={{ padding: '8px 12px', borderRadius: '6px', border: 'none', backgroundColor: isInSetlist ? '#10b981' : '#8b5cf6', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
-          {isInSetlist ? '✓ 已加入' : '+ 歌單'}
-        </button>
+        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+          {/* 加入 / 移除歌單 */}
+          <button
+            onClick={() => onAddToSetlist(sheet)}
+            style={{
+              flex: 1,
+              padding: '6px 12px',
+              borderRadius: '6px',
+              border: 'none',
+              backgroundColor: isInSetlist ? '#ef4444' : '#0070f3',
+              color: 'white',
+              fontWeight: '600',
+              fontSize: '13px',
+              cursor: 'pointer'
+            }}
+          >
+            {isInSetlist ? '從歌單移除' : '+ 加入歌單'}
+          </button>
 
-        <button onClick={() => onDelete(sheet.id, sheet.title)} style={{ padding: '8px 10px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: 'white', cursor: 'pointer' }}>
-          🗑️
-        </button>
+          {/* 刪除樂譜按鈕 */}
+          {onDeleteSheet && (
+            <button
+              onClick={() => onDeleteSheet(sheet.id, sheet.title)}
+              style={{
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: '1px solid #ef4444',
+                backgroundColor: 'transparent',
+                color: '#ef4444',
+                fontSize: '13px',
+                cursor: 'pointer'
+              }}
+            >
+              🗑️
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
