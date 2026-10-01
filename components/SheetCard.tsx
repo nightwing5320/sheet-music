@@ -1,11 +1,12 @@
 'use client'
 
 import { Sheet } from '@/types'
+import Link from 'next/link'
 
 interface SheetCardProps {
   sheet: Sheet
   isInSetlist: boolean
-  onAddToSetlist: (sheet: Sheet) => void
+  onToggleSetlist: (sheet: Sheet) => void
   onOpenModal: (sheet: Sheet) => void
   onDeleteSheet?: (id: number, title: string) => void
 }
@@ -13,7 +14,7 @@ interface SheetCardProps {
 export function SheetCard({
   sheet,
   isInSetlist,
-  onAddToSetlist,
+  onToggleSetlist,
   onOpenModal,
   onDeleteSheet,
 }: SheetCardProps) {
@@ -36,7 +37,7 @@ export function SheetCard({
         {/* 📌 圖片右下角：放大按鈕 */}
         <button
           onClick={(e) => {
-            e.stopPropagation() // 避免觸發二次點擊
+            e.stopPropagation() // 避免與容器點擊重疊
             onOpenModal(sheet)
           }}
           title="全螢幕放大"
@@ -63,15 +64,34 @@ export function SheetCard({
         </button>
       </div>
 
-      {/* 下方標題與操作按鈕區 */}
+      {/* 下方標題與操作區 */}
       <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>{sheet.title}</h3>
-        {sheet.artist && <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>{sheet.artist}</p>}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>{sheet.title}</h3>
+            {sheet.artist && <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#6b7280' }}>{sheet.artist}</p>}
+          </div>
+
+          {/* 📌 跳轉至獨立編輯頁面 /edit/[id] */}
+          <Link 
+            href={`/edit/${sheet.id}`} 
+            style={{ 
+              fontSize: '12px', 
+              color: '#0070f3', 
+              textDecoration: 'none', 
+              padding: '2px 6px', 
+              border: '1px solid #0070f3', 
+              borderRadius: '4px' 
+            }}
+          >
+            ✏️ 編輯
+          </Link>
+        </div>
 
         <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
           {/* 加入 / 移除歌單 */}
           <button
-            onClick={() => onAddToSetlist(sheet)}
+            onClick={() => onToggleSetlist(sheet)}
             style={{
               flex: 1,
               padding: '6px 12px',
@@ -87,7 +107,7 @@ export function SheetCard({
             {isInSetlist ? '從歌單移除' : '+ 加入歌單'}
           </button>
 
-          {/* 刪除樂譜按鈕 */}
+          {/* 刪除樂譜 */}
           {onDeleteSheet && (
             <button
               onClick={() => onDeleteSheet(sheet.id, sheet.title)}

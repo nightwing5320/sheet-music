@@ -274,7 +274,7 @@ export default function Home() {
               sheet={sheet}
               isInSetlist={setlist.some((item) => item.id === sheet.id)}
               onOpenModal={openModal}
-              onAddToSetlist={addToSetlist}
+              onToggleSetlist={addToSetlist}
               onDeleteSheet={handleDelete}
             />
           ))}
