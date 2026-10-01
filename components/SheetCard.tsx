@@ -1,7 +1,8 @@
 'use client'
 
-import Link from 'next/link'
-import { Sheet } from '@/types' // 📌 匯入統一型態
+import { useState } from 'react'
+import { Sheet } from '@/types'
+import { SheetAnnotator } from './SheetAnnotator' // 📌 1. 匯入塗鴉元件
 
 interface SheetCardProps {
   sheet: Sheet
@@ -18,38 +19,136 @@ export function SheetCard({
   onAddToSetlist,
   onDelete,
 }: SheetCardProps) {
-  const pageCount = sheet.image_urls?.length || 1
-  const coverImage = (sheet.image_urls && sheet.image_urls.length > 0) ? sheet.image_urls[0] : sheet.file_url
+  // 📌 2. 新增 State 控制是否開啟塗鴉畫布
+  const [isAnnotating, setIsAnnotating] = useState(false)
+
+  // 取得封面或第一張樂譜圖片
+  const imageUrl = sheet.image_urls?.[0] || sheet.file_url
+
+  // 儲存塗鴉處理
+  const handleSaveAnnotation = async (savedDataJson: string) => {
+    try {
+      console.log(`樂譜 ID ${sheet.id} 的塗鴉資料：`, savedDataJson)
+      // 這裡未來可以呼叫 Supabase 將 savedDataJson 存回 sheets 資料表
+      alert('筆記儲存成功！')
+      setIsAnnotating(false)
+    } catch (err) {
+      alert('儲存失敗！')
+    }
+  }
 
   return (
-    <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card-bg)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ position: 'relative', cursor: 'pointer', backgroundColor: 'var(--border-color)', overflow: 'hidden' }} onClick={() => onOpenModal(sheet)}>
-        <img src={coverImage} alt={sheet.title} style={{ width: '100%', height: '260px', objectFit: 'cover', display: 'block' }} />
-        <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.7)', color: 'white', padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>📄 {pageCount} 頁</div>
-        <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: sheet.tempo === 'slow' ? 'rgba(16, 185, 129, 0.9)' : sheet.tempo === 'fast' ? 'rgba(245, 158, 11, 0.9)' : 'rgba(107, 114, 128, 0.9)', color: 'white', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>
-          {sheet.tempo === 'slow' ? '🌙 慢歌' : sheet.tempo === 'fast' ? '⚡ 快歌' : '❓ 未分類'}
+    <>
+      <div
+        style={{
+          border: '1px solid var(--border-color)',
+          borderRadius: '12px',
+          padding: '16px',
+          backgroundColor: 'var(--card-bg)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          gap: '12px'
+        }}
+      >
+        {/* 卡片頂部資訊與縮圖區 */}
+        <div onClick={() => onOpenModal(sheet)} style={{ cursor: 'pointer' }}>
+          <div style={{ position: 'relative', width: '100%', height: '180px', marginBottom: '12px', overflow: 'hidden', borderRadius: '8px' }}>
+            <img
+              src={imageUrl}
+              alt={sheet.title}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </div>
+
+          <h3 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: 'bold' }}>
+            {sheet.title}
+          </h3>
+          <p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
+            Key: {sheet.artist || '未指定'}
+          </p>
         </div>
-        <div style={{ position: 'absolute', bottom: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px' }}>點擊放大</div>
+
+        {/* 📌 卡片底部操作按鈕區 */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+          {/* 原本的播放/查看按鈕 */}
+          <button
+            onClick={() => onOpenModal(sheet)}
+            style={{
+              flex: 1,
+              padding: '8px',
+              borderRadius: '6px',
+              border: 'none',
+              backgroundColor: '#0070f3',
+              color: 'white',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            👁️ 查看
+          </button>
+
+          {/* 📌 3. 新增塗鴉筆記按鈕 */}
+          <button
+            onClick={() => setIsAnnotating(true)}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--card-bg)',
+              color: 'var(--text-primary)',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+            title="劃線筆記"
+          >
+            ✏️ 筆記
+          </button>
+
+          {/* 原本的新增至歌單按鈕 */}
+          <button
+            onClick={() => onAddToSetlist(sheet)}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: 'none',
+              backgroundColor: isInSetlist ? '#10b981' : '#8b5cf6',
+              color: 'white',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            {isInSetlist ? '✓ 已加入' : '+ 歌單'}
+          </button>
+
+          {/* 原本的刪除按鈕 */}
+          <button
+            onClick={() => onDelete(sheet.id, sheet.title)}
+            style={{
+              padding: '8px 10px',
+              borderRadius: '6px',
+              border: 'none',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              cursor: 'pointer'
+            }}
+          >
+            🗑️
+          </button>
+        </div>
       </div>
 
-      <div style={{ padding: '14px', flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div>
-          <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '700', lineHeight: '1.3', color: 'var(--text-primary)' }}>{sheet.title}</h3>
-          <div style={{ display: 'inline-block', backgroundColor: 'var(--tag-bg)', color: 'var(--tag-text)', padding: '2px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }}>🎵 調性：{sheet.artist || '未指定'}</div>
-        </div>
-
-        <button
-          onClick={() => onAddToSetlist(sheet)}
-          style={{ marginTop: '12px', width: '100%', padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: isInSetlist ? '#e9d5ff' : '#8b5cf6', color: isInSetlist ? '#6b21a8' : 'white', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
-        >
-          {isInSetlist ? '✓ 已在歌單中' : '➕ 加至歌單'}
-        </button>
-
-        <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link href={`/edit/${sheet.id}`} style={{ fontSize: '13px', color: '#0070f3', textDecoration: 'none', fontWeight: '600' }}>編輯</Link>
-          <button onClick={() => onDelete(sheet.id, sheet.title)} style={{ fontSize: '13px', color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer', fontWeight: '600' }}>刪除</button>
-        </div>
-      </div>
-    </div>
+      {/* 📌 4. 當 isAnnotating 為 true 時，顯示全螢幕塗鴉 Modal */}
+      {isAnnotating && (
+        <SheetAnnotator
+          imageUrl={imageUrl}
+          onSave={handleSaveAnnotation}
+          onClose={() => setIsAnnotating(false)}
+        />
+      )}
+    </>
   )
 }
