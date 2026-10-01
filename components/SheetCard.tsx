@@ -76,7 +76,7 @@ export function SheetCard({
           <Link 
             href={`/edit/${sheet.id}`} 
             style={{ 
-              fontSize: '12px', 
+              fontSize: '13px', 
               color: '#0070f3', 
               textDecoration: 'none', 
               padding: '2px 6px', 
@@ -97,14 +97,14 @@ export function SheetCard({
               padding: '6px 12px',
               borderRadius: '6px',
               border: 'none',
-              backgroundColor: isInSetlist ? '#ef4444' : '#0070f3',
+              backgroundColor: isInSetlist ? '#44ef63' : '#0070f3',
               color: 'white',
               fontWeight: '600',
               fontSize: '13px',
               cursor: 'pointer'
             }}
           >
-            {isInSetlist ? '從歌單移除' : '+ 加入歌單'}
+            {isInSetlist ? '已加入' : '+ 加入歌單'}
           </button>
 
           {/* 刪除樂譜 */}
@@ -121,7 +121,7 @@ export function SheetCard({
                 cursor: 'pointer'
               }}
             >
-              🗑️
+              🗑️刪除
             </button>
           )}
         </div>
