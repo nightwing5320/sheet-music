@@ -71,6 +71,8 @@ export default function ProfilePage() {
       })
 
       alert('個人資料更新成功！')
+      router.refresh()
+      router.push('/')      
     } catch (err: any) {
       alert('更新失敗：' + err.message)
     } finally {
