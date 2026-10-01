@@ -69,7 +69,7 @@ export function SheetCard({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>{sheet.title}</h3>
-            {sheet.artist && <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#6b7280' }}>{sheet.artist}</p>}
+            {sheet.artist && <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'white' }}>調性: {sheet.artist}</p>}
           </div>
 
           {/* 📌 跳轉至獨立編輯頁面 /edit/[id] */}
