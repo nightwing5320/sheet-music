@@ -33,7 +33,7 @@ export function Header({
         <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>
           🎼 樂譜庫
         </h1>
-        <p style={{ margin: '4px 0 0 0', fontSize: '15px', color: '#0070f3', fontWeight: '700' }}>
+        <p style={{ margin: '4px 0 0 0', fontSize: '20px', fontWeight: '700' }}>
           {userDisplayName ? `👋 嗨！${userDisplayName}` : 'Sheet Music Library'}
         </p>
       </div>
