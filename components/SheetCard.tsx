@@ -156,13 +156,13 @@ export function SheetCard({
               borderRadius: '10px',
               border: 'none',
               background: isInSetlist 
-                ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' 
+                ? 'linear-gradient(135deg, #10b981 0%, #10b981 100%)' 
                 : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
               color: '#ffffff',
               fontWeight: '600',
               fontSize: '14px',
               cursor: 'pointer',
-              boxShadow: isInSetlist ? '0 2px 10px rgba(239, 68, 68, 0.3)' : '0 2px 10px rgba(99, 102, 241, 0.3)',
+              boxShadow: isInSetlist ? '0 2px 10px rgba(16, 185, 129, 0.3)' : '0 2px 10px rgba(99, 102, 241, 0.3)',
               transition: 'transform 0.1s ease, opacity 0.2s ease'
             }}
           >
@@ -172,7 +172,7 @@ export function SheetCard({
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
-                從歌單移除
+                已加入歌單
               </>
             ) : (
               <>
