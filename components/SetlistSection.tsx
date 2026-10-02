@@ -39,7 +39,7 @@ export function SetlistSection({
     <div style={{ 
       /* 📌 改用低調內斂的深灰紫 (Dark Slate Purple) */
       backgroundColor: '#22173b', 
-      border: '1px solid #8b5cf6',
+      border: '1px solid #5c3aaa',
       borderRadius: '16px', 
       padding: '20px', 
       marginBottom: '24px', 
