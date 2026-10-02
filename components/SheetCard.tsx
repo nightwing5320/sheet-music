@@ -107,11 +107,6 @@ export function SheetCard({
                   調性: {sheet.artist}
                 </span>
               )}
-              {sheet.artist && (
-                <span style={{ fontSize: '12px', color: '#64748b' }}>
-                  {sheet.artist}
-                </span>
-              )}
             </div>
           </div>
 
