@@ -24,22 +24,23 @@ export function SheetCard({
     <div style={{
       borderRadius: '16px',
       overflow: 'hidden',
-      backgroundColor: '#1e293b', // 質感暗色卡片背景
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
+      /* 📌 使用 CSS 變數，沒有設定時提供淺色預設值 */
+      backgroundColor: 'var(--card-bg, #ffffff)', 
+      border: '1px solid var(--border-color, #e2e8f0)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
       display: 'flex',
       flexDirection: 'column',
-      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+      transition: 'all 0.2s ease',
     }}>
       
-      {/* 上方樂譜預覽圖 */}
+      {/* 樂譜預覽圖 */}
       <div 
         onClick={() => onOpenModal(sheet)}
         style={{
           position: 'relative',
           width: '100%',
           height: '210px',
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--bg-secondary, #f8fafc)',
           cursor: 'pointer',
           overflow: 'hidden'
         }}
@@ -52,11 +53,10 @@ export function SheetCard({
             height: '100%',
             objectFit: 'cover',
             objectPosition: 'top',
-            transition: 'opacity 0.2s ease',
           }}
         />
 
-        {/* 右下角：精緻半透明懸浮放大按鈕 */}
+        {/* 放大按鈕 */}
         <button
           onClick={(e) => {
             e.stopPropagation()
@@ -70,19 +70,17 @@ export function SheetCard({
             width: '34px',
             height: '34px',
             borderRadius: '10px',
-            backgroundColor: 'rgba(15, 23, 42, 0.75)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            color: '#f8fafc',
+            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-            transition: 'all 0.2s ease'
+            backdropFilter: 'blur(6px)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
           }}
         >
-          {/* 精細 SVG 放大鏡 Icon */}
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -92,25 +90,28 @@ export function SheetCard({
         </button>
       </div>
 
-      {/* 下方資訊與按鈕控制區 */}
+      {/* 內容區域 */}
       <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        
-        {/* 標題與編輯頁導向 */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#f8fafc', letterSpacing: '0.3px' }}>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: 'var(--text-primary, #0f172a)' }}>
               {sheet.title}
             </h3>
             <div style={{ display: 'flex', gap: '8px', marginTop: '4px', alignItems: 'center' }}>
               {sheet.artist && (
-                <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.06)', color: '#94a3b8', fontWeight: '500' }}>
+                <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '6px', backgroundColor: 'var(--tag-bg, #f1f5f9)', color: 'var(--text-secondary, #64748b)', fontWeight: '500' }}>
                   調性: {sheet.artist}
+                </span>
+              )}
+              {sheet.artist && (
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary, #64748b)' }}>
+                  {sheet.artist}
                 </span>
               )}
             </div>
           </div>
 
-          {/* 質感編輯按鈕 */}
+          {/* 編輯按鈕 */}
           <Link 
             href={`/edit/${sheet.id}`} 
             style={{ 
@@ -119,13 +120,12 @@ export function SheetCard({
               gap: '4px',
               fontSize: '13px', 
               fontWeight: '600',
-              color: '#38bdf8', 
-              backgroundColor: 'rgba(56, 189, 248, 0.1)',
-              border: '1px solid rgba(56, 189, 248, 0.25)', 
+              color: '#0284c7', 
+              backgroundColor: 'rgba(2, 132, 199, 0.08)',
+              border: '1px solid rgba(2, 132, 199, 0.2)', 
               borderRadius: '8px',
               padding: '6px 10px',
-              textDecoration: 'none',
-              transition: 'all 0.15s ease'
+              textDecoration: 'none'
             }}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -136,9 +136,8 @@ export function SheetCard({
           </Link>
         </div>
 
-        {/* 底部功能鍵：加入歌單 + 刪除 */}
+        {/* 底部功能鍵 */}
         <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-          {/* 主行動按鈕：加入/移除歌單 */}
           <button
             onClick={() => onToggleSetlist(sheet)}
             style={{
@@ -151,19 +150,18 @@ export function SheetCard({
               borderRadius: '10px',
               border: 'none',
               background: isInSetlist 
-                ? 'linear-gradient(135deg, #10b981 0%, #10b981 100%)' 
+                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
                 : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
               color: '#ffffff',
               fontWeight: '600',
               fontSize: '14px',
               cursor: 'pointer',
-              boxShadow: isInSetlist ? '0 2px 10px rgba(16, 185, 129, 0.3)' : '0 2px 10px rgba(99, 102, 241, 0.3)',
-              transition: 'transform 0.1s ease, opacity 0.2s ease'
+              boxShadow: isInSetlist ? '0 2px 8px rgba(16, 185, 129, 0.25)' : '0 2px 8px rgba(99, 102, 241, 0.25)',
             }}
           >
             {isInSetlist ? (
               <>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
                 已加入歌單
@@ -174,7 +172,7 @@ export function SheetCard({
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-                加入歌單
+                + 加入歌單
               </>
             )}
           </button>
@@ -191,11 +189,10 @@ export function SheetCard({
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: '10px',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                color: '#f87171',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                backgroundColor: 'rgba(239, 68, 68, 0.06)',
+                color: '#ef4444',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease'
               }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
