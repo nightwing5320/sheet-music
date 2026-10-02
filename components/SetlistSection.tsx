@@ -37,33 +37,33 @@ export function SetlistSection({
 
   return (
     <div style={{ 
-      /* 📌 紫色底色與邊框 */
-      backgroundColor: '#2e1065', 
-      border: '1px solid #6d28d9',
+      /* 📌 改用低調內斂的深灰紫 (Dark Slate Purple) */
+      backgroundColor: '#1e1b2e', 
+      border: '1px solid #3b3355',
       borderRadius: '16px', 
       padding: '20px', 
       marginBottom: '24px', 
-      boxShadow: '0 10px 25px -5px rgba(109, 40, 217, 0.3)',
+      boxShadow: '0 8px 20px rgba(0, 0, 0, 0.25)',
       color: '#ffffff'
     }}>
       {/* 標題與一鍵清空 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', color: '#f3e8ff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#e2d9f3', display: 'flex', alignItems: 'center', gap: '8px' }}>
           📋 今日敬拜歌單 ({setlist.length})
         </h2>
         {setlist.length > 0 && (
           <button
             onClick={onClearSetlist}
             style={{ 
-              padding: '6px 14px', 
+              padding: '6px 12px', 
               borderRadius: '8px', 
               border: 'none', 
               backgroundColor: '#ef4444', 
               color: 'white', 
               cursor: 'pointer', 
-              fontSize: '13px',
+              fontSize: '12px',
               fontWeight: '600',
-              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)'
+              opacity: 0.9
             }}
           >
             一鍵清空
@@ -72,9 +72,9 @@ export function SetlistSection({
       </div>
 
       {setlist.length === 0 ? (
-        <p style={{ color: '#c084fc', fontSize: '14px', margin: 0 }}>歌單目前是空的，請從下方樂譜庫新增。</p>
+        <p style={{ color: '#9d8ec4', fontSize: '14px', margin: 0 }}>歌單目前是空的，請從下方樂譜庫新增。</p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {setlist.map((sheet, index) => (
             <div 
               key={`${sheet.id}-${index}`} 
@@ -82,16 +82,16 @@ export function SetlistSection({
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'space-between', 
-                padding: '12px 16px', 
-                backgroundColor: 'rgba(15, 23, 42, 0.4)', 
-                borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.08)'
+                padding: '10px 14px', 
+                backgroundColor: 'rgba(15, 23, 42, 0.5)', 
+                borderRadius: '10px',
+                border: '1px solid rgba(255, 255, 255, 0.05)'
               }}
             >
               
               {/* 歌曲資訊 / 編輯輸入框 */}
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px', marginRight: '12px' }}>
-                <span style={{ fontWeight: 'bold', color: '#a7f3d0' }}>{index + 1}.</span>
+                <span style={{ fontWeight: 'bold', color: '#a7f3d0', fontSize: '14px' }}>{index + 1}.</span>
                 
                 {editingId === sheet.id ? (
                   <input
@@ -101,8 +101,8 @@ export function SetlistSection({
                     style={{ 
                       padding: '4px 8px', 
                       borderRadius: '6px', 
-                      border: '1px solid #a855f7', 
-                      backgroundColor: '#1e1b4b',
+                      border: '1px solid #7c3aed', 
+                      backgroundColor: '#13111c',
                       color: 'white',
                       fontSize: '14px', 
                       width: '100%', 
@@ -111,24 +111,24 @@ export function SetlistSection({
                     autoFocus
                   />
                 ) : (
-                  <span style={{ fontWeight: '500', fontSize: '16px', color: '#f8fafc' }}>{sheet.title}</span>
+                  <span style={{ fontWeight: '500', fontSize: '15px', color: '#f1f5f9' }}>{sheet.title}</span>
                 )}
               </div>
 
               {/* 右側按鈕區 */}
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                 {onUpdateSheetTitle && (
                   editingId === sheet.id ? (
                     <button
                       onClick={() => handleSaveEdit(sheet.id)}
-                      style={{ padding: '6px 10px', borderRadius: '6px', border: 'none', backgroundColor: '#10b981', color: 'white', cursor: 'pointer', fontSize: '12px' }}
+                      style={{ padding: '5px 10px', borderRadius: '6px', border: 'none', backgroundColor: '#10b981', color: 'white', cursor: 'pointer', fontSize: '12px' }}
                     >
                       儲存
                     </button>
                   ) : (
                     <button
                       onClick={() => handleStartEdit(sheet)}
-                      style={{ padding: '6px 10px', borderRadius: '6px', border: 'none', backgroundColor: '#3b82f6', color: 'white', cursor: 'pointer', fontSize: '12px' }}
+                      style={{ padding: '5px 10px', borderRadius: '6px', border: 'none', backgroundColor: '#3b82f6', color: 'white', cursor: 'pointer', fontSize: '12px' }}
                     >
                       ✏️ 編輯
                     </button>
@@ -140,11 +140,11 @@ export function SetlistSection({
                   onClick={() => onMoveTrack(index, 'up')}
                   disabled={index === 0}
                   style={{ 
-                    padding: '6px 10px', 
+                    padding: '4px 8px', 
                     borderRadius: '6px', 
                     border: 'none', 
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    color: 'white',
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    color: '#e2e8f0',
                     cursor: index === 0 ? 'not-allowed' : 'pointer', 
                     opacity: index === 0 ? 0.3 : 1 
                   }}
@@ -155,13 +155,13 @@ export function SetlistSection({
                   onClick={() => onMoveTrack(index, 'down')}
                   disabled={index === setlist.length - 1}
                   style={{ 
-                    padding: '6px 10px', 
+                    padding: '4px 8px', 
                     borderRadius: '6px', 
                     border: 'none', 
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    color: 'white',
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    color: '#e2e8f0',
                     cursor: index === setlist.length - 1 ? 'not-allowed' : 'pointer', 
-                    opacity: index === setlist.length - 1 ? 0.4 : 1 
+                    opacity: index === setlist.length - 1 ? 0.3 : 1 
                   }}
                 >
                   ▼
@@ -171,35 +171,34 @@ export function SetlistSection({
                 <button
                   onClick={() => onRemoveTrack(sheet.id)}
                   style={{ 
-                    padding: '6px 12px', 
-                    borderRadius: '8px', 
+                    padding: '5px 10px', 
+                    borderRadius: '6px', 
                     border: 'none', 
                     backgroundColor: '#ef4444', 
                     color: 'white', 
                     cursor: 'pointer', 
-                    fontSize: '13px',
+                    fontSize: '12px',
                     fontWeight: '500'
                   }}
                 >
                   🗑️ 刪除
                 </button>
 
-                {/* 📌 放大按鈕 (改為質感深灰色底) */}
+                {/* 放大按鈕 (灰色) */}
                 <button
                   onClick={() => onOpenModal(sheet, index)}
                   style={{ 
-                    padding: '6px 12px', 
-                    borderRadius: '8px', 
-                    border: '1px solid rgba(255, 255, 255, 0.2)', 
-                    backgroundColor: '#334155', // 深灰色背景
+                    padding: '5px 10px', 
+                    borderRadius: '6px', 
+                    border: '1px solid rgba(255, 255, 255, 0.15)', 
+                    backgroundColor: '#334155',
                     color: '#f8fafc', 
                     cursor: 'pointer', 
-                    fontSize: '13px',
+                    fontSize: '12px',
                     fontWeight: '500',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                    gap: '4px'
                   }}
                 >
                   🔍 放大
