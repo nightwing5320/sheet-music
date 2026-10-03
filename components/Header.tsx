@@ -114,7 +114,7 @@ export function Header({
             boxShadow: '0 2px 8px rgba(239, 68, 68, 0.25)'
           }}
         >
-          🔒 登出
+          🚪 登出
         </button>
       </div>
     </header>
