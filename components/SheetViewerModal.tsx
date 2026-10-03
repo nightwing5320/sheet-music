@@ -70,7 +70,7 @@ export function SheetViewerModal({
         touchAction: isEditing ? 'none' : 'pan-y'
       }}
     >
-      {/* 頂部右上角：塗鴉筆記開關與關閉按鈕 */}
+      {/* 頂部右上角：塗鴉筆記開關按鈕 */}
       <div style={{ position: 'fixed', top: '24px', right: '24px', display: 'flex', gap: '12px', zIndex: 10001 }}>
         <button
           onClick={(e) => {
