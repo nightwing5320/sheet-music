@@ -3,7 +3,7 @@
 :root {
   color-scheme: light dark;
   
-  /* 淺色模式變數 */
+  /* 預設：淺色模式變數 */
   --background: #f8fafc;
   --card-bg: #ffffff;
   --text-primary: #0f172a;
@@ -14,18 +14,17 @@
   --tag-text: #334155;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* 深色模式變數 */
-    --background: #0f172a;
-    --card-bg: #1e293b;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --border-color: #334155;
-    --input-bg: #1e293b;
-    --tag-bg: #334155;
-    --tag-text: #cbd5e1;
-  }
+/* 📌 將原本的 @media (prefers-color-scheme: dark) 改為 .dark */
+.dark {
+  /* 手動切換至深色模式時套用的變數 */
+  --background: #0f172a;
+  --card-bg: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --input-bg: #1e293b;
+  --tag-bg: #334155;
+  --tag-text: #cbd5e1;
 }
 
 @theme inline {
@@ -54,8 +53,8 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
 input:-webkit-autofill:active {
-  -webkit-text-fill-color: #111827 !important; /* 強制填入字體為深灰色/黑色 */
-  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important; /* 用白色內陰影覆蓋預設黃藍底色 */
+  -webkit-text-fill-color: #111827 !important;
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
