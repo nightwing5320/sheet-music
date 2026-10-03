@@ -48,8 +48,8 @@ export function Header({
         <Link
           href="/profile"
           style={{
-            backgroundColor: 'var(--card-bg)',
-            color: 'var(--text-primary)',
+            backgroundColor: '#f6ca5c',
+            color: 'white',
             border: '1px solid var(--border-color)',
             padding: '10px 14px',
             borderRadius: '8px',
@@ -61,7 +61,7 @@ export function Header({
             gap: '6px'
           }}
         >
-          👤 個人設定
+          ⚙️ 個人設定
         </Link>
 
         <button
