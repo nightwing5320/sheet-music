@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Sheet } from '@/types'
 import { SheetAnnotator, PathData } from './SheetAnnotator'
 
@@ -28,12 +28,15 @@ export function SheetViewerModal({
   onTouchEnd,
 }: SheetViewerModalProps) {
   const [isEditing, setIsEditing] = useState(false)
-  // 用 Key 來存放每一首樂譜/每一頁的筆記資料 (例如: "sheet-12-page-0")
+  // 以樂譜與頁碼作為 key 儲存塗鴉軌跡 (例如: "sheet-12-page-0")
   const [annotations, setAnnotations] = useState<Record<string, PathData[]>>({})
 
-  if (activeSheetImages.length === 0) return null
+  if (!activeSheetImages || activeSheetImages.length === 0) return null
 
-  const currentSheetId = currentSetlistIndex !== null ? setlist[currentSetlistIndex]?.id : 'single'
+  // 取得當前樂譜 ID 建立唯一的筆記 Key
+  const currentSheetId = currentSetlistIndex !== null && setlist[currentSetlistIndex] 
+    ? setlist[currentSetlistIndex].id 
+    : 'current'
   const annotationKey = `sheet-${currentSheetId}-page-${currentImageIndex}`
   const currentPaths = annotations[annotationKey] || []
 
@@ -50,7 +53,7 @@ export function SheetViewerModal({
   return (
     <div 
       onClick={onClose}
-      onTouchStart={isEditing ? undefined : onTouchStart} // 編輯時暫停滑動翻頁
+      onTouchStart={isEditing ? undefined : onTouchStart} // 編輯時暫停手勢滑動，避免與繪圖衝突
       onTouchEnd={isEditing ? undefined : onTouchEnd}
       style={{
         position: 'fixed',
@@ -62,10 +65,10 @@ export function SheetViewerModal({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 9999,
-        touchAction: 'pan-y'
+        touchAction: isEditing ? 'none' : 'pan-y'
       }}
     >
-      {/* 頂部右上角：編輯切換 + 關閉 */}
+      {/* 📌 頂部右上角：塗鴉筆記開關與關閉按鈕 */}
       <div style={{ position: 'fixed', top: '24px', right: '24px', display: 'flex', gap: '12px', zIndex: 10001 }}>
         <button
           onClick={(e) => {
@@ -75,13 +78,15 @@ export function SheetViewerModal({
           style={{
             padding: '8px 16px',
             borderRadius: '20px',
-            backgroundColor: isEditing ? '#10b981' : 'rgba(255,255,255,0.15)',
-            border: '1px solid rgba(255,255,255,0.3)',
+            backgroundColor: isEditing ? '#10b981' : 'rgba(255, 255, 255, 0.2)',
+            border: '1px solid rgba(255, 255, 255, 0.4)',
             color: 'white',
             fontWeight: '600',
             cursor: 'pointer',
             fontSize: '14px',
-            backdropFilter: 'blur(8px)'
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+            transition: 'all 0.2s ease'
           }}
         >
           {isEditing ? '✓ 完成筆記' : '✏️ 塗鴉筆記'}
@@ -110,8 +115,8 @@ export function SheetViewerModal({
         </button>
       </div>
 
-      {/* 歌單資訊提示 */}
-      {currentSetlistIndex !== null && (
+      {/* 歌單資訊標籤 */}
+      {currentSetlistIndex !== null && setlist[currentSetlistIndex] && (
         <div style={{
           position: 'fixed',
           top: '24px',
@@ -125,11 +130,11 @@ export function SheetViewerModal({
           zIndex: 10001,
           backdropFilter: 'blur(8px)'
         }}>
-          📋 歌單 ({currentSetlistIndex + 1}/{setlist.length})：{setlist[currentSetlistIndex]?.title}
+          📋 歌單 ({currentSetlistIndex + 1}/{setlist.length})：{setlist[currentSetlistIndex].title}
         </div>
       )}
 
-      {/* 樂譜與筆記區域 */}
+      {/* 樂譜顯示與 SVG Overlay 塗鴉區塊 */}
       <div 
         style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}
         onClick={(e) => e.stopPropagation()}
@@ -147,7 +152,7 @@ export function SheetViewerModal({
         </SheetAnnotator>
       </div>
 
-      {/* 底部翻頁導覽列 */}
+      {/* 底部翻頁導覽 */}
       {!isEditing && (
         <div 
           style={{ 
