@@ -100,7 +100,7 @@ export function SheetCard({
             <div style={{ display: 'flex', gap: '8px', marginTop: '4px', alignItems: 'center' }}>
               {sheet.artist && (
                 <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '6px', backgroundColor: 'var(--tag-bg, #f1f5f9)', color: 'var(--text-secondary, #64748b)', fontWeight: '500' }}>
-                  調性: {sheet.artist}
+                  調性：{sheet.artist}
                 </span>
               )}
               
