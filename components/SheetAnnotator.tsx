@@ -24,9 +24,8 @@ export function SheetAnnotator({
 }: SheetAnnotatorProps) {
   const [isDrawing, setIsDrawing] = useState(false)
   const [currentPath, setCurrentPath] = useState('')
-  const [color, setColor] = useState('#ef4444')
+  const [color, setColor] = useState('#ef4444') // 預設紅色
   const [strokeWidth, setStrokeWidth] = useState(4)
-  const [mode, setMode] = useState<'pen' | 'eraser'>('pen')
   const svgRef = useRef<SVGSVGElement | null>(null)
 
   // 取得相對 SVG 座標
@@ -38,14 +37,9 @@ export function SheetAnnotator({
     return { x, y }
   }
 
-  // 僅允許 Apple Pencil (pen) 或 Mouse，排除 Touch 手指
+  // 僅允許 Apple Pencil (pen) 或 Mouse，排除 Touch 手指觸控
   const isPencilOrMouse = (e: React.PointerEvent) => {
     return e.pointerType === 'pen' || e.pointerType === 'mouse'
-  }
-
-  // 橡皮擦：擦除指定 ID 的線條
-  const erasePath = (id: string) => {
-    onChangePaths(paths.filter((p) => p.id !== id))
   }
 
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -54,10 +48,7 @@ export function SheetAnnotator({
     setIsDrawing(true)
     const coords = getCoordinates(e)
     if (!coords) return
-
-    if (mode === 'pen') {
-      setCurrentPath(`M ${coords.x} ${coords.y}`)
-    }
+    setCurrentPath(`M ${coords.x} ${coords.y}`)
   }
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -65,17 +56,14 @@ export function SheetAnnotator({
 
     const coords = getCoordinates(e)
     if (!coords) return
-
-    if (mode === 'pen') {
-      setCurrentPath((prev) => `${prev} L ${coords.x} ${coords.y}`)
-    }
+    setCurrentPath((prev) => `${prev} L ${coords.x} ${coords.y}`)
   }
 
-  const handlePointerUp = (e: React.PointerEvent) => {
+  const handlePointerUp = () => {
     if (!isDrawing) return
     setIsDrawing(false)
 
-    if (mode === 'pen' && currentPath) {
+    if (currentPath) {
       const newPath: PathData = {
         id: Date.now().toString(),
         d: currentPath,
@@ -121,80 +109,47 @@ export function SheetAnnotator({
           boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
           color: 'white'
         }}>
-          <button
-            onClick={() => setMode('pen')}
+          {/* 顏色選擇器 */}
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            {['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#000000'].map((c) => (
+              <button
+                key={c}
+                onClick={() => setColor(c)}
+                style={{
+                  width: '22px',
+                  height: '22px',
+                  borderRadius: '50%',
+                  backgroundColor: c,
+                  border: color === c ? '2px solid white' : '1px solid rgba(255,255,255,0.3)',
+                  cursor: 'pointer',
+                  transform: color === c ? 'scale(1.15)' : 'scale(1)',
+                  transition: 'transform 0.1s ease'
+                }}
+              />
+            ))}
+          </div>
+
+          {/* 筆劃粗細選擇 */}
+          <select
+            value={strokeWidth}
+            onChange={(e) => setStrokeWidth(Number(e.target.value))}
             style={{
-              padding: '6px 12px',
-              borderRadius: '16px',
-              border: 'none',
-              backgroundColor: mode === 'pen' ? '#3b82f6' : 'transparent',
+              backgroundColor: 'rgba(255,255,255,0.1)',
               color: 'white',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '13px'
+              border: 'none',
+              borderRadius: '8px',
+              padding: '4px 8px',
+              fontSize: '12px'
             }}
           >
-            ✏️ 畫筆
-          </button>
-
-          <button
-            onClick={() => setMode('eraser')}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '16px',
-              border: 'none',
-              backgroundColor: mode === 'eraser' ? '#ef4444' : 'transparent',
-              color: 'white',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '13px'
-            }}
-          >
-            🧹 橡皮擦
-          </button>
-
-          {mode === 'pen' && (
-            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-              {['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#000000'].map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setColor(c)}
-                  style={{
-                    width: '22px',
-                    height: '22px',
-                    borderRadius: '50%',
-                    backgroundColor: c,
-                    border: color === c ? '2px solid white' : '1px solid rgba(255,255,255,0.3)',
-                    cursor: 'pointer',
-                    transform: color === c ? 'scale(1.15)' : 'scale(1)',
-                    transition: 'transform 0.1s ease'
-                  }}
-                />
-              ))}
-            </div>
-          )}
-
-          {mode === 'pen' && (
-            <select
-              value={strokeWidth}
-              onChange={(e) => setStrokeWidth(Number(e.target.value))}
-              style={{
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '4px 8px',
-                fontSize: '12px'
-              }}
-            >
-              <option value={2} style={{ color: 'black' }}>細</option>
-              <option value={4} style={{ color: 'black' }}>中</option>
-              <option value={8} style={{ color: 'black' }}>粗</option>
-            </select>
-          )}
+            <option value={2} style={{ color: 'black' }}>細</option>
+            <option value={4} style={{ color: 'black' }}>中</option>
+            <option value={8} style={{ color: 'black' }}>粗</option>
+          </select>
 
           <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255,255,255,0.2)' }} />
 
+          {/* 復原按鈕 */}
           <button
             onClick={handleUndo}
             disabled={paths.length === 0}
@@ -209,6 +164,7 @@ export function SheetAnnotator({
             ↩ 復原
           </button>
 
+          {/* 清空按鈕 */}
           <button
             onClick={handleClearAll}
             disabled={paths.length === 0}
@@ -225,11 +181,10 @@ export function SheetAnnotator({
         </div>
       )}
 
-      {/* 樂譜容器 */}
+      {/* 樂譜與 SVG 塗鴉圖層 */}
       <div style={{ position: 'relative', display: 'inline-block', maxWidth: '100%', maxHeight: '100%' }}>
         {children}
 
-        {/* SVG 畫布 */}
         <svg
           ref={svgRef}
           viewBox="0 0 1000 1000"
@@ -242,41 +197,23 @@ export function SheetAnnotator({
             inset: 0,
             width: '100%',
             height: '100%',
-            cursor: isEditing ? (mode === 'pen' ? 'crosshair' : 'cell') : 'default',
+            cursor: isEditing ? 'crosshair' : 'default',
             pointerEvents: isEditing ? 'all' : 'none',
             touchAction: 'none'
           }}
         >
-          {/* 已畫好的線條 */}
           {paths.map((p) => (
             <path
               key={p.id}
               d={p.d}
               stroke={p.color}
-              strokeWidth={mode === 'eraser' && isEditing ? Math.max(p.strokeWidth, 20) : p.strokeWidth} // 橡皮擦模式下加大感應熱區
+              strokeWidth={p.strokeWidth}
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
-              onPointerDown={(e) => {
-                if (mode === 'eraser' && isEditing) {
-                  e.stopPropagation()
-                  erasePath(p.id)
-                }
-              }}
-              onPointerEnter={(e) => {
-                // 📌 支援「滑動擦除」：只要按著 Pencil 劃過線條就自動清除
-                if (mode === 'eraser' && isEditing && isDrawing) {
-                  erasePath(p.id)
-                }
-              }}
-              style={{
-                cursor: mode === 'eraser' && isEditing ? 'pointer' : 'default',
-                transition: 'opacity 0.1s ease',
-              }}
             />
           ))}
 
-          {/* 當前繪製中的線條 */}
           {currentPath && (
             <path
               d={currentPath}
