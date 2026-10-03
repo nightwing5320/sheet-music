@@ -138,7 +138,7 @@ export function SheetViewerModal({
 
       {/* 樂譜顯示與 SVG Overlay 塗鴉區塊 */}
       <div 
-        style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}
+        style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px' }}
         onClick={(e) => e.stopPropagation()}
       >
         <SheetAnnotator
@@ -149,7 +149,7 @@ export function SheetViewerModal({
           <img 
             src={activeSheetImages[currentImageIndex]} 
             alt="樂譜內容" 
-            style={{ maxWidth: '90vw', maxHeight: '80vh', objectFit: 'contain', userSelect: 'none' }} 
+            style={{ maxWidth: '98vw', maxHeight: '94vh', objectFit: 'contain', userSelect: 'none' }} 
           />
         </SheetAnnotator>
       </div>
