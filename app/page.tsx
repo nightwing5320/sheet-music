@@ -277,8 +277,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* 4️⃣ 含有 SVG 手繪塗鴉筆記的全螢幕燈箱 Modal */}
-      {activeSheetImages.length > 0 && (
+      {/* 📌 修正後的 SheetViewerModal 渲染條件 */}
+      {activeSheetImages.length > 0 && selectedSheet && (
         <SheetViewerModal
           activeSheetImages={activeSheetImages}
           currentImageIndex={currentImageIndex}
