@@ -14,9 +14,8 @@
   --tag-text: #334155;
 }
 
-/* 📌 將原本的 @media (prefers-color-scheme: dark) 改為 .dark */
 .dark {
-  /* 手動切換至深色模式時套用的變數 */
+  /* 深色模式變數 */
   --background: #0f172a;
   --card-bg: #1e293b;
   --text-primary: #f8fafc;
@@ -34,12 +33,29 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* 📌 為所有會變色的元素加入平滑過渡動畫 (0.3秒) */
+body, 
+header, 
+div, 
+section, 
+main, 
+article, 
+card, 
+button, 
+a, 
+input, 
+select {
+  transition: background-color 0.3s ease, 
+              color 0.3s ease, 
+              border-color 0.3s ease, 
+              box-shadow 0.3s ease;
+}
+
 body {
   background-color: var(--background);
   color: var(--text-primary);
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
-  transition: background-color 0.3s, color 0.3s;
 }
 
 /* 1. 確保所有 input 輸入框文字深色、背景白色 */
