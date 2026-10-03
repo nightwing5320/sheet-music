@@ -48,7 +48,7 @@ export function Header({
         <Link
           href="/profile"
           style={{
-            backgroundColor: '#f6ca5c',
+            backgroundColor: '#f59e0b',
             color: 'white',
             border: '1px solid var(--border-color)',
             padding: '10px 14px',
