@@ -94,7 +94,7 @@ export function SheetAnnotator({
       {isEditing && (
         <div style={{
           position: 'absolute',
-          top: '16px',
+          top: '24px',
           left: '50%',
           transform: 'translateX(-50%)',
           backgroundColor: 'rgba(15, 23, 42, 0.85)',

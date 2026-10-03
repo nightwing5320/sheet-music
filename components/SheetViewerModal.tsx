@@ -80,7 +80,7 @@ export function SheetViewerModal({
           style={{
             padding: '8px 16px',
             borderRadius: '20px',
-            backgroundColor: isEditing ? '#10b981' : 'rgba(255, 255, 255, 0.2)',
+            backgroundColor: isEditing ? '#10b981' : 'rgb(90, 87, 87)',
             border: '1px solid rgba(255, 255, 255, 0.4)',
             color: 'white',
             fontWeight: '600',
