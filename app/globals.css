@@ -79,3 +79,7 @@ input::placeholder {
   color: #9ca3af !important;
   opacity: 1;
 }
+
+html {
+  overflow-y: scroll; /* 或使用 reserve-gutter: html { scrollbar-gutter: stable; } */
+}
