@@ -111,6 +111,8 @@ export default function ProfilePage() {
     return <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary)' }}>載入個人資料中...</div>
   }
 
+  
+
   return (
     <main style={{ maxWidth: '520px', margin: '40px auto', padding: '24px', color: 'var(--text-primary)' }}>
       <Link href="/" style={{ color: '#0070f3', textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '20px', display: 'inline-block' }}>

@@ -5,23 +5,14 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Sheet } from '@/types' // 📌 匯入統一型態
 
-// 📌 匯入我們剛才寫好的獨立元件
+// 📌 匯入獨立元件
 import { Header } from '@/components/Header'
 import { SetlistSection } from '@/components/SetlistSection'
 import { SheetCard } from '@/components/SheetCard'
 import { SheetViewerModal } from '@/components/SheetViewerModal'
 
-/*
-interface Sheet {
-  id: number
-  title: string
-  artist: string | null
-  tempo?: 'fast' | 'slow' | string | null
-  file_url: string
-  image_urls?: string[] | null
-  created_at: string
-}
-*/
+// 強制動態渲染，防止 Next.js 建置預覽時因無金鑰失敗
+export const dynamic = 'force-dynamic'
 
 export default function Home() {
   const [sheets, setSheets] = useState<Sheet[]>([])
@@ -32,6 +23,8 @@ export default function Home() {
   const [setlist, setSetlist] = useState<Sheet[]>([])
   const [isSetlistOpen, setIsSetlistOpen] = useState(false)
 
+  // 📌 記錄目前選中的樂譜物件與 Modal 狀態
+  const [selectedSheet, setSelectedSheet] = useState<Sheet | null>(null)
   const [activeSheetImages, setActiveSheetImages] = useState<string[]>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [currentSetlistIndex, setCurrentSetlistIndex] = useState<number | null>(null)
@@ -139,7 +132,7 @@ export default function Home() {
   }
 
   const removeFromSetlist = (id: number) => {
-    setSetlist((prev) => prev.filter((item) => item.id !== id))
+    setSetlist((prev) => prev.filter((sheet) => sheet.id !== id))
   }
 
   const moveSetlistTrack = (index: number, direction: 'up' | 'down') => {
@@ -157,14 +150,17 @@ export default function Home() {
     if (window.confirm('確定要清除今天的敬拜歌單嗎？')) setSetlist([])
   }
 
+  // 📌 開啟 Modal 時，同步保存目前點擊的 Sheet 物件
   const openModal = (sheet: Sheet, setlistIdx: number | null = null) => {
     const pages = (sheet.image_urls && sheet.image_urls.length > 0) ? sheet.image_urls : [sheet.file_url]
+    setSelectedSheet(sheet)
     setActiveSheetImages(pages)
     setCurrentImageIndex(0)
     setCurrentSetlistIndex(setlistIdx)
   }
 
   const closeModal = () => {
+    setSelectedSheet(null)
     setActiveSheetImages([])
     setCurrentSetlistIndex(null)
   }
@@ -185,6 +181,7 @@ export default function Home() {
       const prevTrackIdx = currentSetlistIndex - 1
       const prevSheet = setlist[prevTrackIdx]
       const pages = (prevSheet.image_urls && prevSheet.image_urls.length > 0) ? prevSheet.image_urls : [prevSheet.file_url]
+      setSelectedSheet(prevSheet)
       setActiveSheetImages(pages)
       setCurrentImageIndex(pages.length - 1)
       setCurrentSetlistIndex(prevTrackIdx)
@@ -268,7 +265,6 @@ export default function Home() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
           {filteredSheets.map((sheet) => (
-            /* 3️⃣ 單張樂譜卡片元件 */
             <SheetCard
               key={sheet.id}
               sheet={sheet}
@@ -281,18 +277,20 @@ export default function Home() {
         </div>
       )}
 
-      {/* 4️⃣ 全螢幕燈箱播放器元件 */}
-      <SheetViewerModal
-        activeSheetImages={activeSheetImages}
-        currentImageIndex={currentImageIndex}
-        currentSetlistIndex={currentSetlistIndex}
-        setlist={setlist}
-        onClose={closeModal}
-        onPrev={goToPrevPageOrTrack}
-        onNext={goToNextPageOrTrack}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      />
+      {/* 4️⃣ 含有 SVG 手繪塗鴉筆記的全螢幕燈箱 Modal */}
+      {activeSheetImages.length > 0 && (
+        <SheetViewerModal
+          activeSheetImages={activeSheetImages}
+          currentImageIndex={currentImageIndex}
+          currentSetlistIndex={currentSetlistIndex}
+          setlist={setlist}
+          onClose={closeModal}
+          onPrev={goToPrevPageOrTrack}
+          onNext={goToNextPageOrTrack}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        />
+      )}
     </main>
   )
 }
