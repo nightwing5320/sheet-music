@@ -17,18 +17,17 @@ export function ThemeToggle() {
     <button
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       style={{
-        padding: '8px 14px',
-        borderRadius: '20px',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        color: 'inherit',
-        cursor: 'pointer',
-        fontSize: '14px',
+        backgroundColor: 'var(--card-bg)',
+        color: 'var(--text-primary)',
+        border: '1px solid var(--border-color)',
+        padding: '10px 14px',
+        borderRadius: '8px',
         fontWeight: '600',
+        fontSize: '14px',
         display: 'flex',
         alignItems: 'center',
         gap: '6px',
-        backdropFilter: 'blur(8px)',
+        cursor: 'pointer',
         transition: 'all 0.2s ease',
       }}
       title="切換明暗模式"
