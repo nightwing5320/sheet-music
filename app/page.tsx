@@ -52,6 +52,7 @@ export default function Home() {
 
   // 3. 更新筆記並同步存至 LocalStorage
   const handleUpdateAnnotations = (annotationKey: string, newPaths: any[]) => {
+    console.log('✍️ 正在儲存筆記，Key 為:', annotationKey, '內容:', newPaths)
     setAnnotations((prev) => {
       const updated = { ...prev, [annotationKey]: newPaths }
       localStorage.setItem('worship_sheet_annotations', JSON.stringify(updated))
