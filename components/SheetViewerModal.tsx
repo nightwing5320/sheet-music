@@ -5,6 +5,7 @@ import { Sheet } from '@/types'
 import { SheetAnnotator, PathData } from './SheetAnnotator'
 
 interface SheetViewerModalProps {
+  selectedSheet?: Sheet | null
   activeSheetImages: string[]
   currentImageIndex: number
   currentSetlistIndex: number | null
@@ -20,6 +21,7 @@ interface SheetViewerModalProps {
 }
 
 export function SheetViewerModal({
+  selectedSheet,
   activeSheetImages,
   currentImageIndex,
   currentSetlistIndex,
@@ -36,10 +38,10 @@ export function SheetViewerModal({
 
   if (!activeSheetImages || activeSheetImages.length === 0) return null
 
-  // 取得當前樂譜 ID 建立唯一的筆記 Key
-  const currentSheetId = currentSetlistIndex !== null && setlist[currentSetlistIndex] 
-    ? setlist[currentSetlistIndex].id 
-    : 'current'
+  // ✅ 替換為：優先使用 selectedSheet 的 id，如果沒有，則使用 setlist 中的當前索引 id，最後退回到 'temp'
+  const currentSheetId = selectedSheet?.id 
+    ?? (currentSetlistIndex !== null && setlist[currentSetlistIndex] ? setlist[currentSetlistIndex].id : 'temp')
+
   const annotationKey = `sheet-${currentSheetId}-page-${currentImageIndex}`
   const currentPaths = annotations[annotationKey] || []
 

@@ -304,6 +304,7 @@ export default function Home() {
       {/* 📌 修正後的 SheetViewerModal 渲染條件 */}
       {activeSheetImages.length > 0 && selectedSheet && (
         <SheetViewerModal
+          selectedSheet={selectedSheet} // 📌 傳入目前選中的樂譜物件
           activeSheetImages={activeSheetImages}
           currentImageIndex={currentImageIndex}
           currentSetlistIndex={currentSetlistIndex}
