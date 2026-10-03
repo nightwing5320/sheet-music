@@ -32,7 +32,7 @@ export function ThemeToggle() {
       }}
       title="切換明暗模式"
     >
-      {theme === 'dark' ? '☀ 淺色' : '🌙 深色'}
+      {theme === 'dark' ? '☼ 淺色' : '☽ 深色'}
     </button>
   )
 }
