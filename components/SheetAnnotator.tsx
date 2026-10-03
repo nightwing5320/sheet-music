@@ -33,62 +33,57 @@ export function SheetAnnotator({
   const getCoordinates = (e: React.PointerEvent) => {
     if (!svgRef.current) return null
     const rect = svgRef.current.getBoundingClientRect()
-    
-    // 換算成 0~1000 比例坐標系，確保縮放時筆記位置不偏移
     const x = ((e.clientX - rect.left) / rect.width) * 1000
     const y = ((e.clientY - rect.top) / rect.height) * 1000
     return { x, y }
   }
 
-  // 📌 核心關鍵：只允許 Apple Pencil (pen) 或 滑鼠 (mouse) 繪圖，拒絕手指 (touch)
+  // 僅允許 Apple Pencil (pen) 或 Mouse，排除 Touch 手指
   const isPencilOrMouse = (e: React.PointerEvent) => {
-    // pointerType 包含: 'pen' (Apple Pencil/觸控筆), 'mouse' (電腦滑鼠/軌跡板), 'touch' (手指)
     return e.pointerType === 'pen' || e.pointerType === 'mouse'
   }
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (!isEditing) return
-    if (!isPencilOrMouse(e)) return // 👈 手指觸碰時直接忽略，不觸發繪圖
+  // 橡皮擦：擦除指定 ID 的線條
+  const erasePath = (id: string) => {
+    onChangePaths(paths.filter((p) => p.id !== id))
+  }
 
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (!isEditing || !isPencilOrMouse(e)) return
+
+    setIsDrawing(true)
     const coords = getCoordinates(e)
     if (!coords) return
 
-    setIsDrawing(true)
-    setCurrentPath(`M ${coords.x} ${coords.y}`)
+    if (mode === 'pen') {
+      setCurrentPath(`M ${coords.x} ${coords.y}`)
+    }
   }
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDrawing || !isEditing) return
-    if (!isPencilOrMouse(e)) return // 👈 手指移動時直接忽略
+    if (!isDrawing || !isEditing || !isPencilOrMouse(e)) return
 
     const coords = getCoordinates(e)
     if (!coords) return
 
-    setCurrentPath((prev) => `${prev} L ${coords.x} ${coords.y}`)
+    if (mode === 'pen') {
+      setCurrentPath((prev) => `${prev} L ${coords.x} ${coords.y}`)
+    }
   }
 
   const handlePointerUp = (e: React.PointerEvent) => {
     if (!isDrawing) return
     setIsDrawing(false)
 
-    if (currentPath) {
-      if (mode === 'pen') {
-        const newPath: PathData = {
-          id: Date.now().toString(),
-          d: currentPath,
-          color,
-          strokeWidth,
-        }
-        onChangePaths([...paths, newPath])
+    if (mode === 'pen' && currentPath) {
+      const newPath: PathData = {
+        id: Date.now().toString(),
+        d: currentPath,
+        color,
+        strokeWidth,
       }
+      onChangePaths([...paths, newPath])
       setCurrentPath('')
-    }
-  }
-
-  const handlePathClick = (id: string, e: React.MouseEvent) => {
-    if (mode === 'eraser' && isEditing) {
-      e.stopPropagation()
-      onChangePaths(paths.filter((p) => p.id !== id))
     }
   }
 
@@ -107,7 +102,7 @@ export function SheetAnnotator({
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       
-      {/* 編輯控制工具列 */}
+      {/* 頂部工具列 */}
       {isEditing && (
         <div style={{
           position: 'absolute',
@@ -230,11 +225,11 @@ export function SheetAnnotator({
         </div>
       )}
 
-      {/* 樂譜內容與 SVG 畫布 */}
+      {/* 樂譜容器 */}
       <div style={{ position: 'relative', display: 'inline-block', maxWidth: '100%', maxHeight: '100%' }}>
         {children}
 
-        {/* 📌 使用最新的 Pointer Events 替代傳統 Touch Events */}
+        {/* SVG 畫布 */}
         <svg
           ref={svgRef}
           viewBox="0 0 1000 1000"
@@ -247,28 +242,41 @@ export function SheetAnnotator({
             inset: 0,
             width: '100%',
             height: '100%',
-            cursor: isEditing ? (mode === 'pen' ? 'crosshair' : 'pointer') : 'default',
+            cursor: isEditing ? (mode === 'pen' ? 'crosshair' : 'cell') : 'default',
             pointerEvents: isEditing ? 'all' : 'none',
-            touchAction: 'none' // 阻止 iPad 預設的手勢滾動/縮放干擾繪圖
+            touchAction: 'none'
           }}
         >
+          {/* 已畫好的線條 */}
           {paths.map((p) => (
             <path
               key={p.id}
               d={p.d}
               stroke={p.color}
-              strokeWidth={p.strokeWidth}
+              strokeWidth={mode === 'eraser' && isEditing ? Math.max(p.strokeWidth, 20) : p.strokeWidth} // 橡皮擦模式下加大感應熱區
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
-              onClick={(e) => handlePathClick(p.id, e)}
+              onPointerDown={(e) => {
+                if (mode === 'eraser' && isEditing) {
+                  e.stopPropagation()
+                  erasePath(p.id)
+                }
+              }}
+              onPointerEnter={(e) => {
+                // 📌 支援「滑動擦除」：只要按著 Pencil 劃過線條就自動清除
+                if (mode === 'eraser' && isEditing && isDrawing) {
+                  erasePath(p.id)
+                }
+              }}
               style={{
                 cursor: mode === 'eraser' && isEditing ? 'pointer' : 'default',
-                opacity: mode === 'eraser' && isEditing ? 0.8 : 1
+                transition: 'opacity 0.1s ease',
               }}
             />
           ))}
 
+          {/* 當前繪製中的線條 */}
           {currentPath && (
             <path
               d={currentPath}
