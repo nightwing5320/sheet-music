@@ -35,6 +35,30 @@ export default function Home() {
   const router = useRouter()
   const supabase = createClient()
 
+  // 1. 筆記資料 State
+  const [annotations, setAnnotations] = useState<Record<string, any>>({})
+
+  // 2. 初始讀取 LocalStorage 紀錄
+  useEffect(() => {
+    const savedAnnotations = localStorage.getItem('worship_sheet_annotations')
+    if (savedAnnotations) {
+      try {
+        setAnnotations(JSON.parse(savedAnnotations))
+      } catch (e) {
+        console.error('Failed to load annotations', e)
+      }
+    }
+  }, [])
+
+  // 3. 更新筆記並同步存至 LocalStorage
+  const handleUpdateAnnotations = (annotationKey: string, newPaths: any[]) => {
+    setAnnotations((prev) => {
+      const updated = { ...prev, [annotationKey]: newPaths }
+      localStorage.setItem('worship_sheet_annotations', JSON.stringify(updated))
+      return updated
+    })
+  }
+
   useEffect(() => {
     fetchUserProfile()
     fetchSheets()
@@ -284,6 +308,8 @@ export default function Home() {
           currentImageIndex={currentImageIndex}
           currentSetlistIndex={currentSetlistIndex}
           setlist={setlist}
+          annotations={annotations} // 📌 新增此行
+          onUpdateAnnotations={handleUpdateAnnotations} // 📌 新增此行
           onClose={closeModal}
           onPrev={goToPrevPageOrTrack}
           onNext={goToNextPageOrTrack}

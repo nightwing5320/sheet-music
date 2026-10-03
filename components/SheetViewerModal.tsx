@@ -9,6 +9,9 @@ interface SheetViewerModalProps {
   currentImageIndex: number
   currentSetlistIndex: number | null
   setlist: Sheet[]
+  // 📌 升級：從父層傳入筆記狀態與更新函數
+  annotations: Record<string, PathData[]>
+  onUpdateAnnotations: (annotationKey: string, newPaths: PathData[]) => void
   onClose: () => void
   onPrev: () => void
   onNext: () => void
@@ -21,6 +24,8 @@ export function SheetViewerModal({
   currentImageIndex,
   currentSetlistIndex,
   setlist,
+  annotations,
+  onUpdateAnnotations,
   onClose,
   onPrev,
   onNext,
@@ -28,8 +33,6 @@ export function SheetViewerModal({
   onTouchEnd,
 }: SheetViewerModalProps) {
   const [isEditing, setIsEditing] = useState(false)
-  // 以樂譜與頁碼作為 key 儲存塗鴉軌跡 (例如: "sheet-12-page-0")
-  const [annotations, setAnnotations] = useState<Record<string, PathData[]>>({})
 
   if (!activeSheetImages || activeSheetImages.length === 0) return null
 
@@ -41,10 +44,7 @@ export function SheetViewerModal({
   const currentPaths = annotations[annotationKey] || []
 
   const handlePathsChange = (newPaths: PathData[]) => {
-    setAnnotations((prev) => ({
-      ...prev,
-      [annotationKey]: newPaths,
-    }))
+    onUpdateAnnotations(annotationKey, newPaths)
   }
 
   const isPrevDisabled = currentImageIndex === 0 && (currentSetlistIndex === null || currentSetlistIndex === 0)
@@ -53,7 +53,7 @@ export function SheetViewerModal({
   return (
     <div 
       onClick={onClose}
-      onTouchStart={isEditing ? undefined : onTouchStart} // 編輯時暫停手勢滑動，避免與繪圖衝突
+      onTouchStart={isEditing ? undefined : onTouchStart}
       onTouchEnd={isEditing ? undefined : onTouchEnd}
       style={{
         position: 'fixed',
@@ -68,7 +68,7 @@ export function SheetViewerModal({
         touchAction: isEditing ? 'none' : 'pan-y'
       }}
     >
-      {/* 📌 頂部右上角：塗鴉筆記開關與關閉按鈕 */}
+      {/* 頂部右上角：塗鴉筆記開關與關閉按鈕 */}
       <div style={{ position: 'fixed', top: '24px', right: '24px', display: 'flex', gap: '12px', zIndex: 10001 }}>
         <button
           onClick={(e) => {
