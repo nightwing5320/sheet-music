@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { ThemeToggle } from '@/components/ThemeToggle' // 📌 1. 引入 ThemeToggle
 
 interface HeaderProps {
   userDisplayName: string
@@ -24,8 +25,8 @@ export function Header({
         justifyContent: 'space-between', 
         alignItems: 'center', 
         marginBottom: '28px',
-        gap: '24px', // 📌 新增：確保手機或小螢幕時，標題與按鈕群之間至少保持 24px 間距
-        flexWrap: 'wrap' // 📌 新增：螢幕太窄時自動換行，避免按鈕擠爆或重疊
+        gap: '24px',
+        flexWrap: 'wrap'
       }}
     >
       {/* 左側：標題與歡迎詞 */}
@@ -40,6 +41,10 @@ export function Header({
 
       {/* 右側：按鈕區塊 */}
       <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+        
+        {/* 📌 2. 放入明暗切換按鈕 (放在個人設定左邊) */}
+        <ThemeToggle />
+
         <Link
           href="/profile"
           style={{
