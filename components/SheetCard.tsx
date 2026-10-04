@@ -148,13 +148,18 @@ export function SheetCard({
               borderRadius: '10px',
               border: 'none',
               background: isInSetlist 
-                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
-                : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-              color: '#ffffff',
+                ? 'var(--active-green-bg, #ecfdf5)'    // 已加入：極淡柔和翡翠綠底
+                : 'var(--text-primary, #1e293b)',
+              color:
+                isInSetlist 
+                  ? 'var(--active-green-text, #047857)'                            // 已加入：深翡翠綠字
+                  : 'var(--background, #ffffff)',        // 未加入：白字
               fontWeight: '600',
-              fontSize: '14px',
+              fontSize: '15px',
               cursor: 'pointer',
-              boxShadow: isInSetlist ? '0 2px 8px rgba(16, 185, 129, 0.25)' : '0 2px 8px rgba(99, 102, 241, 0.25)',
+              boxShadow: isInSetlist 
+                ? 'none' 
+                : '0 2px 6px rgba(0, 0, 0, 0.08)',    // 柔和微陰影
             }}
           >
             {isInSetlist ? (
