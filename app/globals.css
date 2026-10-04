@@ -3,15 +3,23 @@
 :root {
   color-scheme: light dark;
   
-  /* 預設：淺色模式變數 */
-  --background: #f8fafc;
-  --card-bg: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
-  --border-color: #e2e8f0;
+  /* 📌 淺色模式：低彩度高級灰調 */
+  --background: #f4f5f7;        /* 柔和暖灰色，比純白更有質感 */
+  --card-bg: #ffffff;          /* 卡片保持乾淨純白，與背景形成微妙層次 */
+  --text-primary: #1e293b;     /* 深石墨灰，取代純黑 */
+  --text-secondary: #64748b;   /* 低彩度中灰 */
+  --border-color: #e2e8f0;     /* 極淡邊框 */
   --input-bg: #ffffff;
   --tag-bg: #f1f5f9;
-  --tag-text: #334155;
+  --tag-text: #475569;
+
+  /* 📌 低彩度功能點綴色 */
+  --accent-primary: #475569;   /* 主按鈕：低調深灰藍 */
+  --accent-hover: #334155;     /* 主按鈕 Hover */
+  --accent-purple: #6b7280;    /* 歌單按鈕：低彩度中灰紫 */
+  --accent-blue: #4f46e5;      /* 上傳按鈕：沉穩靛藍 (柔和不刺眼) */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
 
   /* 📌 新增：全域字體尺寸規範 */
   --font-size-base: 18px;       /* 原 16px 放大至 18px */
@@ -21,15 +29,23 @@
 }
 
 .dark {
-  /* 深色模式變數 */
-  --background: #0f172a;
-  --card-bg: #1e293b;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --border-color: #334155;
+  /* 📌 深色模式：沉穩暗石墨調 (無高飽和刺眼色) */
+  --background: #0f172a;        /* 深深藍灰 (Slate 900) */
+  --card-bg: #1e293b;          /* 卡片背景 (Slate 800) */
+  --text-primary: #f1f5f9;     /* 柔和乳白 */
+  --text-secondary: #94a3b8;   /* 柔和銀灰 */
+  --border-color: #334155;     /* 深色邊框 */
   --input-bg: #1e293b;
   --tag-bg: #334155;
   --tag-text: #cbd5e1;
+
+  /* 📌 深色模式點綴色 (調低亮度與飽和度) */
+  --accent-primary: #334155;
+  --accent-hover: #475569;
+  --accent-purple: #4b5563;
+  --accent-blue: #4338ca;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 @theme inline {
@@ -63,6 +79,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 1rem;
   line-height: 1.6; /* 加大行高，閱讀更舒適 */
+  transition: background-color 0.3s ease, color 0.3s ease;
   margin: 0;
 }
 
@@ -98,3 +115,8 @@ html {
 h1 { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.025em; line-height: 1.2; }
 h2 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
 h3 { font-size: 1.35rem; font-weight: 600; }
+
+/* 全域元件細緻微互動與微陰影 */
+button, input, select {
+  transition: all 0.2s ease-in-out;
+}

@@ -42,43 +42,46 @@ export function Header({
       {/* 右側：按鈕區塊 */}
       <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
         
-        {/* 📌 2. 放入明暗切換按鈕 (放在個人設定左邊) */}
+        {/* 放入明暗切換按鈕 (個人設定左邊) */}
         <ThemeToggle />
 
+        {/* 個人設定 */}
         <Link
           href="/profile"
           style={{
-            backgroundColor: '#f59e0b',
-            color: 'white',
+            backgroundColor: 'var(--card-bg)',
+            color: 'var(--text-primary)',
             border: '1px solid var(--border-color)',
             padding: '12px 18px',
             borderRadius: '10px',
             textDecoration: 'none',
             fontWeight: '600',
-            fontSize: '14px',
+            fontSize: '16px',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           ⚙️ 個人設定
         </Link>
 
+        {/* 當日歌單 */}
         <button
           onClick={onToggleSetlist}
           style={{
-            backgroundColor: '#8b5cf6',
-            color: 'white',
+            backgroundColor: 'var(--tag-bg)',
+            color: 'var(--tag-primary)',
             padding: '12px 18px',
             borderRadius: '10px',
-            border: 'none',
+            border: '1px solid var(--border-color)',
             fontWeight: '600',
             fontSize: '14px',
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(139, 92, 246, 0.25)',
+            boxShadow: 'var(--shadow-sm)',
             display: 'flex',
             alignItems: 'center',
-            gap: '6px'
+            gap: '8px'
           }}
         >
           📋 當日歌單 ({setlistCount})
@@ -87,31 +90,43 @@ export function Header({
         <Link 
           href="/upload" 
           style={{ 
-            backgroundColor: '#0070f3', 
-            color: 'white', 
+            backgroundColor: 'var(--text-primary)',
+            color: 'var(--background)', 
             padding: '12px 18px', 
             borderRadius: '10px', 
             textDecoration: 'none',
             fontWeight: '600',
             fontSize: '14px',
-            boxShadow: '0 2px 8px rgba(0, 112, 243, 0.25)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           + 上傳樂譜
         </Link>
 
+        {/* 登出 */}
         <button
           onClick={onLogout}
           style={{
-            backgroundColor: '#ef4444',
-            color: 'white',
+            backgroundColor: 'transparent',
+            color: 'var(--text-secondary)',
             padding: '12px 18px',
             borderRadius: '10px',
-            border: 'none',
+            border: '1px solid var(--border-color)',
             fontWeight: '600',
             fontSize: '14px',
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(239, 68, 68, 0.25)'
+            transition: 'all 0.2s ease',
+            boxShadow: 'var(--shadow-sm)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = '#ef4444'
+            e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'
+            e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--text-secondary)'
+            e.currentTarget.style.borderColor = 'var(--border-color)'
+            e.currentTarget.style.backgroundColor = 'transparent'
           }}
         >
           🚪 登出
