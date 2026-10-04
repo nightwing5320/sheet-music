@@ -2,6 +2,7 @@
 
 import { Sheet } from '@/types'
 import Link from 'next/link'
+import { Edit3, Trash2, Plus, Check, ZoomIn } from 'lucide-react'
 
 interface SheetCardProps {
   sheet: Sheet
@@ -24,7 +25,6 @@ export function SheetCard({
     <div style={{
       borderRadius: '16px',
       overflow: 'hidden',
-      /* 📌 使用 CSS 變數，沒有設定時提供淺色預設值 */
       backgroundColor: 'var(--card-bg, #ffffff)', 
       border: '1px solid var(--border-color, #e2e8f0)',
       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
@@ -56,7 +56,7 @@ export function SheetCard({
           }}
         />
 
-        {/* 放大按鈕 */}
+        {/* 放大按鈕 (改用 Lucide ZoomIn) */}
         <button
           onClick={(e) => {
             e.stopPropagation()
@@ -81,12 +81,7 @@ export function SheetCard({
             boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            <line x1="11" y1="8" x2="11" y2="14"></line>
-            <line x1="8" y1="11" x2="14" y2="11"></line>
-          </svg>
+          <ZoomIn size={16} strokeWidth={2.5} />
         </button>
       </div>
 
@@ -105,107 +100,114 @@ export function SheetCard({
                   調性：{sheet.artist}
                 </span>
               )}
-              
             </div>
           </div>
 
-          {/* 編輯按鈕 */}
+          {/* 編輯按鈕 (改用 Lucide Edit3 + 修復 Link 屬性) */}
           <Link 
             href={`/edit/${sheet.id}`} 
             style={{ 
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '4px',
-              fontSize: '15px', 
-              fontWeight: '600',
-              color: '#0284c7', 
-              backgroundColor: 'rgba(2, 132, 199, 0.08)',
-              border: '1px solid rgba(2, 132, 199, 0.2)', 
-              borderRadius: '10px',
-              padding: '9px 12px',
-              textDecoration: 'none'
+              gap: '6px',
+              height: '34px',
+              padding: '0 12px',
+              borderRadius: '8px',
+              fontSize: '13px',
+              fontWeight: '500',
+              color: 'var(--text-secondary, #64748b)',
+              backgroundColor: 'transparent',
+              border: '1px solid var(--border-color, #e2e8f0)',
+              textDecoration: 'none',
+              lineHeight: '1',
+              boxSizing: 'border-box',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
             }}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 20h9"></path>
-              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-            </svg>
-            編輯
+            <Edit3 size={14} />
+            <span>編輯</span>
           </Link>
         </div>
 
         {/* 底部功能鍵 */}
-        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+        <div style={{ display: 'flex', gap: '8px', marginTop: '4px', alignItems: 'center' }}>
+          
+          {/* 加入歌單按鈕 (改用 Lucide Check & Plus) */}
           <button
             onClick={() => onToggleSetlist(sheet)}
             style={{
               flex: 1,
+              height: '42px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '6px',
-              padding: '9px 14px',
+              padding: '0 14px',
               borderRadius: '10px',
               border: 'none',
               background: isInSetlist 
                 ? 'var(--active-green-bg, #ecfdf5)'    // 已加入：極淡柔和翡翠綠底
-                : 'var(--text-primary, #1e293b)',
-              color:
-                isInSetlist 
-                  ? 'var(--active-green-text, #047857)'  // 已加入：深翡翠綠字
-                  : 'var(--background, #ffffff)',        // 未加入：白字
+                : 'var(--text-primary, #1e293b)',      // 未加入：深灰石墨色
+              color: isInSetlist 
+                ? 'var(--active-green-text, #047857)'  // 已加入：深翡翠綠字
+                : 'var(--background, #ffffff)',        // 未加入：白字
               fontWeight: '600',
               fontSize: '15px',
               cursor: 'pointer',
               boxShadow: isInSetlist 
                 ? 'none' 
                 : '0 2px 6px rgba(0, 0, 0, 0.08)',    // 柔和微陰影
+              transition: 'all 0.2s ease',
             }}
           >
             {isInSetlist ? (
               <>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                已加入歌單
+                <Check size={16} strokeWidth={2.8} />
+                <span>已加入歌單</span>
               </>
             ) : (
               <>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                加入歌單
+                <Plus size={16} strokeWidth={2.5} />
+                <span>加入歌單</span>
               </>
             )}
           </button>
 
-          {/* 刪除按鈕 */}
+          {/* 刪除按鈕 (改用 Lucide Trash2 純圖示 + Hover 效果) */}
           {onDeleteSheet && (
             <button
               onClick={() => onDeleteSheet(sheet.id, sheet.title)}
               title="刪除樂譜"
               style={{
-                width: '42px',
-                height: '42px',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                width: '42px',
+                height: '42px',
                 borderRadius: '10px',
-                fontSize: '15px',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                backgroundColor: 'rgba(239, 68, 68, 0.06)',
-                color: '#ef4444',
+                backgroundColor: 'transparent',
+                border: '1px solid var(--border-color, #e2e8f0)',
+                color: 'var(--text-secondary, #94a3b8)',
                 cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                flexShrink: 0,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#ef4444'
+                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'
+                e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--text-secondary, #94a3b8)'
+                e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
+                e.currentTarget.style.backgroundColor = 'transparent'
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-              刪除
+              <Trash2 size={18} />
             </button>
           )}
+
         </div>
 
       </div>
