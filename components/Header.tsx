@@ -30,17 +30,17 @@ export function Header({
       }}
     >
       {/* 左側：標題與歡迎詞 */}
-      <div style={{ minWidth: '200px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>
+      <div style={{ minWidth: '220px' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>
           🎼 樂譜庫
         </h1>
-        <p style={{ margin: '4px 0 0 0', fontSize: '20px', fontWeight: '700' }}>
+        <p style={{ margin: '6px 0 0 0', fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)'}}>
           {userDisplayName ? `👋 嗨！${userDisplayName}` : 'Sheet Music Library'}
         </p>
       </div>
 
       {/* 右側：按鈕區塊 */}
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
         
         {/* 📌 2. 放入明暗切換按鈕 (放在個人設定左邊) */}
         <ThemeToggle />
@@ -51,14 +51,14 @@ export function Header({
             backgroundColor: '#f59e0b',
             color: 'white',
             border: '1px solid var(--border-color)',
-            padding: '10px 14px',
-            borderRadius: '8px',
+            padding: '12px 18px',
+            borderRadius: '10px',
             textDecoration: 'none',
             fontWeight: '600',
             fontSize: '14px',
             display: 'flex',
             alignItems: 'center',
-            gap: '6px'
+            gap: '8px'
           }}
         >
           ⚙️ 個人設定
@@ -69,8 +69,8 @@ export function Header({
           style={{
             backgroundColor: '#8b5cf6',
             color: 'white',
-            padding: '10px 16px',
-            borderRadius: '8px',
+            padding: '12px 18px',
+            borderRadius: '10px',
             border: 'none',
             fontWeight: '600',
             fontSize: '14px',
@@ -89,8 +89,8 @@ export function Header({
           style={{ 
             backgroundColor: '#0070f3', 
             color: 'white', 
-            padding: '10px 18px', 
-            borderRadius: '8px', 
+            padding: '12px 18px', 
+            borderRadius: '10px', 
             textDecoration: 'none',
             fontWeight: '600',
             fontSize: '14px',
@@ -105,8 +105,8 @@ export function Header({
           style={{
             backgroundColor: '#ef4444',
             color: 'white',
-            padding: '10px 16px',
-            borderRadius: '8px',
+            padding: '12px 18px',
+            borderRadius: '10px',
             border: 'none',
             fontWeight: '600',
             fontSize: '14px',

@@ -91,15 +91,17 @@ export function SheetCard({
       </div>
 
       {/* 內容區域 */}
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: 'var(--text-primary, #0f172a)' }}>
+            {/* 樂譜標題 */}
+            <h3 style={{ margin: 0, fontSize: '22px', fontWeight: '700', color: 'var(--text-primary, #0f172a)' }}>
               {sheet.title}
             </h3>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '4px', alignItems: 'center' }}>
+            {/* 調性資訊 */}
+            <div style={{ display: 'flex', gap: '16px', marginTop: '6px', alignItems: 'center' }}>
               {sheet.artist && (
-                <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '6px', backgroundColor: 'var(--tag-bg, #f1f5f9)', color: 'var(--text-secondary, #64748b)', fontWeight: '500' }}>
+                <span style={{ fontSize: '14px', padding: '4px 6px', borderRadius: '6px', backgroundColor: 'var(--tag-bg, #f1f5f9)', color: 'var(--text-secondary, #64748b)', fontWeight: '500' }}>
                   調性：{sheet.artist}
                 </span>
               )}
@@ -119,8 +121,8 @@ export function SheetCard({
               color: '#0284c7', 
               backgroundColor: 'rgba(2, 132, 199, 0.08)',
               border: '1px solid rgba(2, 132, 199, 0.2)', 
-              borderRadius: '8px',
-              padding: '6px 10px',
+              borderRadius: '10px',
+              padding: '8px 12px',
               textDecoration: 'none'
             }}
           >
@@ -142,7 +144,7 @@ export function SheetCard({
               alignItems: 'center',
               justifyContent: 'center',
               gap: '6px',
-              padding: '10px 14px',
+              padding: '12px 18px',
               borderRadius: '10px',
               border: 'none',
               background: isInSetlist 
