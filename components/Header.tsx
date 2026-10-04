@@ -121,7 +121,7 @@ export function Header({
           onMouseEnter={(e) => {
             e.currentTarget.style.color = '#ef4444'
             e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'
-            e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'
+            e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.25)'
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.color = 'var(--text-secondary)'
