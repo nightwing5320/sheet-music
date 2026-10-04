@@ -116,13 +116,13 @@ export function SheetCard({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '4px',
-              fontSize: '13px', 
+              fontSize: '15px', 
               fontWeight: '600',
               color: '#0284c7', 
               backgroundColor: 'rgba(2, 132, 199, 0.08)',
               border: '1px solid rgba(2, 132, 199, 0.2)', 
               borderRadius: '10px',
-              padding: '8px 12px',
+              padding: '9px 12px',
               textDecoration: 'none'
             }}
           >
@@ -152,7 +152,7 @@ export function SheetCard({
                 : 'var(--text-primary, #1e293b)',
               color:
                 isInSetlist 
-                  ? 'var(--active-green-text, #047857)'                            // 已加入：深翡翠綠字
+                  ? 'var(--active-green-text, #047857)'  // 已加入：深翡翠綠字
                   : 'var(--background, #ffffff)',        // 未加入：白字
               fontWeight: '600',
               fontSize: '15px',
@@ -202,6 +202,7 @@ export function SheetCard({
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               </svg>
+              刪除
             </button>
           )}
         </div>
