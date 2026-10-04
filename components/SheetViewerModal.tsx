@@ -159,7 +159,7 @@ export function SheetViewerModal({
         <div 
           style={{ 
             position: 'fixed',
-            bottom: '20px',
+            top: '15px',
             display: 'flex', 
             alignItems: 'center', 
             gap: '16px', 
