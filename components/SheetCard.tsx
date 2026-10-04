@@ -113,6 +113,7 @@ export function SheetCard({
           </div>
 
           {/* 編輯按鈕 (改用 Lucide Edit3 + 修復 Link 屬性) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
           <Link 
             href={`/edit/${sheet.id}`} 
             style={{ 
@@ -147,15 +148,51 @@ export function SheetCard({
             <Edit3 size={14} />
             <span>編輯</span>
           </Link>
+
+          {/* 刪除按鈕 (改用 Lucide Trash2 純圖示 + Hover 效果) */}
+          {onDeleteSheet && (
+            <button
+              onClick={() => onDeleteSheet(sheet.id, sheet.title)}
+              title="刪除樂譜"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '42px',
+                height: '42px',
+                borderRadius: '10px',
+                backgroundColor: 'transparent',
+                border: '1px solid var(--border-color, #e2e8f0)',
+                color: 'var(--text-secondary, #94a3b8)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                flexShrink: 0,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#ef4444'
+                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'
+                e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--text-secondary, #94a3b8)'
+                e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }}
+            >
+              <Trash2 size={18} />
+            </button>
+          )}
+          </div>
         </div>
 
         {/* 底部功能鍵 */}
-        <div style={{ display: 'flex', gap: '8px', marginTop: 'auto', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', marginTop: 'auto', alignItems: 'center', width: '100%' }}>
           
           {/* 加入歌單按鈕 (改用 Lucide Check & Plus) */}
           <button
             onClick={() => onToggleSetlist(sheet)}
             style={{
+              width: '100%',
               flex: 1,
               height: '42px',
               display: 'flex',
@@ -192,43 +229,7 @@ export function SheetCard({
               </>
             )}
           </button>
-
-          {/* 刪除按鈕 (改用 Lucide Trash2 純圖示 + Hover 效果) */}
-          {onDeleteSheet && (
-            <button
-              onClick={() => onDeleteSheet(sheet.id, sheet.title)}
-              title="刪除樂譜"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '42px',
-                height: '42px',
-                borderRadius: '10px',
-                backgroundColor: 'transparent',
-                border: '1px solid var(--border-color, #e2e8f0)',
-                color: 'var(--text-secondary, #94a3b8)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                flexShrink: 0,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#ef4444'
-                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'
-                e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--text-secondary, #94a3b8)'
-                e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
-                e.currentTarget.style.backgroundColor = 'transparent'
-              }}
-            >
-              <Trash2 size={18} />
-            </button>
-          )}
-
         </div>
-
       </div>
     </div>
   )
