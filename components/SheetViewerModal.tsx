@@ -160,6 +160,8 @@ export function SheetViewerModal({
           style={{ 
             position: 'fixed',
             top: '15px',
+            left: '50%',
+            transform: 'translateX(-50%)',
             display: 'flex', 
             alignItems: 'center', 
             gap: '16px', 
