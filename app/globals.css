@@ -12,6 +12,12 @@
   --input-bg: #ffffff;
   --tag-bg: #f1f5f9;
   --tag-text: #334155;
+
+  /* 📌 新增：全域字體尺寸規範 */
+  --font-size-base: 18px;       /* 原 16px 放大至 18px */
+  --font-size-lg: 22px;         /* 大字體 */
+  --font-size-xl: 28px;         /* 小標題 */
+  --font-size-2xl: 36px;        /* 大標題 */
 }
 
 .dark {
