@@ -65,11 +65,13 @@ export function Header({
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        padding: '24px 0',
+        padding: '20px 0',
         width: '100%',
         backgroundColor: 'transparent',
         borderBottom: '1px solid var(--border-color)',
         boxShadow: 'none',
+        gap: '24px',
+        flexWrap: 'wrap',
         transition: 'background-color 0.2s, border-color 0.2s',
       }}
     >
