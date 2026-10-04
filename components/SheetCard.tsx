@@ -124,6 +124,16 @@ export function SheetCard({
               cursor: 'pointer',
               transition: 'all 0.2s ease',
             }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#2563eb'                           // 滑鼠移入：文字與 Icon 變深藍色
+              e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.3)'     // 邊框變半透明藍色
+              e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)' // 背景呈現微亮淡藍色
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--text-secondary, #64748b)'    // 滑鼠移出：復原預設灰色
+              e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }}
           >
             <Edit3 size={14} />
             <span>編輯</span>
