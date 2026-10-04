@@ -144,7 +144,7 @@ export function SheetCard({
               alignItems: 'center',
               justifyContent: 'center',
               gap: '6px',
-              padding: '12px 18px',
+              padding: '10px 16px',
               borderRadius: '10px',
               border: 'none',
               background: isInSetlist 
