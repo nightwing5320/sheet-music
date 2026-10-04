@@ -159,9 +159,7 @@ export function SheetViewerModal({
         <div 
           style={{ 
             position: 'fixed',
-            top: '15px',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            borderBottom: '14px',
             display: 'flex', 
             alignItems: 'center', 
             gap: '16px', 
