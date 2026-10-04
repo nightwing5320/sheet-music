@@ -65,12 +65,11 @@ export function Header({
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        padding: '16px 24px', 
-        maxWidth: '1200px',
-        margin: '0 auto',
-        backgroundColor: 'var(--card-bg)',
+        padding: '24px 0',
+        width: '100%',
+        backgroundColor: 'transparent',
         borderBottom: '1px solid var(--border-color)',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+        boxShadow: 'none',
         transition: 'background-color 0.2s, border-color 0.2s',
       }}
     >
