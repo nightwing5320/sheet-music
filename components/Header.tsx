@@ -50,14 +50,14 @@ interface HeaderProps {
   setlistCount: number
   isSetlistOpen: boolean
   onToggleSetlist: () => void
-  handleLogout: () => void
+  onLogout: () => void
 }
 
 export function Header({ 
   userDisplayName,
   setlistCount, 
   onToggleSetlist, 
-  handleLogout 
+  onLogout 
 }: HeaderProps) {
   return (
     <header 
@@ -136,7 +136,7 @@ export function Header({
 
         {/* 登出按鈕 */}
         <button 
-          onClick={handleLogout} 
+          onClick={onLogout} 
           style={dangerButtonStyle}>
           <LogOut size={18} />
           <span>登出</span>
