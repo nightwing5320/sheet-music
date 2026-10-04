@@ -50,40 +50,94 @@ interface HeaderProps {
   setlistCount: number
   isSetlistOpen: boolean
   onToggleSetlist: () => void
-  onLogout: () => void
+  handleLogout: () => void
 }
 
-export function Header({ setlistCount, onToggleSetlist, onLogout }: HeaderProps) {
+export function Header({ 
+  userDisplayName,
+  setlistCount, 
+  onToggleSetlist, 
+  handleLogout 
+}: HeaderProps) {
   return (
-    <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px' }}>
+    <header 
+      style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        padding: '16px 24px', 
+        maxWidth: '1200px',
+        margin: '0 auto',
+        backgroundColor: 'var(--card-bg)',
+        borderBottom: '1px solid var(--border-color)',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+        transition: 'background-color 0.2s, border-color 0.2s',
+      }}
+    >
       {/* 左側標題區域... */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <h1 style={{ 
+          fontSize: '28px', 
+          fontWeight: '800', 
+          margin: 0, 
+          letterSpacing: '-0.5px',
+          color: 'var(--text-primary)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          🎼 樂譜庫
+        </h1>
+        <p style={{ 
+          margin: 0, 
+          fontSize: '18px', 
+          fontWeight: '600', 
+          color: 'var(--text-primary)' 
+        }}>
+          👋 嗨！{userDisplayName || '使用者'}
+        </p>
+      </div>
 
       {/* 📌 2. 右側按鈕區塊 (將 JSX 貼在這裡) */}
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div 
+        style={{ 
+          display: 'flex', 
+          gap: '12px', 
+          alignItems: 'center' 
+        }}
+      >
         
         {/* 明暗切換元件 */}
         <ThemeToggle />
 
         {/* 個人設定 */}
-        <Link href="/profile" style={secondaryButtonStyle}>
+        <Link 
+          href="/profile" 
+          style={secondaryButtonStyle}>
           <Settings size={18} />
           <span>個人設定</span>
         </Link>
 
         {/* 當日歌單 */}
-        <button onClick={onToggleSetlist} style={secondaryButtonStyle}>
+        <button 
+          onClick={onToggleSetlist} 
+          style={secondaryButtonStyle}>
           <ListMusic size={18} />
           <span>當日歌單 ({setlistCount})</span>
         </button>
 
         {/* 上傳樂譜 (主要動作) */}
-        <Link href="/upload" style={primaryButtonStyle}>
+        <Link  
+          href="/upload" 
+          style={primaryButtonStyle}>
           <Plus size={18} />
           <span>上傳樂譜</span>
         </Link>
 
         {/* 登出按鈕 */}
-        <button onClick={onLogout} style={dangerButtonStyle}>
+        <button 
+          onClick={handleLogout} 
+          style={dangerButtonStyle}>
           <LogOut size={18} />
           <span>登出</span>
         </button>
