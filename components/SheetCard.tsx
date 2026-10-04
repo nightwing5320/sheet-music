@@ -144,7 +144,7 @@ export function SheetCard({
               alignItems: 'center',
               justifyContent: 'center',
               gap: '6px',
-              padding: '9px 16px',
+              padding: '9px 14px',
               borderRadius: '10px',
               border: 'none',
               background: isInSetlist 
@@ -192,6 +192,7 @@ export function SheetCard({
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: '10px',
+                fontSize: '15px',
                 border: '1px solid rgba(239, 68, 68, 0.2)',
                 backgroundColor: 'rgba(239, 68, 68, 0.06)',
                 color: '#ef4444',
