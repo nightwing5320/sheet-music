@@ -158,8 +158,8 @@ export function SheetCard({
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '42px',
-                height: '42px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '10px',
                 backgroundColor: 'transparent',
                 border: '1px solid var(--border-color, #e2e8f0)',
@@ -179,7 +179,7 @@ export function SheetCard({
                 e.currentTarget.style.backgroundColor = 'transparent'
               }}
             >
-              <Trash2 size={18} />
+              <Trash2 size={15} />
             </button>
           )}
           </div>
