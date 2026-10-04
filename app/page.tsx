@@ -11,6 +11,8 @@ import { SetlistSection } from '@/components/SetlistSection'
 import { SheetCard } from '@/components/SheetCard'
 import { SheetViewerModal } from '@/components/SheetViewerModal'
 
+import { Music, Zap, Moon, HelpCircle } from 'lucide-react'
+
 // 強制動態渲染，防止 Next.js 建置預覽時因無金鑰失敗
 export const dynamic = 'force-dynamic'
 
@@ -272,12 +274,98 @@ export default function Home() {
         />
       </div>
 
-      {/* 分類 Tabs */}
+
+      {/* 彩色頁籤分類區域程式碼 */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px', flexWrap: 'wrap' }}>
-        <button onClick={() => setActiveTab('all')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', fontWeight: '700', fontSize: '14px', cursor: 'pointer', backgroundColor: activeTab === 'all' ? '#0d60bfe6' : 'var(--card-bg)', color: activeTab === 'all' ? 'white' : 'var(--text-secondary)' }}>🎵 全部 ({countAll})</button>
-        <button onClick={() => setActiveTab('fast')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', fontWeight: '700', fontSize: '14px', cursor: 'pointer', backgroundColor: activeTab === 'fast' ? '#f8b136e2' : 'var(--card-bg)', color: activeTab === 'fast' ? 'white' : 'var(--text-secondary)' }}>⚡ 快歌 ({countFast})</button>
-        <button onClick={() => setActiveTab('slow')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', fontWeight: '700', fontSize: '14px', cursor: 'pointer', backgroundColor: activeTab === 'slow' ? '#2fb689e3' : 'var(--card-bg)', color: activeTab === 'slow' ? 'white' : 'var(--text-secondary)' }}>🌙 慢歌 ({countSlow})</button>
-        <button onClick={() => setActiveTab('unclassified')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', fontWeight: '700', fontSize: '14px', cursor: 'pointer', backgroundColor: activeTab === 'unclassified' ? '#6b7280' : 'var(--card-bg)', color: activeTab === 'unclassified' ? 'white' : 'var(--text-secondary)' }}>❓ 未分類 ({countUnclassified})</button>
+        
+        {/* 🎵 全部 (藍色) */}
+        <button 
+          onClick={() => setActiveTab('all')} 
+          style={{ 
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 16px', 
+            borderRadius: '20px', 
+            border: 'none', 
+            fontWeight: '700', 
+            fontSize: '14px', 
+            cursor: 'pointer', 
+            backgroundColor: activeTab === 'all' ? '#0d60bfe6' : 'var(--card-bg)', 
+            color: activeTab === 'all' ? 'white' : 'var(--text-secondary)',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <Music size={15} />
+          <span>全部 ({countAll})</span>
+        </button>
+
+        {/* ⚡ 快歌 (黃色) */}
+        <button 
+          onClick={() => setActiveTab('fast')} 
+          style={{ 
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 16px', 
+            borderRadius: '20px', 
+            border: 'none', 
+            fontWeight: '700', 
+            fontSize: '14px', 
+            cursor: 'pointer', 
+            backgroundColor: activeTab === 'fast' ? '#f8b136e2' : 'var(--card-bg)', 
+            color: activeTab === 'fast' ? 'white' : 'var(--text-secondary)',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <Zap size={15} />
+          <span>快歌 ({countFast})</span>
+        </button>
+
+        {/* 🌙 慢歌 (綠色) */}
+        <button 
+          onClick={() => setActiveTab('slow')} 
+          style={{ 
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 16px', 
+            borderRadius: '20px', 
+            border: 'none', 
+            fontWeight: '700', 
+            fontSize: '14px', 
+            cursor: 'pointer', 
+            backgroundColor: activeTab === 'slow' ? '#2fb689e3' : 'var(--card-bg)', 
+            color: activeTab === 'slow' ? 'white' : 'var(--text-secondary)',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <Moon size={15} />
+          <span>慢歌 ({countSlow})</span>
+        </button>
+
+        {/* ❓ 未分類 (灰色/紅色) */}
+        <button 
+          onClick={() => setActiveTab('unclassified')} 
+          style={{ 
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 16px', 
+            borderRadius: '20px', 
+            border: 'none', 
+            fontWeight: '700', 
+            fontSize: '14px', 
+            cursor: 'pointer', 
+            backgroundColor: activeTab === 'unclassified' ? '#64748be6' : 'var(--card-bg)', 
+            color: activeTab === 'unclassified' ? 'white' : 'var(--text-secondary)',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <HelpCircle size={15} />
+          <span>未分類 ({countUnclassified})</span>
+        </button>
+
       </div>
 
       {/* 樂譜清單區塊 */}
