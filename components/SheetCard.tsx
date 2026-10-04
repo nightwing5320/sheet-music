@@ -86,7 +86,16 @@ export function SheetCard({
       </div>
 
       {/* 內容區域 */}
-      <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div 
+        style={{ 
+          padding: '24px', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '16px',
+          flex: 1,
+          justifyContent: 'space-between',
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
           <div>
             {/* 樂譜標題 */}
@@ -141,7 +150,7 @@ export function SheetCard({
         </div>
 
         {/* 底部功能鍵 */}
-        <div style={{ display: 'flex', gap: '8px', marginTop: '4px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', marginTop: 'auto', alignItems: 'center' }}>
           
           {/* 加入歌單按鈕 (改用 Lucide Check & Plus) */}
           <button
