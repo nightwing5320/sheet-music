@@ -132,7 +132,7 @@ export default function ProfilePage() {
               type="text"
               value={userEmail}
               disabled
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--border-color)', color: 'var(--text-secondary)', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: '#565656', color: 'var(--text-secondary)', boxSizing: 'border-box' }}
             />
           </div>
 
