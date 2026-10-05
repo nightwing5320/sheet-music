@@ -253,7 +253,7 @@ export function SheetViewerModal({
             }}
           >
             <ChevronLeft size={16} />
-            <span>上一首</span>
+            <span>上一首 / 上首</span>
           </button>
 
           <span style={{ fontSize: '13px', fontWeight: '600', color: 'rgba(255, 255, 255, 0.7)', padding: '0 6px' }}>
@@ -286,7 +286,7 @@ export function SheetViewerModal({
               if (!isNextDisabled) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'
             }}
           >
-            <span>下一首</span>
+            <span>下一首 / 下首</span>
             <ChevronRight size={16} />
           </button>
         </div>

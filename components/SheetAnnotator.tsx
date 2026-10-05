@@ -115,7 +115,7 @@ export function SheetAnnotator({
         }}>
           {/* 顏色選擇器 */}
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            {['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#ffffff', '#000000'].map((c) => (
+            {['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#000000', '#ffffff'].map((c) => (
               <button
                 key={c}
                 onClick={() => setColor(c)}
