@@ -117,7 +117,7 @@ export default function LoginPage() {
           width: '64px',
           height: '64px',
           borderRadius: '16px',
-          backgroundColor: 'var(--bg-secondary, #f1f5f9)',
+          backgroundColor: 'var(--card-bg)',
           border: '1px solid var(--border-color, #e2e8f0)',
           display: 'flex',
           alignItems: 'center',
