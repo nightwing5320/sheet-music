@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle' // 📌 1. 引入 ThemeToggle
 
 // 假設你有使用 lucide-react 或其他 Icon 套件（如果沒有可以用簡潔的文字/SVG）
-import { Moon, Settings, ListMusic, Plus, LogOut } from 'lucide-react'
+import { Moon, Settings, ListMusic, Plus, LogOut, Music2, Sparkles } from 'lucide-react'
 
 // 📌 1. 將樣式物件放在 Component 外面
 const baseButtonStyle = {
@@ -76,7 +76,7 @@ export function Header({
       }}
     >
       {/* 左側標題區域... */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <h1 style={{ 
           fontSize: '28px', 
           fontWeight: '800', 
@@ -85,17 +85,23 @@ export function Header({
           color: 'var(--text-primary)',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '10px'
         }}>
-          🎼 樂譜庫
+          <Music2 size={30} style={{ color: 'var(--text-primary)' }} />
+          <span>樂譜庫</span>
         </h1>
+
         <p style={{ 
           margin: 0, 
-          fontSize: '18px', 
+          fontSize: '16px', 
           fontWeight: '600', 
-          color: 'var(--text-primary)' 
+          color: 'var(--text-secondary)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
         }}>
-          👋 嗨！{userDisplayName || '使用者'}
+          <Sparkles size={18} style={{ color: '#f59e0b' }} />
+          <span>嗨！{userDisplayName || '使用者'}</span>
         </p>
       </div>
 
