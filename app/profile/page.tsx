@@ -4,6 +4,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import { 
+  ArrowLeft, 
+  User, 
+  UserCheck, 
+  KeyRound, 
+  Save, 
+  Lock 
+} from 'lucide-react'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -108,63 +116,157 @@ export default function ProfilePage() {
   }
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary)' }}>載入個人資料中...</div>
+    return (
+      <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary, #64748b)' }}>
+        載入個人資料中...
+      </div>
+    )
   }
 
-  
-
   return (
-    <main style={{ maxWidth: '520px', margin: '40px auto', padding: '24px', color: 'var(--text-primary)' }}>
-      <Link href="/" style={{ color: '#0070f3', textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '20px', display: 'inline-block' }}>
-        ← 返回樂譜庫
+    <main style={{ maxWidth: '520px', margin: '40px auto', padding: '24px', color: 'var(--text-primary, #0f172a)' }}>
+      
+      {/* 📌 返回樂譜庫按鈕 */}
+      <Link 
+        href="/" 
+        style={{ 
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          color: 'var(--text-secondary, #64748b)', 
+          textDecoration: 'none', 
+          fontSize: '14px', 
+          fontWeight: '500', 
+          padding: '6px 12px',
+          borderRadius: '8px',
+          border: '1px solid var(--border-color, #e2e8f0)',
+          marginBottom: '24px',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = '#2563eb'
+          e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.3)'
+          e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = 'var(--text-secondary, #64748b)'
+          e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
+          e.currentTarget.style.backgroundColor = 'transparent'
+        }}
+      >
+        <ArrowLeft size={16} />
+        <span>返回樂譜庫</span>
       </Link>
 
-      <h1 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '24px' }}>👤 個人資料設定</h1>
+      {/* 主標題 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+        <User size={26} style={{ color: 'var(--text-primary, #0f172a)' }} />
+        <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>個人資料設定</h1>
+      </div>
 
-      {/* 基本資料卡片 */}
-      <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>修改基本資料</h2>
+      {/* 📌 基本資料卡片 */}
+      <div style={{ 
+        backgroundColor: 'var(--card-bg, #ffffff)', 
+        border: '1px solid var(--border-color, #e2e8f0)', 
+        borderRadius: '16px', 
+        padding: '24px', 
+        marginBottom: '24px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+          <UserCheck size={20} style={{ color: 'var(--text-primary, #0f172a)' }} />
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '700' }}>修改基本資料</h2>
+        </div>
         
         <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', color: 'var(--text-secondary)' }}>帳號 Email</label>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', color: 'var(--text-secondary, #64748b)', fontWeight: '500' }}>
+              帳號 Email
+            </label>
             <input
               type="text"
               value={userEmail}
               disabled
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: '#565656', color: 'var(--text-secondary)', boxSizing: 'border-box' }}
+              style={{ 
+                width: '100%', 
+                padding: '10px 12px', 
+                borderRadius: '8px', 
+                border: '1px solid var(--border-color, #e2e8f0)', 
+                backgroundColor: 'var(--bg-secondary, #f1f5f9)', 
+                color: 'var(--text-secondary, #64748b)', 
+                boxSizing: 'border-box',
+                opacity: 0.7,
+                cursor: 'not-allowed'
+              }}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>顯示名稱</label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>
+              顯示名稱
+            </label>
             <input
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
               placeholder="例如：大衛"
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', boxSizing: 'border-box' }}
+              style={{ 
+                width: '100%', 
+                padding: '10px 12px', 
+                borderRadius: '8px', 
+                border: '1px solid var(--border-color, #cbd5e1)', 
+                backgroundColor: 'var(--card-bg, #ffffff)', 
+                color: 'var(--text-primary, #0f172a)', 
+                boxSizing: 'border-box' 
+              }}
             />
           </div>
 
           <button
             type="submit"
             disabled={savingProfile}
-            style={{ padding: '10px', borderRadius: '8px', backgroundColor: '#0070f3', color: 'white', border: 'none', fontWeight: '700', cursor: savingProfile ? 'not-allowed' : 'pointer' }}
+            style={{ 
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              height: '42px', 
+              borderRadius: '10px', 
+              backgroundColor: savingProfile ? 'var(--text-secondary, #94a3b8)' : 'var(--text-primary, #1e293b)', 
+              color: 'var(--background, #ffffff)', 
+              border: 'none', 
+              fontWeight: '600', 
+              fontSize: '15px',
+              cursor: savingProfile ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease',
+              marginTop: '4px'
+            }}
           >
-            {savingProfile ? '儲存中...' : '儲存顯示名稱'}
+            <Save size={18} />
+            <span>{savingProfile ? '儲存中...' : '儲存顯示名稱'}</span>
           </button>
         </form>
       </div>
 
-      {/* 修改密碼卡片 */}
-      <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
-        <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>重設密碼</h2>
+      {/* 📌 修改密碼卡片 */}
+      <div style={{ 
+        backgroundColor: 'var(--card-bg, #ffffff)', 
+        border: '1px solid var(--border-color, #e2e8f0)', 
+        borderRadius: '16px', 
+        padding: '24px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+          <KeyRound size={20} style={{ color: 'var(--text-primary, #0f172a)' }} />
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '700' }}>重設密碼</h2>
+        </div>
 
         <form onSubmit={handleUpdatePassword} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>新密碼</label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>
+              新密碼
+            </label>
             <input
               type="password"
               value={newPassword}
@@ -172,12 +274,22 @@ export default function ProfilePage() {
               required
               minLength={6}
               placeholder="至少 6 位數"
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', boxSizing: 'border-box' }}
+              style={{ 
+                width: '100%', 
+                padding: '10px 12px', 
+                borderRadius: '8px', 
+                border: '1px solid var(--border-color, #cbd5e1)', 
+                backgroundColor: 'var(--card-bg, #ffffff)', 
+                color: 'var(--text-primary, #0f172a)', 
+                boxSizing: 'border-box' 
+              }}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>確認新密碼</label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>
+              確認新密碼
+            </label>
             <input
               type="password"
               value={confirmPassword}
@@ -185,16 +297,40 @@ export default function ProfilePage() {
               required
               minLength={6}
               placeholder="再次輸入新密碼"
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', boxSizing: 'border-box' }}
+              style={{ 
+                width: '100%', 
+                padding: '10px 12px', 
+                borderRadius: '8px', 
+                border: '1px solid var(--border-color, #cbd5e1)', 
+                backgroundColor: 'var(--card-bg, #ffffff)', 
+                color: 'var(--text-primary, #0f172a)', 
+                boxSizing: 'border-box' 
+              }}
             />
           </div>
 
           <button
             type="submit"
             disabled={savingPassword}
-            style={{ padding: '10px', borderRadius: '8px', backgroundColor: '#10b981', color: 'white', border: 'none', fontWeight: '700', cursor: savingPassword ? 'not-allowed' : 'pointer' }}
+            style={{ 
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              height: '42px', 
+              borderRadius: '10px', 
+              backgroundColor: savingPassword ? 'var(--text-secondary, #94a3b8)' : '#059669', // 柔和翡翠綠代表安全動作
+              color: '#ffffff', 
+              border: 'none', 
+              fontWeight: '600', 
+              fontSize: '15px',
+              cursor: savingPassword ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease',
+              marginTop: '4px'
+            }}
           >
-            {savingPassword ? '更新中...' : '更新密碼'}
+            <Lock size={18} />
+            <span>{savingPassword ? '更新中...' : '更新密碼'}</span>
           </button>
         </form>
       </div>
