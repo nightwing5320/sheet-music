@@ -11,7 +11,8 @@ import {
   LogIn, 
   UserPlus, 
   AlertCircle, 
-  CheckCircle2 
+  CheckCircle2,
+  Piano
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -123,7 +124,7 @@ export default function LoginPage() {
           justifyContent: 'center',
           marginBottom: '20px'
         }}>
-          <Music2 size={32} style={{ color: 'var(--text-primary, #0f172a)' }} />
+          <Piano size={32} style={{ color: 'var(--text-primary)' }} />
         </div>
 
         {/* 標題與副標題 */}
