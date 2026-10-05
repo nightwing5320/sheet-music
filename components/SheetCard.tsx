@@ -203,7 +203,7 @@ export function SheetCard({
               borderRadius: '10px',
               border: 'none',
               background: isInSetlist 
-                ? 'var(--active-green-bg, #ecfdf5)'    // 已加入：極淡柔和翡翠綠底
+                ? 'var(--active-green-bg, #c9fae3)'    // 已加入：極淡柔和翡翠綠底
                 : 'var(--text-primary, #1e293b)',      // 未加入：深灰石墨色
               color: isInSetlist 
                 ? 'var(--active-green-text, #047857)'  // 已加入：深翡翠綠字
