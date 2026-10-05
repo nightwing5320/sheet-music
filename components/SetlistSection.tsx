@@ -85,7 +85,7 @@ export function SetlistSection({
               justifyContent: 'space-between',
               padding: '12px 16px',
               borderRadius: '12px',
-              backgroundColor: 'var(--bg-secondary, #f8fafc)',
+              backgroundColor: 'var(--card-bg)',
               border: '1px solid var(--border-color, #e2e8f0)',
               transition: 'all 0.2s ease',
             }}
@@ -95,7 +95,7 @@ export function SetlistSection({
               <span style={{
                 fontSize: '15px',
                 fontWeight: '700',
-                color: 'var(--text-secondary, #64748b)',
+                color: 'var(--text-secondary)',
                 minWidth: '24px'
               }}>
                 {index + 1}.
