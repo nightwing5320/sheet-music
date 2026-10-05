@@ -1,15 +1,24 @@
-// app/login/page.tsx
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import { 
+  Music2, 
+  Mail, 
+  Lock, 
+  User, 
+  LogIn, 
+  UserPlus, 
+  AlertCircle, 
+  CheckCircle2 
+} from 'lucide-react';
 
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false); // 控制登入/註冊狀態
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState(''); // 📌 新增：顯示名稱 State
+  const [displayName, setDisplayName] = useState(''); // 顯示名稱 State
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
 
@@ -85,52 +94,55 @@ export default function LoginPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#e9ecef',
+      backgroundColor: 'var(--background, #0f172a)',
       padding: '20px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
       <div style={{
         width: '100%',
         maxWidth: '420px',
-        backgroundColor: '#ffffff',
-        borderRadius: '24px',
-        padding: '40px 32px',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)',
+        backgroundColor: 'var(--card-bg, #ffffff)',
+        border: '1px solid var(--border-color, #e2e8f0)',
+        borderRadius: '16px',
+        padding: '36px 28px',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        boxSizing: 'border-box'
       }}>
         {/* LOGO 圖示 */}
         <div style={{
-          width: '72px',
-          height: '72px',
+          width: '64px',
+          height: '64px',
           borderRadius: '16px',
-          backgroundColor: '#fef3c7',
+          backgroundColor: 'var(--bg-secondary, #f1f5f9)',
+          border: '1px solid var(--border-color, #e2e8f0)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '36px',
           marginBottom: '20px'
         }}>
-          🎼
+          <Music2 size={32} style={{ color: 'var(--text-primary, #0f172a)' }} />
         </div>
 
         {/* 標題與副標題 */}
         <h1 style={{
-          fontSize: '24px',
+          fontSize: '22px',
           fontWeight: '800',
-          color: '#1f2937',
-          margin: '0 0 4px 0',
+          color: 'var(--text-primary, #0f172a)',
+          margin: '0 0 6px 0',
           textAlign: 'center',
           letterSpacing: '-0.3px'
         }}>
           樂譜庫 Sheet Music Library
         </h1>
         <p style={{
-          fontSize: '15px',
-          color: '#6b7280',
-          margin: '0 0 28px 0',
-          textAlign: 'center'
+          fontSize: '14px',
+          color: 'var(--text-secondary, #64748b)',
+          margin: '0 0 24px 0',
+          textAlign: 'center',
+          fontWeight: '500'
         }}>
           {isSignUp ? '建立新帳號以繼續' : '登入以繼續'}
         </p>
@@ -142,29 +154,40 @@ export default function LoginPage() {
             marginBottom: '20px',
             padding: '12px 14px',
             borderRadius: '10px',
-            backgroundColor: message.type === 'error' ? '#fee2e2' : '#d1fae5',
-            color: message.type === 'error' ? '#dc2626' : '#059669',
-            fontSize: '14px',
+            backgroundColor: message.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+            border: `1px solid ${message.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
+            color: message.type === 'error' ? '#ef4444' : '#10b981',
+            fontSize: '13.5px',
             boxSizing: 'border-box',
-            textAlign: 'center'
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            {message.text}
+            {message.type === 'error' ? (
+              <AlertCircle size={18} style={{ flexShrink: 0 }} />
+            ) : (
+              <CheckCircle2 size={18} style={{ flexShrink: 0 }} />
+            )}
+            <span>{message.text}</span>
           </div>
         )}
 
         {/* 表單內容 */}
         <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-          {/* 📌 新增：顯示名稱輸入框（僅在切換至「註冊」時顯示） */}
+          {/* 顯示名稱輸入框（僅註冊時顯示） */}
           {isSignUp && (
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '18px' }}>
               <label style={{
-                display: 'block',
-                marginBottom: '8px',
-                fontSize: '14px',
-                fontWeight: '700',
-                color: '#374151'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                marginBottom: '6px',
+                fontSize: '13.5px',
+                fontWeight: '600',
+                color: 'var(--text-primary, #0f172a)'
               }}>
-                顯示名稱 / 姓名 *
+                <User size={15} style={{ color: 'var(--text-secondary, #64748b)' }} />
+                <span>顯示名稱 / 姓名 *</span>
               </label>
               <input
                 type="text"
@@ -174,30 +197,33 @@ export default function LoginPage() {
                 required={isSignUp}
                 style={{
                   width: '100%',
-                  padding: '14px 16px',
+                  padding: '10px 12px',
                   fontSize: '15px',
-                  borderRadius: '12px',
-                  border: '1px solid #e5e7eb',
-                  backgroundColor: '#f9fafb',
-                  color: '#111827',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color, #cbd5e1)',
+                  backgroundColor: 'var(--card-bg, #ffffff)',
+                  color: 'var(--text-primary, #0f172a)',
                   outline: 'none',
                   boxSizing: 'border-box',
-                  transition: 'border-color 0.2s, background-color 0.2s'
+                  transition: 'all 0.2s ease'
                 }}
               />
             </div>
           )}
 
           {/* Email 輸入框 */}
-          <div style={{ marginBottom: '20px' }}>
+          <div style={{ marginBottom: '18px' }}>
             <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '700',
-              color: '#374151'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              marginBottom: '6px',
+              fontSize: '13.5px',
+              fontWeight: '600',
+              color: 'var(--text-primary, #0f172a)'
             }}>
-              Email
+              <Mail size={15} style={{ color: 'var(--text-secondary, #64748b)' }} />
+              <span>Email</span>
             </label>
             <input
               type="email"
@@ -207,29 +233,32 @@ export default function LoginPage() {
               required
               style={{
                 width: '100%',
-                padding: '14px 16px',
+                padding: '10px 12px',
                 fontSize: '15px',
-                borderRadius: '12px',
-                border: '1px solid #e5e7eb',
-                backgroundColor: '#f9fafb',
-                color: '#111827',
+                borderRadius: '8px',
+                border: '1px solid var(--border-color, #cbd5e1)',
+                backgroundColor: 'var(--card-bg, #ffffff)',
+                color: 'var(--text-primary, #0f172a)',
                 outline: 'none',
                 boxSizing: 'border-box',
-                transition: 'border-color 0.2s, background-color 0.2s'
+                transition: 'all 0.2s ease'
               }}
             />
           </div>
 
           {/* 密碼輸入框 */}
-          <div style={{ marginBottom: '28px' }}>
+          <div style={{ marginBottom: '24px' }}>
             <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '700',
-              color: '#374151'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              marginBottom: '6px',
+              fontSize: '13.5px',
+              fontWeight: '600',
+              color: 'var(--text-primary, #0f172a)'
             }}>
-              密碼
+              <Lock size={15} style={{ color: 'var(--text-secondary, #64748b)' }} />
+              <span>密碼</span>
             </label>
             <input
               type="password"
@@ -240,15 +269,15 @@ export default function LoginPage() {
               minLength={6}
               style={{
                 width: '100%',
-                padding: '14px 16px',
+                padding: '10px 12px',
                 fontSize: '15px',
-                borderRadius: '12px',
-                border: '1px solid #e5e7eb',
-                backgroundColor: '#f9fafb',
-                color: '#111827',
+                borderRadius: '8px',
+                border: '1px solid var(--border-color, #cbd5e1)',
+                backgroundColor: 'var(--card-bg, #ffffff)',
+                color: 'var(--text-primary, #0f172a)',
                 outline: 'none',
                 boxSizing: 'border-box',
-                transition: 'border-color 0.2s, background-color 0.2s'
+                transition: 'all 0.2s ease'
               }}
             />
           </div>
@@ -259,24 +288,40 @@ export default function LoginPage() {
             disabled={loading}
             style={{
               width: '100%',
-              padding: '14px',
-              borderRadius: '12px',
-              backgroundColor: '#1e3a8a',
-              color: '#ffffff',
-              fontWeight: '700',
-              fontSize: '16px',
+              height: '42px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              borderRadius: '10px',
+              backgroundColor: loading ? 'var(--text-secondary, #94a3b8)' : 'var(--text-primary, #1e293b)',
+              color: 'var(--background, #ffffff)',
+              fontWeight: '600',
+              fontSize: '15px',
               border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 12px rgba(30, 58, 138, 0.25)',
-              transition: 'background-color 0.2s, transform 0.1s'
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+              transition: 'all 0.2s ease'
             }}
           >
-            {loading ? '處理中...' : isSignUp ? '註冊帳號' : '登入'}
+            {loading ? (
+              <span>處理中...</span>
+            ) : isSignUp ? (
+              <>
+                <UserPlus size={18} />
+                <span>註冊帳號</span>
+              </>
+            ) : (
+              <>
+                <LogIn size={18} />
+                <span>登入</span>
+              </>
+            )}
           </button>
         </form>
 
-        {/* 切換按鈕 */}
-        <div style={{ marginTop: '24px', textAlign: 'center' }}>
+        {/* 切換註冊/登入模式 */}
+        <div style={{ marginTop: '20px', textAlign: 'center' }}>
           <button
             type="button"
             onClick={() => {
@@ -286,17 +331,20 @@ export default function LoginPage() {
             style={{
               background: 'none',
               border: 'none',
-              color: '#111827',
+              color: 'var(--text-secondary, #64748b)',
               fontSize: '14px',
-              fontWeight: '700',
+              fontWeight: '500',
               cursor: 'pointer',
-              padding: '4px 8px'
+              padding: '4px 8px',
+              transition: 'all 0.2s ease'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#2563eb'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary, #64748b)'}
           >
             {isSignUp ? (
-              <>已有帳號？ <span style={{ textDecoration: 'underline' }}>立即登入</span></>
+              <>已有帳號？ <span style={{ fontWeight: '700', textDecoration: 'underline' }}>立即登入</span></>
             ) : (
-              <>還沒有帳號？ <span style={{ textDecoration: 'underline' }}>立即註冊</span></>
+              <>還沒有帳號？ <span style={{ fontWeight: '700', textDecoration: 'underline' }}>立即註冊</span></>
             )}
           </button>
         </div>
