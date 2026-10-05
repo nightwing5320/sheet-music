@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle' // 📌 1. 引入 ThemeToggle
 
 // 假設你有使用 lucide-react 或其他 Icon 套件（如果沒有可以用簡潔的文字/SVG）
-import { Moon, Settings, ListMusic, Plus, LogOut, Music2, Sparkles } from 'lucide-react'
+import { Settings, ListMusic, Plus, LogOut, Piano, Sparkles } from 'lucide-react'
 
 // 📌 1. 將樣式物件放在 Component 外面
 const baseButtonStyle = {
@@ -87,7 +87,7 @@ export function Header({
           alignItems: 'center',
           gap: '10px'
         }}>
-          <Music2 size={30} style={{ color: 'var(--text-primary)' }} />
+          <Piano size={30} style={{ color: 'var(--text-primary)' }} />
           <span>樂譜庫</span>
         </h1>
 
