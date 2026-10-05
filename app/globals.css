@@ -3,7 +3,7 @@
 :root {
   color-scheme: light dark;
   
-  /* 📌 淺色模式：低彩度高級灰調 */
+  /* 淺色模式：低彩度高級灰調 */
   --background: #f4f5f7;        /* 柔和暖灰色，比純白更有質感 */
   --card-bg: #ffffff;          /* 卡片保持乾淨純白，與背景形成微妙層次 */
   --text-primary: #1e293b;     /* 深石墨灰，取代純黑 */
@@ -13,7 +13,7 @@
   --tag-bg: #f1f5f9;
   --tag-text: #475569;
 
-  /* 📌 低彩度功能點綴色 */
+  /* 低彩度功能點綴色 */
   --accent-primary: #475569;   /* 主按鈕：低調深灰藍 */
   --accent-hover: #334155;     /* 主按鈕 Hover */
   --accent-purple: #6b7280;    /* 歌單按鈕：低彩度中灰紫 */
@@ -21,7 +21,7 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
 
-  /* 📌 新增：全域字體尺寸規範 */
+  /* 新增：全域字體尺寸規範 */
   --font-size-base: 18px;       /* 原 16px 放大至 18px */
   --font-size-lg: 22px;         /* 大字體 */
   --font-size-xl: 28px;         /* 小標題 */
@@ -29,7 +29,7 @@
 }
 
 .dark {
-  /* 📌 深色模式：沉穩暗石墨調 (無高飽和刺眼色) */
+  /* 深色模式：沉穩暗石墨調 (無高飽和刺眼色) */
   --background: #0f172a;        /* 深深藍灰 (Slate 900) */
   --card-bg: #1e293b;          /* 卡片背景 (Slate 800) */
   --text-primary: #f1f5f9;     /* 柔和乳白 */
@@ -39,7 +39,7 @@
   --tag-bg: #334155;
   --tag-text: #cbd5e1;
 
-  /* 📌 深色模式點綴色 (調低亮度與飽和度) */
+  /* 深色模式點綴色 (調低亮度與飽和度) */
   --accent-primary: #334155;
   --accent-hover: #475569;
   --accent-purple: #4b5563;
@@ -55,7 +55,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* 📌 為所有會變色的元素加入平滑過渡動畫 (0.3秒) */
+/* 為所有會變色的元素加入平滑過渡動畫 (0.3秒) */
 body, 
 header, 
 div, 
@@ -83,13 +83,13 @@ body {
   margin: 0;
 }
 
-/* 1. 確保所有 input 輸入框文字深色、背景白色 */
+/* 確保所有 input 輸入框文字深色、背景白色 */
 input, select, textarea {
   color: #111827 !important;
   background-color: #ffffff !important;
 }
 
-/* 2. 解決 Chrome / Edge / Safari 瀏覽器「自動填入 (Autofill)」變色問題 */
+/* 解決 Chrome / Edge / Safari 瀏覽器「自動填入 (Autofill)」變色問題 */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
@@ -99,7 +99,7 @@ input:-webkit-autofill:active {
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* 3. 設定 Placeholder 占位文字顏色 */
+/* 設定 Placeholder 占位文字顏色 */
 input::placeholder {
   color: #9ca3af !important;
   opacity: 1;
@@ -111,7 +111,7 @@ html {
   scrollbar-gutter: stable; /* 避免切換分類時滾動條導致版面跳動 */
 }
 
-/* 📌 放大所有標題層次 */
+/* 放大所有標題層次 */
 h1 { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.025em; line-height: 1.2; }
 h2 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
 h3 { font-size: 1.35rem; font-weight: 600; }

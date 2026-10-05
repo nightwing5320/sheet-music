@@ -25,14 +25,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // 📌 2. 加上 suppressHydrationWarning 避免 next-themes 在 SSR 與 Client 屬性比對時跳警告
+    // 加上 suppressHydrationWarning 避免 next-themes 在 SSR 與 Client 屬性比對時跳警告
     <html
       lang="zh-TW"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {/* 📌 3. 用 ThemeProvider 包裹全頁子元件 */}
+        {/* 用 ThemeProvider 包裹全頁子元件 */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -81,7 +81,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
   return (
     <main style={{ maxWidth: '520px', margin: '40px auto', padding: '24px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       
-      {/* 📌 返回樂譜庫 (Ghost 風格 Hover 效果) */}
+      {/* 返回樂譜庫 (Ghost 風格 Hover 效果) */}
       <Link 
         href="/" 
         style={{ 
@@ -176,7 +176,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
           />
         </div>
 
-        {/* 📌 速度分類選單 */}
+        {/* 速度分類選單 */}
         <div>
           <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: 'var(--text-primary, #0f172a)' }}>
             速度分類
@@ -202,7 +202,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
           </select>
         </div>
 
-        {/* 📌 儲存按鈕 */}
+        {/* 儲存按鈕 */}
         <button
           type="submit"
           disabled={saving}

@@ -85,7 +85,7 @@ export default function UploadPage() {
   return (
     <main style={{ maxWidth: '520px', margin: '40px auto', padding: '24px', color: 'var(--text-primary, #0f172a)' }}>
       
-      {/* 📌 返回樂譜庫按鈕 */}
+      {/* 返回樂譜庫按鈕 */}
       <Link 
         href="/" 
         style={{ 
@@ -197,7 +197,7 @@ export default function UploadPage() {
           </select>
         </div>
 
-        {/* 📌 上傳區域 */}
+        {/* 上傳區域 */}
         <div>
           <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>
             樂譜圖片 *
@@ -246,7 +246,7 @@ export default function UploadPage() {
           </label>
         </div>
 
-        {/* 📌 預覽選擇的頁數 */}
+        {/* 預覽選擇的頁數 */}
         {previewUrls.length > 0 && (
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
@@ -268,7 +268,7 @@ export default function UploadPage() {
           </div>
         )}
 
-        {/* 📌 提交按鈕 */}
+        {/* 提交按鈕 */}
         <button
           type="submit"
           disabled={uploading}

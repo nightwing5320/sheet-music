@@ -77,7 +77,7 @@ export function SheetViewerModal({
         touchAction: isEditing ? 'none' : 'pan-y'
       }}
     >
-      {/* 📌 頂部右上角：塗鴉筆記與關閉按鈕 */}
+      {/* 頂部右上角：塗鴉筆記與關閉按鈕 */}
       <div style={{ position: 'fixed', top: '24px', right: '24px', display: 'flex', gap: '10px', zIndex: 10001 }}>
         <button
           onClick={(e) => {
@@ -155,7 +155,7 @@ export function SheetViewerModal({
         </button>
       </div>
 
-      {/* 📌 頂部左上角：歌單資訊標籤 */}
+      {/* 頂部左上角：歌單資訊標籤 */}
       {currentSetlistIndex !== null && setlist[currentSetlistIndex] && (
         <div style={{
           position: 'fixed',
@@ -206,7 +206,7 @@ export function SheetViewerModal({
         </SheetAnnotator>
       </div>
 
-      {/* 📌 底部懸浮膠囊翻頁導覽 */}
+      {/* 底部懸浮膠囊翻頁導覽 */}
       {!isEditing && (
         <div 
           style={{ 

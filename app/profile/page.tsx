@@ -126,7 +126,7 @@ export default function ProfilePage() {
   return (
     <main style={{ maxWidth: '520px', margin: '40px auto', padding: '24px', color: 'var(--text-primary, #0f172a)' }}>
       
-      {/* 📌 返回樂譜庫按鈕 */}
+      {/* 返回樂譜庫按鈕 */}
       <Link 
         href="/" 
         style={{ 
@@ -164,7 +164,7 @@ export default function ProfilePage() {
         <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>個人資料設定</h1>
       </div>
 
-      {/* 📌 基本資料卡片 */}
+      {/* 基本資料卡片 */}
       <div style={{ 
         backgroundColor: 'var(--card-bg, #ffffff)', 
         border: '1px solid var(--border-color, #e2e8f0)', 
@@ -249,7 +249,7 @@ export default function ProfilePage() {
         </form>
       </div>
 
-      {/* 📌 修改密碼卡片 */}
+      {/* 修改密碼卡片 */}
       <div style={{ 
         backgroundColor: 'var(--card-bg, #ffffff)', 
         border: '1px solid var(--border-color, #e2e8f0)', 

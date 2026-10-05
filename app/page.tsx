@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Sheet } from '@/types' // 📌 匯入統一型態
 
-// 📌 匯入獨立元件
+// 匯入獨立元件
 import { Header } from '@/components/Header'
 import { SetlistSection } from '@/components/SetlistSection'
 import { SheetCard } from '@/components/SheetCard'
@@ -25,7 +25,7 @@ export default function Home() {
   const [setlist, setSetlist] = useState<Sheet[]>([])
   const [isSetlistOpen, setIsSetlistOpen] = useState(false)
 
-  // 📌 記錄目前選中的樂譜物件與 Modal 狀態
+  // 記錄目前選中的樂譜物件與 Modal 狀態
   const [selectedSheet, setSelectedSheet] = useState<Sheet | null>(null)
   const [activeSheetImages, setActiveSheetImages] = useState<string[]>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -37,10 +37,10 @@ export default function Home() {
   const router = useRouter()
   const supabase = createClient()
 
-  // 1. 筆記資料 State
+  // 筆記資料 State
   const [annotations, setAnnotations] = useState<Record<string, any>>({})
 
-  // 2. 初始讀取 LocalStorage 紀錄
+  // 初始讀取 LocalStorage 紀錄
   useEffect(() => {
     const savedAnnotations = localStorage.getItem('worship_sheet_annotations')
     if (savedAnnotations) {
@@ -52,7 +52,7 @@ export default function Home() {
     }
   }, [])
 
-  // 3. 更新筆記並同步存至 LocalStorage
+  // 更新筆記並同步存至 LocalStorage
   const handleUpdateAnnotations = (annotationKey: string, newPaths: any[]) => {
     console.log('✍️ 正在儲存筆記，Key 為:', annotationKey, '內容:', newPaths)
     setAnnotations((prev) => {
@@ -177,7 +177,7 @@ export default function Home() {
     if (window.confirm('確定要清除今天的敬拜歌單嗎？')) setSetlist([])
   }
 
-  // 📌 開啟 Modal 時，同步保存目前點擊的 Sheet 物件
+  // 開啟 Modal 時，同步保存目前點擊的 Sheet 物件
   const openModal = (sheet: Sheet, setlistIdx: number | null = null) => {
     const pages = (sheet.image_urls && sheet.image_urls.length > 0) ? sheet.image_urls : [sheet.file_url]
     setSelectedSheet(sheet)
@@ -243,7 +243,7 @@ export default function Home() {
 
   return (
     <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px 20px', color: 'var(--text-primary)' }}>
-      {/* 1️⃣ 頂部 Header 元件 */}
+      {/* 頂部 Header 元件 */}
       <Header
         userDisplayName={userDisplayName}
         setlistCount={setlist.length}
@@ -252,7 +252,7 @@ export default function Home() {
         onLogout={handleLogout}
       />
 
-      {/* 2️⃣ 歌單展折區元件 */}
+      {/* 歌單展折區元件 */}
       {isSetlistOpen && (
         <SetlistSection
           setlist={setlist}
@@ -278,7 +278,7 @@ export default function Home() {
       {/* 彩色頁籤分類區域程式碼 */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px', flexWrap: 'wrap' }}>
         
-        {/* 🎵 全部 (藍色) */}
+        {/* 全部 (藍色) */}
         <button 
           onClick={() => setActiveTab('all')} 
           style={{ 
@@ -300,7 +300,7 @@ export default function Home() {
           <span>全部 ({countAll})</span>
         </button>
 
-        {/* ⚡ 快歌 (黃色) */}
+        {/* 快歌 (黃色) */}
         <button 
           onClick={() => setActiveTab('fast')} 
           style={{ 
@@ -322,7 +322,7 @@ export default function Home() {
           <span>快歌 ({countFast})</span>
         </button>
 
-        {/* 🌙 慢歌 (綠色) */}
+        {/* 慢歌 (綠色) */}
         <button 
           onClick={() => setActiveTab('slow')} 
           style={{ 
@@ -344,7 +344,7 @@ export default function Home() {
           <span>慢歌 ({countSlow})</span>
         </button>
 
-        {/* ❓ 未分類 (灰色/紅色) */}
+        {/* 未分類 (灰色/紅色) */}
         <button 
           onClick={() => setActiveTab('unclassified')} 
           style={{ 
@@ -390,16 +390,16 @@ export default function Home() {
         </div>
       )}
 
-      {/* 📌 修正後的 SheetViewerModal 渲染條件 */}
+      {/* 修正後的 SheetViewerModal 渲染條件 */}
       {activeSheetImages.length > 0 && selectedSheet && (
         <SheetViewerModal
-          selectedSheet={selectedSheet} // 📌 傳入目前選中的樂譜物件
+          selectedSheet={selectedSheet} // 傳入目前選中的樂譜物件
           activeSheetImages={activeSheetImages}
           currentImageIndex={currentImageIndex}
           currentSetlistIndex={currentSetlistIndex}
           setlist={setlist}
-          annotations={annotations} // 📌 新增此行
-          onUpdateAnnotations={handleUpdateAnnotations} // 📌 新增此行
+          annotations={annotations} // 新增此行
+          onUpdateAnnotations={handleUpdateAnnotations} // 新增此行
           onClose={closeModal}
           onPrev={goToPrevPageOrTrack}
           onNext={goToNextPageOrTrack}
