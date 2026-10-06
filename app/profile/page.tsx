@@ -192,8 +192,8 @@ export default function ProfilePage() {
                 padding: '10px 12px', 
                 borderRadius: '8px', 
                 border: '1px solid var(--border-color, #e2e8f0)', 
-                backgroundColor: 'var(--bg-secondary, #f1f5f9)', 
-                color: '#64748b', 
+                backgroundColor: '#bdbebfca', 
+                color: 'var(--text-secondary, #64748b)', 
                 boxSizing: 'border-box',
                 opacity: 0.7,
                 cursor: 'not-allowed'
