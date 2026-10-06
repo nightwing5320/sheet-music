@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle' // 引入 ThemeToggle
 
-// 假設你有使用 lucide-react 或其他 Icon 套件（如果沒有可以用簡潔的文字/SVG）
 import { Settings, ListMusic, Plus, LogOut, Piano, Sparkles } from 'lucide-react'
 
 // 將樣式物件放在 Component 外面

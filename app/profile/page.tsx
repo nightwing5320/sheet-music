@@ -180,7 +180,7 @@ export default function ProfilePage() {
         
         <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', color: 'var(--text-secondary, #64748b)', fontWeight: '500' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', color: '#64748b', fontWeight: '500' }}>
               帳號 Email
             </label>
             <input
