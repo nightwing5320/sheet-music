@@ -91,7 +91,7 @@ export function SheetViewerModal({
             height: '38px',
             padding: '0 16px',
             borderRadius: '10px',
-            backgroundColor: isEditing ? '#059669' : 'rgba(255, 255, 255, 0.1)',
+            backgroundColor: isEditing ? '#059669' : 'rgba(15, 23, 42, 0.85)',
             border: '1px solid rgba(255, 255, 255, 0.18)',
             color: '#ffffff',
             fontWeight: '600',
@@ -100,12 +100,6 @@ export function SheetViewerModal({
             backdropFilter: 'blur(8px)',
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
             transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            if (!isEditing) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'
-          }}
-          onMouseLeave={(e) => {
-            if (!isEditing) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
           }}
         >
           {isEditing ? (
@@ -147,7 +141,7 @@ export function SheetViewerModal({
             e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.9)'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.85)'
             e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.18)'
           }}
         >
@@ -164,7 +158,7 @@ export function SheetViewerModal({
           display: 'inline-flex',
           alignItems: 'center',
           gap: '8px',
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          backgroundColor: 'rgba(15, 23, 42, 0.85)',
           border: '1px solid rgba(255, 255, 255, 0.18)',
           color: '#ffffff',
           padding: '8px 16px',
