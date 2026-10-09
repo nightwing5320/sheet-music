@@ -129,7 +129,7 @@ export function SheetViewerModal({
             width: '38px',
             height: '38px',
             borderRadius: '10px',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            backgroundColor: 'rgba(15, 23, 42, 0.85)',
             border: '1px solid rgba(255, 255, 255, 0.18)',
             color: '#ffffff', 
             cursor: 'pointer',
@@ -142,7 +142,7 @@ export function SheetViewerModal({
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.85)'
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.18)'
+            e.currentTarget.style.borderColor = 'rgba(15, 23, 42, 0.13)'
           }}
         >
           <X size={18} />
