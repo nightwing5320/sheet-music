@@ -13,7 +13,12 @@ import {
   CheckCircle2, 
   LogOut,
   RefreshCw,
-  Search
+  Search,
+  Edit3,
+  X,
+  Check,
+  Mail,
+  User
 } from 'lucide-react'
 
 interface UserProfile {
@@ -35,13 +40,17 @@ export default function AdminPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [users, setUsers] = useState<UserProfile[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [filter, setFilter] = useState<'pending' | 'approved' | 'all'>('pending')
+  const [filter, setFilter] = useState<'pending' | 'approved' | 'all'>('all')
+
+  // 📌 正在編輯的使用者 State
+  const [editingUser, setEditingUser] = useState<UserProfile | null>(null)
+  const [editDisplayName, setEditDisplayName] = useState('')
+  const [editEmail, setEditEmail] = useState('')
 
   useEffect(() => {
     checkAdminAndFetchUsers()
   }, [])
 
-  // 檢查 Session 並從 API Route 抓取所有 Profiles
   const checkAdminAndFetchUsers = async () => {
     try {
       setLoading(true)
@@ -54,7 +63,6 @@ export default function AdminPage() {
 
       setCurrentUser(session.user)
 
-      // 1. 驗證當前登入者是否為 Admin
       const { data: myProfile } = await supabase
         .from('profiles')
         .select('is_admin')
@@ -69,7 +77,6 @@ export default function AdminPage() {
 
       setIsAdmin(true)
 
-      // 2. 📌 關鍵修改：改由後端 API (Service Role) 獲取「所有」使用者 Profiles 清單
       const res = await fetch('/api/admin/users')
       const result = await res.json()
 
@@ -84,14 +91,13 @@ export default function AdminPage() {
     }
   }
 
-  // 手動登出
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
   }
 
-  // 📌 關鍵修改：切換審核狀態改走 PATCH API Route
+  // 切換審核狀態
   const handleToggleApprove = async (userId: string, currentStatus: boolean) => {
     try {
       setUpdatingId(userId)
@@ -106,7 +112,6 @@ export default function AdminPage() {
       const result = await res.json()
       if (result.error) throw new Error(result.error)
 
-      // 同步更新前端 State
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_approved: nextStatus } : u))
     } catch (err: any) {
       alert('操作失敗：' + err.message)
@@ -115,10 +120,52 @@ export default function AdminPage() {
     }
   }
 
-  // 搜尋與篩選邏輯
+  // 📌 開啟編輯 Modal
+  const startEditing = (user: UserProfile) => {
+    setEditingUser(user)
+    setEditDisplayName(user.display_name || '')
+    setEditEmail(user.email || '')
+  }
+
+  // 📌 儲存名稱與 Email 變更
+  const handleSaveUser = async () => {
+    if (!editingUser) return
+    try {
+      setUpdatingId(editingUser.id)
+
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: editingUser.id,
+          displayName: editDisplayName,
+          email: editEmail
+        })
+      })
+
+      const result = await res.json()
+      if (result.error) throw new Error(result.error)
+
+      setUsers(prev => prev.map(u => u.id === editingUser.id ? { 
+        ...u, 
+        display_name: editDisplayName, 
+        email: editEmail 
+      } : u))
+
+      setEditingUser(null)
+      alert('更新使用者資料成功！')
+    } catch (err: any) {
+      alert('更新失敗：' + err.message)
+    } finally {
+      setUpdatingId(null)
+    }
+  }
+
+  // 搜尋與過濾邏輯
   const filteredUsers = users.filter(user => {
     const matchesSearch = 
       (user.display_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+      (user.email?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
       (user.id.toLowerCase()).includes(searchQuery.toLowerCase())
 
     if (!matchesSearch) return false
@@ -131,44 +178,29 @@ export default function AdminPage() {
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary, #64748b)' }}>
-        驗證權限並載入中...
+        驗證權限與載入資料中...
       </div>
     )
   }
 
-  // 非 Admin 提示畫面
   if (!isAdmin) {
     return (
       <main style={{ maxWidth: '600px', margin: '60px auto', padding: '24px', textAlign: 'center' }}>
         <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#ef4444' }}>⚠️ 權限不足</h2>
         <p style={{ color: 'var(--text-secondary, #64748b)', margin: '12px 0 24px 0' }}>
-          當前帳號（{currentUser?.email}）並非系統管理者，無法進入審核後台。
+          當前帳號（{currentUser?.email}）非系統管理者，無法存取管理後台。
         </p>
-        <Link 
-          href="/" 
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '10px 18px',
-            borderRadius: '8px',
-            backgroundColor: 'var(--text-primary, #0f172a)',
-            color: 'var(--background, #ffffff)',
-            textDecoration: 'none',
-            fontWeight: '600'
-          }}
-        >
-          <ArrowLeft size={16} />
-          <span>返回首頁</span>
+        <Link href="/" style={{ padding: '10px 18px', borderRadius: '8px', backgroundColor: 'var(--text-primary)', color: 'var(--background)', textDecoration: 'none' }}>
+          返回首頁
         </Link>
       </main>
     )
   }
 
   return (
-    <main style={{ maxWidth: '800px', margin: '40px auto', padding: '24px', color: 'var(--text-primary, #0f172a)' }}>
+    <main style={{ maxWidth: '850px', margin: '40px auto', padding: '24px', color: 'var(--text-primary, #0f172a)' }}>
       
-      {/* 頂部導覽列 */}
+      {/* 頂部導覽 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <Link 
           href="/" 
@@ -215,7 +247,7 @@ export default function AdminPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <ShieldCheck size={28} style={{ color: '#2563eb' }} />
           <div>
-            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>樂譜管理後台 - 帳號審核</h1>
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>樂譜管理後台 - 帳號審核與管理</h1>
             <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--text-secondary, #64748b)' }}>
               當前管理者：{currentUser?.email}
             </p>
@@ -244,13 +276,13 @@ export default function AdminPage() {
         </button>
       </div>
 
-      {/* 搜尋與篩選頁籤 */}
+      {/* 搜尋與過濾 */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '20px', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ position: 'relative', minWidth: '240px', flex: 1 }}>
           <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary, #64748b)' }} />
           <input
             type="text"
-            placeholder="搜尋名稱或 ID..."
+            placeholder="搜尋名稱、Email 或 ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
@@ -268,9 +300,9 @@ export default function AdminPage() {
 
         <div style={{ display: 'inline-flex', backgroundColor: 'var(--bg-secondary, #f1f5f9)', padding: '4px', borderRadius: '10px', gap: '4px' }}>
           {[
+            { id: 'all', label: '全部', count: users.length },
             { id: 'pending', label: '待審核', count: users.filter(u => !u.is_approved).length },
-            { id: 'approved', label: '已審核', count: users.filter(u => u.is_approved).length },
-            { id: 'all', label: '全部', count: users.length }
+            { id: 'approved', label: '已審核', count: users.filter(u => u.is_approved).length }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -292,7 +324,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* 審核列表 */}
+      {/* 使用者卡片列表 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {filteredUsers.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 0', border: '1px dashed var(--border-color, #cbd5e1)', borderRadius: '12px', color: 'var(--text-secondary, #64748b)' }}>
@@ -310,10 +342,12 @@ export default function AdminPage() {
                 backgroundColor: 'var(--card-bg, #ffffff)',
                 border: '1px solid var(--border-color, #e2e8f0)',
                 borderRadius: '12px',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
+                boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
+                flexWrap: 'wrap',
+                gap: '12px'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1, minWidth: '240px' }}>
                 <div style={{
                   width: '42px',
                   height: '42px',
@@ -322,7 +356,8 @@ export default function AdminPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: u.is_approved ? '#10b981' : '#f59e0b'
+                  color: u.is_approved ? '#10b981' : '#f59e0b',
+                  flexShrink: 0
                 }}>
                   {u.is_approved ? <CheckCircle2 size={22} /> : <Clock size={22} />}
                 </div>
@@ -338,48 +373,197 @@ export default function AdminPage() {
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary, #64748b)', marginTop: '2px' }}>
-                    User ID: {u.id.substring(0, 18)}...
+                  {u.email && (
+                    <div style={{ fontSize: '12.5px', color: 'var(--text-secondary, #64748b)', marginTop: '2px' }}>
+                      ✉️ {u.email}
+                    </div>
+                  )}
+                  <div style={{ fontSize: '11.5px', color: 'var(--text-secondary, #94a3b8)', marginTop: '2px' }}>
+                    ID: {u.id.substring(0, 18)}...
                   </div>
                 </div>
               </div>
 
-              {/* 開通 / 停權按鈕 */}
-              <button
-                onClick={() => handleToggleApprove(u.id, u.is_approved)}
-                disabled={updatingId === u.id}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  height: '36px',
-                  padding: '0 14px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  backgroundColor: u.is_approved ? '#ef4444' : '#059669',
-                  color: '#ffffff',
-                  fontWeight: '600',
-                  fontSize: '13px',
-                  cursor: updatingId === u.id ? 'not-allowed' : 'pointer',
-                  opacity: updatingId === u.id ? 0.6 : 1
-                }}
-              >
-                {u.is_approved ? (
-                  <>
-                    <UserX size={16} />
-                    <span>取消開通 / 停權</span>
-                  </>
-                ) : (
-                  <>
-                    <UserCheck size={16} />
-                    <span>核准開通</span>
-                  </>
-                )}
-              </button>
+              {/* 按鈕組：編輯按鈕 + 審核按鈕 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={() => startEditing(u)}
+                  title="修改名稱與 Email"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    height: '36px',
+                    padding: '0 12px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color, #cbd5e1)',
+                    backgroundColor: 'var(--card-bg, #ffffff)',
+                    color: 'var(--text-primary, #0f172a)',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Edit3 size={15} />
+                  <span>編輯</span>
+                </button>
+
+                <button
+                  onClick={() => handleToggleApprove(u.id, u.is_approved)}
+                  disabled={updatingId === u.id}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    height: '36px',
+                    padding: '0 14px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    backgroundColor: u.is_approved ? '#ef4444' : '#059669',
+                    color: '#ffffff',
+                    fontWeight: '600',
+                    fontSize: '13px',
+                    cursor: updatingId === u.id ? 'not-allowed' : 'pointer',
+                    opacity: updatingId === u.id ? 0.6 : 1
+                  }}
+                >
+                  {u.is_approved ? (
+                    <>
+                      <UserX size={16} />
+                      <span>取消開通 / 停權</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserCheck size={16} />
+                      <span>核准開通</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           ))
         )}
       </div>
+
+      {/* 📌 編輯 Modal 對話框 */}
+      {editingUser && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '420px',
+            backgroundColor: 'var(--card-bg, #ffffff)',
+            border: '1px solid var(--border-color, #cbd5e1)',
+            borderRadius: '16px',
+            padding: '24px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700' }}>修改使用者資料</h3>
+              <button 
+                onClick={() => setEditingUser(null)} 
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* 顯示名稱 */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '600', marginBottom: '6px' }}>
+                <User size={14} />
+                <span>顯示名稱 / 姓名</span>
+              </label>
+              <input
+                type="text"
+                value={editDisplayName}
+                onChange={(e) => setEditDisplayName(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color, #cbd5e1)',
+                  backgroundColor: 'var(--card-bg, #ffffff)',
+                  color: 'var(--text-primary)',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* 註冊 Email */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '600', marginBottom: '6px' }}>
+                <Mail size={14} />
+                <span>註冊 Email</span>
+              </label>
+              <input
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color, #cbd5e1)',
+                  backgroundColor: 'var(--card-bg, #ffffff)',
+                  color: 'var(--text-primary)',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Modal 動作按鈕 */}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setEditingUser(null)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color, #cbd5e1)',
+                  backgroundColor: 'transparent',
+                  color: 'var(--text-primary)',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}
+              >
+                取消
+              </button>
+              <button
+                onClick={handleSaveUser}
+                disabled={updatingId === editingUser.id}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  backgroundColor: '#2563eb',
+                  color: '#ffffff',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  cursor: updatingId === editingUser.id ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <Check size={16} />
+                <span>儲存變更</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
