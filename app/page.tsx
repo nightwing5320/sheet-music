@@ -33,6 +33,7 @@ export default function Home() {
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
   const [userDisplayName, setUserDisplayName] = useState<string>('')
+  const [isAdmin, setIsAdmin] = useState<boolean>(false) // 📌 新增：管理者狀態
 
   const router = useRouter()
   const supabase = createClient()
@@ -75,6 +76,7 @@ export default function Home() {
     }
   }, [])
 
+  // 📌 修正：查詢 profiles 時一併取出 is_admin
   const fetchUserProfile = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -82,16 +84,21 @@ export default function Home() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('display_name')
+        .select('display_name, is_admin') // 👈 加上 is_admin
         .eq('id', user.id)
         .single()
 
-      if (profile && profile.display_name) {
-        setUserDisplayName(profile.display_name)
-      } else if (user.user_metadata?.display_name) {
-        setUserDisplayName(user.user_metadata.display_name)
-      } else if (user.email) {
-        setUserDisplayName(user.email.split('@')[0])
+      if (profile) {
+        if (profile.display_name) {
+          setUserDisplayName(profile.display_name)
+        } else if (user.user_metadata?.display_name) {
+          setUserDisplayName(user.user_metadata.display_name)
+        } else if (user.email) {
+          setUserDisplayName(user.email.split('@')[0])
+        }
+
+        // 📌 設定是否為 Admin
+        setIsAdmin(!!profile.is_admin)
       }
     } catch (err) {
       console.error('Error fetching user profile:', err)
@@ -243,9 +250,10 @@ export default function Home() {
 
   return (
     <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px 20px', color: 'var(--text-primary)' }}>
-      {/* 頂部 Header 元件 */}
+      {/* 📌 頂部 Header 元件（傳入 isAdmin） */}
       <Header
         userDisplayName={userDisplayName}
+        is_admin={isAdmin}
         setlistCount={setlist.length}
         isSetlistOpen={isSetlistOpen}
         onToggleSetlist={() => setIsSetlistOpen(!isSetlistOpen)}
@@ -398,8 +406,8 @@ export default function Home() {
           currentImageIndex={currentImageIndex}
           currentSetlistIndex={currentSetlistIndex}
           setlist={setlist}
-          annotations={annotations} // 新增此行
-          onUpdateAnnotations={handleUpdateAnnotations} // 新增此行
+          annotations={annotations}
+          onUpdateAnnotations={handleUpdateAnnotations}
           onClose={closeModal}
           onPrev={goToPrevPageOrTrack}
           onNext={goToNextPageOrTrack}
