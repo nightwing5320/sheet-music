@@ -30,6 +30,7 @@ export default function AdminPage() {
   const supabase = createClient()
 
   const [currentUser, setCurrentUser] = useState<any>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [users, setUsers] = useState<UserProfile[]>([])
@@ -40,7 +41,7 @@ export default function AdminPage() {
     checkAdminAndFetchUsers()
   }, [])
 
-  // 檢查 Session 並獲取使用者列表
+  // 檢查 Session 並從 API Route 抓取所有 Profiles
   const checkAdminAndFetchUsers = async () => {
     try {
       setLoading(true)
@@ -53,53 +54,68 @@ export default function AdminPage() {
 
       setCurrentUser(session.user)
 
-      // 讀取所有 profiles 資料
-      const { data, error } = await supabase
+      // 1. 驗證當前登入者是否為 Admin
+      const { data: myProfile } = await supabase
         .from('profiles')
-        .select('*')
+        .select('is_admin')
+        .eq('id', session.user.id)
+        .single()
 
-      if (error) throw error
+      if (!myProfile?.is_admin) {
+        setIsAdmin(false)
+        setLoading(false)
+        return
+      }
 
-      setUsers(data || [])
+      setIsAdmin(true)
+
+      // 2. 📌 關鍵修改：改由後端 API (Service Role) 獲取「所有」使用者 Profiles 清單
+      const res = await fetch('/api/admin/users')
+      const result = await res.json()
+
+      if (result.error) throw new Error(result.error)
+
+      setUsers(result.users || [])
     } catch (err: any) {
-      console.error('Error fetching admin data:', err)
+      console.error('Error fetching admin profiles:', err)
       alert('載入使用者資料失敗：' + err.message)
     } finally {
       setLoading(false)
     }
   }
 
-  // 手動登出邏輯
+  // 手動登出
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
   }
 
-  // 切換帳號審核狀態 (Approve / Revoke)
+  // 📌 關鍵修改：切換審核狀態改走 PATCH API Route
   const handleToggleApprove = async (userId: string, currentStatus: boolean) => {
     try {
       setUpdatingId(userId)
       const nextStatus = !currentStatus
 
-      // 直接更新 Supabase profiles 資料表
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_approved: nextStatus })
-        .eq('id', userId)
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, isApproved: nextStatus })
+      })
 
-      if (error) throw error
+      const result = await res.json()
+      if (result.error) throw new Error(result.error)
 
       // 同步更新前端 State
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_approved: nextStatus } : u))
     } catch (err: any) {
-      alert('更新審核狀態失敗：' + err.message)
+      alert('操作失敗：' + err.message)
     } finally {
       setUpdatingId(null)
     }
   }
 
-  // 篩選與搜尋
+  // 搜尋與篩選邏輯
   const filteredUsers = users.filter(user => {
     const matchesSearch = 
       (user.display_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
@@ -115,15 +131,44 @@ export default function AdminPage() {
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary, #64748b)' }}>
-        載入管理後台資料中...
+        驗證權限並載入中...
       </div>
+    )
+  }
+
+  // 非 Admin 提示畫面
+  if (!isAdmin) {
+    return (
+      <main style={{ maxWidth: '600px', margin: '60px auto', padding: '24px', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#ef4444' }}>⚠️ 權限不足</h2>
+        <p style={{ color: 'var(--text-secondary, #64748b)', margin: '12px 0 24px 0' }}>
+          當前帳號（{currentUser?.email}）並非系統管理者，無法進入審核後台。
+        </p>
+        <Link 
+          href="/" 
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '10px 18px',
+            borderRadius: '8px',
+            backgroundColor: 'var(--text-primary, #0f172a)',
+            color: 'var(--background, #ffffff)',
+            textDecoration: 'none',
+            fontWeight: '600'
+          }}
+        >
+          <ArrowLeft size={16} />
+          <span>返回首頁</span>
+        </Link>
+      </main>
     )
   }
 
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '24px', color: 'var(--text-primary, #0f172a)' }}>
       
-      {/* 頂部導覽 */}
+      {/* 頂部導覽列 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <Link 
           href="/" 
@@ -138,14 +183,12 @@ export default function AdminPage() {
             padding: '6px 12px',
             borderRadius: '8px',
             border: '1px solid var(--border-color, #e2e8f0)',
-            transition: 'all 0.2s ease',
           }}
         >
           <ArrowLeft size={16} />
           <span>返回樂譜庫</span>
         </Link>
 
-        {/* 手動登出按鈕 */}
         <button
           onClick={handleLogout}
           style={{
@@ -159,8 +202,7 @@ export default function AdminPage() {
             color: '#ef4444',
             fontSize: '13.5px',
             fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            cursor: 'pointer'
           }}
         >
           <LogOut size={15} />
@@ -168,7 +210,7 @@ export default function AdminPage() {
         </button>
       </div>
 
-      {/* 標題區 */}
+      {/* 標題與重新整理 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <ShieldCheck size={28} style={{ color: '#2563eb' }} />
@@ -202,7 +244,7 @@ export default function AdminPage() {
         </button>
       </div>
 
-      {/* 搜尋與篩選列 */}
+      {/* 搜尋與篩選頁籤 */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '20px', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ position: 'relative', minWidth: '240px', flex: 1 }}>
           <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary, #64748b)' }} />
@@ -241,9 +283,7 @@ export default function AdminPage() {
                 color: filter === tab.id ? 'var(--text-primary, #0f172a)' : 'var(--text-secondary, #64748b)',
                 fontWeight: filter === tab.id ? '700' : '500',
                 fontSize: '13px',
-                cursor: 'pointer',
-                boxShadow: filter === tab.id ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                transition: 'all 0.2s ease'
+                cursor: 'pointer'
               }}
             >
               {tab.label} ({tab.count})
@@ -252,7 +292,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* 使用者審核列表 */}
+      {/* 審核列表 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {filteredUsers.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 0', border: '1px dashed var(--border-color, #cbd5e1)', borderRadius: '12px', color: 'var(--text-secondary, #64748b)' }}>
@@ -304,7 +344,7 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* 操作開通 / 停權按鈕 */}
+              {/* 開通 / 停權按鈕 */}
               <button
                 onClick={() => handleToggleApprove(u.id, u.is_approved)}
                 disabled={updatingId === u.id}
@@ -321,8 +361,7 @@ export default function AdminPage() {
                   fontWeight: '600',
                   fontSize: '13px',
                   cursor: updatingId === u.id ? 'not-allowed' : 'pointer',
-                  opacity: updatingId === u.id ? 0.6 : 1,
-                  transition: 'all 0.2s ease'
+                  opacity: updatingId === u.id ? 0.6 : 1
                 }}
               >
                 {u.is_approved ? (
