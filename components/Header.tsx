@@ -1,9 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { ThemeToggle } from '@/components/ThemeToggle' // 引入 ThemeToggle
-
-import { Settings, ListMusic, Plus, LogOut, Piano, Sparkles } from 'lucide-react'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import { Settings, ListMusic, Plus, LogOut, Piano, Sparkles, ShieldCheck } from 'lucide-react'
 
 // 將樣式物件放在 Component 外面
 const baseButtonStyle = {
@@ -44,8 +43,10 @@ const dangerButtonStyle = {
   color: 'var(--text-secondary)',
   border: '1px solid var(--border-color)',
 };
+
 interface HeaderProps {
   userDisplayName: string
+  isAdmin?: boolean // 📌 新增：是否為管理者
   setlistCount: number
   isSetlistOpen: boolean
   onToggleSetlist: () => void
@@ -54,6 +55,7 @@ interface HeaderProps {
 
 export function Header({ 
   userDisplayName,
+  isAdmin = false, // 📌 預設為 false
   setlistCount, 
   onToggleSetlist, 
   onLogout 
@@ -74,7 +76,7 @@ export function Header({
         transition: 'background-color 0.2s, border-color 0.2s',
       }}
     >
-      {/* 左側標題區域... */}
+      {/* 左側標題區域 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <h1 style={{ 
           fontSize: '28px', 
@@ -104,19 +106,33 @@ export function Header({
         </p>
       </div>
 
-      {/* 右側按鈕區塊 (將 JSX 貼在這裡) */}
+      {/* 右側按鈕區塊 */}
       <div 
         style={{ 
           display: 'flex', 
           gap: '8px', 
           alignItems: 'center',
           flexWrap: 'wrap'
-          
         }}
       >
-        
         {/* 明暗切換元件 */}
         <ThemeToggle />
+
+        {/* 📌 管理者審核入口 (僅在 isAdmin 為 true 時顯示) */}
+        {isAdmin && (
+          <Link 
+            href="/admin" 
+            style={{
+              ...secondaryButtonStyle,
+              color: '#2563eb',
+              borderColor: 'rgba(37, 99, 235, 0.3)',
+              backgroundColor: 'rgba(37, 99, 235, 0.05)'
+            }}
+          >
+            <ShieldCheck size={18} />
+            <span>帳號審核</span>
+          </Link>
+        )}
 
         {/* 個人設定 */}
         <Link 
@@ -134,7 +150,7 @@ export function Header({
           <span>當日歌單 ({setlistCount})</span>
         </button>
 
-        {/* 上傳樂譜 (主要動作) */}
+        {/* 上傳樂譜 */}
         <Link  
           href="/upload" 
           style={primaryButtonStyle}>
