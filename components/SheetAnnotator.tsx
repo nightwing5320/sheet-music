@@ -248,7 +248,7 @@ export function SheetAnnotator({
           <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
 
           {/* 筆劃粗細選擇器 (切換為低調圖示按鈕風格) */}
-          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
             {[
               { label: '細', value: 2 },
               { label: '中', value: 4 },
