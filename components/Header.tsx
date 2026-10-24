@@ -46,7 +46,7 @@ const dangerButtonStyle = {
 
 interface HeaderProps {
   userDisplayName: string
-  isAdmin?: boolean // 📌 新增：是否為管理者
+  is_admin?: boolean // 📌 新增：是否為管理者
   setlistCount: number
   isSetlistOpen: boolean
   onToggleSetlist: () => void
@@ -55,7 +55,7 @@ interface HeaderProps {
 
 export function Header({ 
   userDisplayName,
-  isAdmin = false, // 📌 預設為 false
+  is_admin = false, // 📌 預設為 false
   setlistCount, 
   onToggleSetlist, 
   onLogout 
@@ -118,8 +118,8 @@ export function Header({
         {/* 明暗切換元件 */}
         <ThemeToggle />
 
-        {/* 📌 管理者審核入口 (僅在 isAdmin 為 true 時顯示) */}
-        {isAdmin && (
+        {/* 📌 管理者審核入口 (僅在 is_admin 為 true 時顯示) */}
+        {is_admin && (
           <Link 
             href="/admin" 
             style={{
