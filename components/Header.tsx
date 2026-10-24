@@ -109,7 +109,7 @@ export function Header({
         style={{ 
           display: 'flex', 
           gap: '8px', 
-          alignItems: 'center' 
+          alignItems: 'center',
           flexWrap: 'wrap'
           
         }}
