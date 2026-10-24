@@ -187,7 +187,7 @@ export default function AdminPage() {
     }
   }
 
-  // 搜尋與過濾邏輯
+  // 搜尋與過濾
   const filteredUsers = users.filter(user => {
     const matchesSearch = 
       (user.display_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
