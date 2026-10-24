@@ -108,8 +108,10 @@ export function Header({
       <div 
         style={{ 
           display: 'flex', 
-          gap: '12px', 
+          gap: '8px', 
           alignItems: 'center' 
+          flexWrap: 'wrap'
+          
         }}
       >
         
