@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// 📌 建立內部取得 admin client 的函式，避免在 module 載入時立即執行
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -20,7 +19,7 @@ export async function GET() {
     const { data, error } = await supabaseAdmin
       .from('profiles')
       .select('*')
-      .order('created_at', { ascending: false })
+      .order('updated_at', { ascending: false }) // 📌 修正：將 created_at 改為 updated_at
 
     if (error) throw error
 
