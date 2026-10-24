@@ -12,7 +12,7 @@ function getSupabaseAdmin() {
   return createClient(supabaseUrl, serviceRoleKey)
 }
 
-// 1. 取得所有使用者 Profile 清單
+// 取得所有使用者 Profile 清單
 export async function GET() {
   try {
     const supabaseAdmin = getSupabaseAdmin()
@@ -29,7 +29,7 @@ export async function GET() {
   }
 }
 
-// 2. 更新使用者的審核狀態、名稱或 Email
+// 更新使用者的審核狀態、名稱或 Email
 export async function PATCH(request: Request) {
   try {
     const { userId, isApproved, displayName, email } = await request.json()
@@ -75,7 +75,7 @@ export async function PATCH(request: Request) {
   }
 }
 
-// 3. 📌 新增：刪除使用者帳號
+// 刪除使用者帳號
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
