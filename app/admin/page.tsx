@@ -18,7 +18,8 @@ import {
   X,
   Check,
   Mail,
-  User
+  User,
+  Trash2
 } from 'lucide-react'
 
 interface UserProfile {
@@ -42,7 +43,6 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<'pending' | 'approved' | 'all'>('all')
 
-  // 📌 正在編輯的使用者 State
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null)
   const [editDisplayName, setEditDisplayName] = useState('')
   const [editEmail, setEditEmail] = useState('')
@@ -120,14 +120,14 @@ export default function AdminPage() {
     }
   }
 
-  // 📌 開啟編輯 Modal
+  // 開啟編輯 Modal
   const startEditing = (user: UserProfile) => {
     setEditingUser(user)
     setEditDisplayName(user.display_name || '')
     setEditEmail(user.email || '')
   }
 
-  // 📌 儲存名稱與 Email 變更
+  // 儲存名稱與 Email
   const handleSaveUser = async () => {
     if (!editingUser) return
     try {
@@ -156,6 +156,32 @@ export default function AdminPage() {
       alert('更新使用者資料成功！')
     } catch (err: any) {
       alert('更新失敗：' + err.message)
+    } finally {
+      setUpdatingId(null)
+    }
+  }
+
+  // 📌 刪除使用者
+  const handleDeleteUser = async (user: UserProfile) => {
+    const confirmText = user.display_name ? `「${user.display_name}」` : '此使用者'
+    if (!window.confirm(`⚠️ 確定要徹底刪除 ${confirmText} 的帳號嗎？此動作無法復原！`)) {
+      return
+    }
+
+    try {
+      setUpdatingId(user.id)
+
+      const res = await fetch(`/api/admin/users?userId=${user.id}`, {
+        method: 'DELETE'
+      })
+
+      const result = await res.json()
+      if (result.error) throw new Error(result.error)
+
+      setUsers(prev => prev.filter(u => u.id !== user.id))
+      alert('成功刪除使用者帳號！')
+    } catch (err: any) {
+      alert('刪除失敗：' + err.message)
     } finally {
       setUpdatingId(null)
     }
@@ -384,8 +410,9 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* 按鈕組：編輯按鈕 + 審核按鈕 */}
+              {/* 按鈕組：編輯按鈕 + 刪除按鈕 + 審核按鈕 */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {/* 編輯按鈕 */}
                 <button
                   onClick={() => startEditing(u)}
                   title="修改名稱與 Email"
@@ -408,6 +435,33 @@ export default function AdminPage() {
                   <span>編輯</span>
                 </button>
 
+                {/* 📌 新增：刪除按鈕 (不能刪除當前登入的 Admin 自己) */}
+                {u.id !== currentUser?.id && (
+                  <button
+                    onClick={() => handleDeleteUser(u)}
+                    disabled={updatingId === u.id}
+                    title="徹底刪除使用者"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      height: '36px',
+                      padding: '0 10px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                      color: '#ef4444',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      cursor: updatingId === u.id ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    <Trash2 size={15} />
+                    <span>刪除</span>
+                  </button>
+                )}
+
+                {/* 開通 / 停權按鈕 */}
                 <button
                   onClick={() => handleToggleApprove(u.id, u.is_approved)}
                   disabled={updatingId === u.id}
@@ -445,7 +499,7 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* 📌 編輯 Modal 對話框 */}
+      {/* 編輯 Modal 對話框 */}
       {editingUser && (
         <div style={{
           position: 'fixed',
@@ -477,7 +531,6 @@ export default function AdminPage() {
               </button>
             </div>
 
-            {/* 顯示名稱 */}
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '600', marginBottom: '6px' }}>
                 <User size={14} />
@@ -500,7 +553,6 @@ export default function AdminPage() {
               />
             </div>
 
-            {/* 註冊 Email */}
             <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '600', marginBottom: '6px' }}>
                 <Mail size={14} />
@@ -523,7 +575,6 @@ export default function AdminPage() {
               />
             </div>
 
-            {/* Modal 動作按鈕 */}
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => setEditingUser(null)}
