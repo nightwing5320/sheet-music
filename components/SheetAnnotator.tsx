@@ -245,10 +245,10 @@ export function SheetAnnotator({
             ))}
           </div>
 
-          <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
+          <div style={{ width: '1px', height: '15px', backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
 
           {/* 筆劃粗細選擇器 (切換為低調圖示按鈕風格) */}
-          <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
             {[
               { label: '細', value: 2 },
               { label: '中', value: 4 },
@@ -258,7 +258,7 @@ export function SheetAnnotator({
                 key={sw.value}
                 onClick={() => setStrokeWidth(sw.value)}
                 style={{
-                  padding: '3px 8px',
+                  padding: '3px 7px',
                   borderRadius: '6px',
                   fontSize: '12px',
                   fontWeight: '600',
