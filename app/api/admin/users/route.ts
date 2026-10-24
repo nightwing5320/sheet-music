@@ -1,15 +1,22 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// 使用 Service Role Key 建立最高權限客戶端，用來管理使用者資料
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // 請確保在 .env.local 中設定此 key
-)
+// 📌 建立內部取得 admin client 的函式，避免在 module 載入時立即執行
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Supabase URL or Service Role Key is missing from environment variables.')
+  }
+
+  return createClient(supabaseUrl, serviceRoleKey)
+}
 
 // 1. 取得所有使用者 Profile 清單
 export async function GET() {
   try {
+    const supabaseAdmin = getSupabaseAdmin()
     const { data, error } = await supabaseAdmin
       .from('profiles')
       .select('*')
@@ -32,6 +39,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
     }
 
+    const supabaseAdmin = getSupabaseAdmin()
     const { data, error } = await supabaseAdmin
       .from('profiles')
       .update({ is_approved: isApproved })
