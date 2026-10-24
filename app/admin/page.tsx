@@ -161,7 +161,7 @@ export default function AdminPage() {
     }
   }
 
-  // 📌 刪除使用者
+  // 刪除使用者
   const handleDeleteUser = async (user: UserProfile) => {
     const confirmText = user.display_name ? `「${user.display_name}」` : '此使用者'
     if (!window.confirm(`⚠️ 確定要徹底刪除 ${confirmText} 的帳號嗎？此動作無法復原！`)) {
@@ -228,6 +228,7 @@ export default function AdminPage() {
       
       {/* 頂部導覽 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        {/* 返回樂譜庫按鈕 */}
         <Link 
           href="/" 
           style={{ 
@@ -241,6 +242,17 @@ export default function AdminPage() {
             padding: '6px 12px',
             borderRadius: '8px',
             border: '1px solid var(--border-color, #e2e8f0)',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
+            e.currentTarget.style.color = '#2563eb'
+            e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.3)'
+            e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)'
+          }}
+          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
+            e.currentTarget.style.color = 'var(--text-secondary, #64748b)'
+            e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
+            e.currentTarget.style.backgroundColor = 'transparent'
           }}
         >
           <ArrowLeft size={16} />
@@ -410,9 +422,8 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* 按鈕組：編輯按鈕 + 刪除按鈕 + 審核按鈕 */}
+              {/* 按鈕組 */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {/* 編輯按鈕 */}
                 <button
                   onClick={() => startEditing(u)}
                   title="修改名稱與 Email"
@@ -435,7 +446,6 @@ export default function AdminPage() {
                   <span>編輯</span>
                 </button>
 
-                {/* 📌 新增：刪除按鈕 (不能刪除當前登入的 Admin 自己) */}
                 {u.id !== currentUser?.id && (
                   <button
                     onClick={() => handleDeleteUser(u)}
@@ -461,7 +471,6 @@ export default function AdminPage() {
                   </button>
                 )}
 
-                {/* 開通 / 停權按鈕 */}
                 <button
                   onClick={() => handleToggleApprove(u.id, u.is_approved)}
                   disabled={updatingId === u.id}
