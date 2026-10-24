@@ -192,9 +192,14 @@ export function SheetViewerModal({
               maxWidth: '96vw', 
               maxHeight: '90vh', 
               objectFit: 'contain', 
-              userSelect: 'none',
               borderRadius: '8px',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)' // 高質感樂譜邊框陰影
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+
+              /* 📌 關鍵修正：徹底防止 iPadOS / iOS 跳出文字選單與長按選單 */
+              userSelect: 'none',
+              WebkitUserSelect: 'none',
+              WebkitTouchCallout: 'none',
+              pointerEvents: 'none',
             }} 
           />
         </SheetAnnotator>
