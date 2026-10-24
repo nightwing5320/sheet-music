@@ -32,7 +32,7 @@ export function SheetAnnotator({
   const [strokeWidth, setStrokeWidth] = useState(4)
   const svgRef = useRef<SVGSVGElement | null>(null)
 
-  // 📌 新增：縮放 (Scale) 與 平移 (Position) 狀態
+  // 新增：縮放 (Scale) 與 平移 (Position) 狀態
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const touchStartRef = useRef<{ dist: number; scale: number; x: number; y: number; posX: number; posY: number } | null>(null)
@@ -97,7 +97,7 @@ export function SheetAnnotator({
     }
   }
 
-  // 📌 雙指縮放與單指平移 Touch 手勢邏輯
+  // 雙指縮放與單指平移 Touch 手勢邏輯
   const getDistance = (touches: React.TouchList) => {
     const dx = touches[0].clientX - touches[1].clientX
     const dy = touches[0].clientY - touches[1].clientY
@@ -199,7 +199,7 @@ export function SheetAnnotator({
           boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)',
           color: 'white'
         }}>
-          {/* 📌 重置縮放按鈕 (當放大時自動顯示當前倍率) */}
+          {/* 重置縮放按鈕 (當放大時自動顯示當前倍率) */}
           {scale > 1 && (
             <button
               onClick={handleResetZoom}
@@ -322,7 +322,7 @@ export function SheetAnnotator({
         </div>
       )}
 
-      {/* 📌 樂譜與 SVG 塗鴉圖層 (套用位移 translate 與縮放 scale) */}
+      {/* 樂譜與 SVG 塗鴉圖層 (套用位移 translate 與縮放 scale) */}
       <div style={{ 
         position: 'relative', 
         display: 'inline-block', 

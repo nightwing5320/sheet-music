@@ -45,7 +45,7 @@ export function SheetViewerModal({
 }: SheetViewerModalProps) {
   const [isEditing, setIsEditing] = useState(false)
 
-  // 📌 放大縮小與平移狀態
+  // 放大縮小與平移狀態
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   
@@ -67,14 +67,14 @@ export function SheetViewerModal({
   const isPrevDisabled = currentImageIndex === 0 && (currentSetlistIndex === null || currentSetlistIndex === 0)
   const isNextDisabled = currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)
 
-  // 📌 計算雙指之間的距離
+  // 計算雙指之間的距離
   const getDistance = (touches: React.TouchList) => {
     const dx = touches[0].clientX - touches[1].clientX
     const dy = touches[0].clientY - touches[1].clientY
     return Math.sqrt(dx * dx + dy * dy)
   }
 
-  // 📌 處理縮放與拖曳手勢
+  // 處理縮放與拖曳手勢
   const handleContainerTouchStart = (e: React.TouchEvent) => {
     if (isEditing) return // 塗鴉模式下關閉整體放大縮小平移，避免畫筆誤觸
 
@@ -136,7 +136,7 @@ export function SheetViewerModal({
     }
   }
 
-  // 📌 重置縮放
+  // 重置縮放
   const handleResetZoom = () => {
     setScale(1)
     setPosition({ x: 0, y: 0 })
@@ -257,7 +257,7 @@ export function SheetViewerModal({
       </div>
 
       {/* 頂部左上角：歌單資訊標籤 */}
-      {currentSetlistIndex !== null && setlist[currentSetlistIndex] && (
+      {!isEditing && currentSetlistIndex !== null && setlist[currentSetlistIndex] && (
         <div style={{
           position: 'fixed',
           top: '24px',
@@ -281,7 +281,7 @@ export function SheetViewerModal({
         </div>
       )}
 
-      {/* 📌 樂譜與塗鴉 Transform 縮放 Container */}
+      {/* 樂譜與塗鴉 Transform 縮放 Container */}
       <div 
         style={{ 
           width: '100vw', 

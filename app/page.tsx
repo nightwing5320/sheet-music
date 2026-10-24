@@ -33,7 +33,7 @@ export default function Home() {
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
   const [userDisplayName, setUserDisplayName] = useState<string>('')
-  const [isAdmin, setIsAdmin] = useState<boolean>(false) // 📌 新增：管理者狀態
+  const [isAdmin, setIsAdmin] = useState<boolean>(false) // 新增管理者狀態
 
   const router = useRouter()
   const supabase = createClient()
