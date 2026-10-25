@@ -11,7 +11,7 @@ import { SetlistSection } from '@/components/SetlistSection'
 import { SheetCard } from '@/components/SheetCard'
 import { SheetViewerModal } from '@/components/SheetViewerModal'
 
-import { Music, Zap, Moon, HelpCircle } from 'lucide-react'
+import { Music, Zap, Moon, HelpCircle, Search, X } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -76,7 +76,7 @@ export default function Home() {
     }
   }, [])
 
-  // 📌 獲取 Profile，並從雲端讀取使用者的 setlist 歌單
+  // 獲取 Profile，並從雲端讀取使用者的 setlist 歌單
   const fetchUserProfile = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -99,7 +99,7 @@ export default function Home() {
 
         setIsAdmin(!!profile.is_admin)
 
-        // 📌 雲端若有 setlist 紀錄，優先套用雲端資料並更新 LocalStorage
+        // 雲端若有 setlist 紀錄，優先套用雲端資料並更新 LocalStorage
         if (profile.setlist && Array.isArray(profile.setlist)) {
           setSetlist(profile.setlist)
           localStorage.setItem('worship_setlist', JSON.stringify(profile.setlist))
@@ -110,7 +110,7 @@ export default function Home() {
     }
   }
 
-  // 📌 當 setlist 歌單變更時，同時寫入 LocalStorage 與同步上傳至 Supabase 雲端
+  // 當 setlist 歌單變更時，同時寫入 LocalStorage 與同步上傳至 Supabase 雲端
   useEffect(() => {
     localStorage.setItem('worship_setlist', JSON.stringify(setlist))
 
@@ -292,17 +292,84 @@ export default function Home() {
         />
       )}
 
-      {/* 搜尋欄 */}
-      <div style={{ marginBottom: '20px' }}>
+      {/* 搜尋欄（附帶一鍵清除按鈕） */}
+      <div style={{ position: 'relative', marginBottom: '20px', width: '100%' }}>
+        {/* 左側搜尋放大鏡圖示 */}
+        <Search 
+          size={18} 
+          style={{ 
+            position: 'absolute', 
+            left: '14px', 
+            top: '50%', 
+            transform: 'translateY(-50%)', 
+            color: 'var(--text-secondary)',
+            pointerEvents: 'none'
+          }} 
+        />
+
+        {/* 搜尋輸入框 */}
         <input
           type="text"
-          placeholder="🔍 搜尋樂譜名稱或調性 (例如：C, G, Am)..."
+          placeholder="搜尋樂譜名稱或調性 (例如：C, G, Am)..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '100%', padding: '12px 16px', fontSize: '15px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box' }}
+          style={{ 
+            width: '100%', 
+            padding: '12px 40px 12px 40px', // 左右兩側留出空間給圖示
+            fontSize: '15px', 
+            borderRadius: '10px', 
+            border: '1px solid var(--border-color)', 
+            backgroundColor: 'var(--input-bg)', 
+            color: 'var(--text-primary)', 
+            outline: 'none', 
+            boxSizing: 'border-box',
+            transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = '#2563eb'
+            e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.15)'
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = 'var(--border-color)'
+            e.target.style.boxShadow = 'none'
+          }}
         />
-      </div>
 
+        {/* 右側一鍵清除按鈕 (只有在有輸入文字時顯示) */}
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm('')}
+            type="button"
+            title="清除搜尋"
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '4px',
+              borderRadius: '50%',
+              color: 'var(--text-secondary)',
+              transition: 'all 0.15s ease'
+            }}
+            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.currentTarget.style.backgroundColor = 'var(--border-color)'
+              e.currentTarget.style.color = 'var(--text-primary)'
+            }}
+            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = 'var(--text-secondary)'
+            }}
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
       {/* 分類按鈕區 */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px', flexWrap: 'wrap' }}>
         <button 
