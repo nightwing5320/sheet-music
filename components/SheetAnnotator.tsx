@@ -31,11 +31,22 @@ export function SheetAnnotator({
   const [color, setColor] = useState('#ef4444') // 預設紅色
   const [strokeWidth, setStrokeWidth] = useState(4)
   const svgRef = useRef<SVGSVGElement | null>(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
 
   // 縮放 (Scale) 與 平移 (Position) 狀態
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const touchStartRef = useRef<{ dist: number; scale: number; x: number; y: number; posX: number; posY: number } | null>(null)
+
+  // 重置倍率與位置歸位
+  const handleResetZoom = (e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    setScale(1)
+    setPosition({ x: 0, y: 0 })
+  }
 
   // 取得相對 SVG 座標 (換算成 0~1000 歸一化坐標系，確保縮放時筆記位置不偏移)
   const getCoordinates = (e: React.PointerEvent) => {
@@ -97,13 +108,31 @@ export function SheetAnnotator({
     }
   }
 
-  // 雙指縮放與單指平移 Touch 手勢邏輯
+  // 計算兩點間距離 (雙指縮放)
   const getDistance = (touches: React.TouchList) => {
     const dx = touches[0].clientX - touches[1].clientX
     const dy = touches[0].clientY - touches[1].clientY
     return Math.sqrt(dx * dx + dy * dy)
   }
 
+  // 計算拖曳平移邊界限制 (防止樂譜被拖移到視窗外面找不到)
+  const clampPosition = (newX: number, newY: number, currentScale: number) => {
+    if (!containerRef.current || currentScale <= 1) {
+      return { x: 0, y: 0 }
+    }
+
+    const rect = containerRef.current.getBoundingClientRect()
+    // 允許向外滑動的最大極限（以當前圖片放大後的尺寸計算）
+    const maxX = (rect.width * (currentScale - 1)) / 2
+    const maxY = (rect.height * (currentScale - 1)) / 2
+
+    const clampedX = Math.min(Math.max(newX, -maxX), maxX)
+    const clampedY = Math.min(Math.max(newY, -maxY), maxY)
+
+    return { x: clampedX, y: clampedY }
+  }
+
+  // 雙指縮放與單指平移 Touch 手勢邏輯
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
       // 雙指 Pinch 縮放開始
@@ -141,16 +170,19 @@ export function SheetAnnotator({
       setScale(newScale)
       if (newScale === 1) {
         setPosition({ x: 0, y: 0 })
+      } else {
+        // 縮放時同時套用邊界保護
+        setPosition((prev) => clampPosition(prev.x, prev.y, newScale))
       }
     } else if (e.touches.length === 1 && touchStartRef.current.dist === 0 && scale > 1) {
-      // 單指平移拖曳計算
+      // 單指平移拖曳計算（套用極限邊界檢查）
       const deltaX = e.touches[0].clientX - touchStartRef.current.x
       const deltaY = e.touches[0].clientY - touchStartRef.current.y
       
-      setPosition({
-        x: touchStartRef.current.posX + deltaX,
-        y: touchStartRef.current.posY + deltaY
-      })
+      const rawX = touchStartRef.current.posX + deltaX
+      const rawY = touchStartRef.current.posY + deltaY
+
+      setPosition(clampPosition(rawX, rawY, scale))
     }
   }
 
@@ -158,14 +190,9 @@ export function SheetAnnotator({
     touchStartRef.current = null
   }
 
-  // 重置倍率與位置歸位
-  const handleResetZoom = () => {
-    setScale(1)
-    setPosition({ x: 0, y: 0 })
-  }
-
   return (
     <div 
+      ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -183,7 +210,7 @@ export function SheetAnnotator({
       {/* 塗鴉模式專屬懸浮工具列 (Annotation Floating Toolbar - 響應式微型化) */}
       {isEditing && (
         <div style={{
-          position: 'fixed',
+          position: 'absolute',
           top: '16px',
           left: '50%',
           transform: 'translateX(-50%)',
@@ -194,12 +221,12 @@ export function SheetAnnotator({
           borderRadius: '30px',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
+          gap: '10px',
           zIndex: 10002,
           boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)',
           color: 'white',
-          maxWidth: 'calc(100vw - 24px)', // 防止撐爆手機螢幕
-          overflowX: 'auto',              // 螢幕極窄時允許橫向滑動
+          maxWidth: 'calc(100vw - 24px)',
+          overflowX: 'auto',
           WebkitOverflowScrolling: 'touch',
           boxSizing: 'border-box'
         }}>
@@ -207,24 +234,26 @@ export function SheetAnnotator({
           {scale > 1 && (
             <button
               onClick={handleResetZoom}
+              onMouseDown={handleResetZoom}
+              onTouchStart={handleResetZoom}
               title="重置倍率"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '4px',
-                background: 'rgba(255, 255, 255, 0.15)',
-                border: 'none',
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
                 color: '#ffffff',
                 borderRadius: '12px',
-                padding: '3px 8px',
+                padding: '4px 10px',
                 cursor: 'pointer',
                 fontSize: '12px',
-                fontWeight: '600',
+                fontWeight: '700',
                 flexShrink: 0
               }}
             >
               <RotateCcw size={13} />
-              <span>{Math.round(scale * 100)}%</span>
+              <span>{Math.round(scale * 100)}% (重置)</span>
             </button>
           )}
 
