@@ -10,8 +10,7 @@ import {
   ListMusic, 
   ChevronLeft, 
   ChevronRight,
-  RotateCcw,
-  ZoomIn
+  RotateCcw
 } from 'lucide-react'
 
 interface SheetViewerModalProps {
@@ -151,6 +150,8 @@ export function SheetViewerModal({
       style={{
         position: 'fixed',
         inset: 0,
+        width: '100%',
+        height: '100dvh',
         backgroundColor: 'rgba(15, 23, 42, 0.88)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
@@ -160,11 +161,11 @@ export function SheetViewerModal({
         zIndex: 9999,
         touchAction: 'none',
         overflow: 'hidden',
-        height: '100dvh'
+        boxSizing: 'border-box'
       }}
     >
       {/* 頂部右上角：塗鴉筆記與關閉按鈕 */}
-      <div style={{ position: 'fixed', top: '24px', right: '24px', display: 'flex', gap: '10px', zIndex: 10001 }}>
+      <div style={{ position: 'fixed', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 10001 }}>
         {/* 重置縮放按鈕（僅在被放大時顯示） */}
         {scale > 1 && (
           <button
@@ -205,7 +206,7 @@ export function SheetViewerModal({
             alignItems: 'center',
             gap: '6px',
             height: '38px',
-            padding: '0 16px',
+            padding: '0 14px',
             borderRadius: '10px',
             backgroundColor: isEditing ? '#059669' : 'rgba(15, 23, 42, 0.85)',
             border: '1px solid rgba(255, 255, 255, 0.18)',
@@ -261,36 +262,44 @@ export function SheetViewerModal({
       {!isEditing && currentSetlistIndex !== null && setlist[currentSetlistIndex] && (
         <div style={{
           position: 'fixed',
-          top: '24px',
-          left: '24px',
+          top: '16px',
+          left: '16px',
           display: 'inline-flex',
           alignItems: 'center',
           gap: '8px',
           backgroundColor: 'rgba(15, 23, 42, 0.85)',
           border: '1px solid rgba(255, 255, 255, 0.18)',
           color: '#ffffff',
-          padding: '8px 16px',
+          padding: '8px 14px',
           borderRadius: '20px',
           fontWeight: '600',
-          fontSize: '13px',
+          fontSize: '12.5px',
           zIndex: 10001,
           backdropFilter: 'blur(8px)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          maxWidth: 'calc(100vw - 180px)',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
         }}>
-          <ListMusic size={16} />
-          <span>歌單 ({currentSetlistIndex + 1}/{setlist.length})：{setlist[currentSetlistIndex].title}</span>
+          <ListMusic size={15} style={{ flexShrink: 0 }} />
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            歌單 ({currentSetlistIndex + 1}/{setlist.length})：{setlist[currentSetlistIndex].title}
+          </span>
         </div>
       )}
 
       {/* 樂譜與塗鴉 Transform 縮放 Container */}
       <div 
         style={{ 
-          width: '100vw', 
-          height: '100vh', 
+          width: '100%', 
+          maxWidth: '100%',
+          height: '100%', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center', 
-          padding: '16px',
+          padding: '70px 12px 70px 12px', // 上下留空間給控制按鈕列
+          boxSizing: 'border-box',
           transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
           transformOrigin: 'center center',
           transition: touchStartRef.current ? 'none' : 'transform 0.15s ease-out'
@@ -306,16 +315,20 @@ export function SheetViewerModal({
           <img 
             src={activeSheetImages[currentImageIndex]} 
             alt="樂譜內容" 
-            style={{ 
-              maxWidth: '96vw', 
-              maxHeight: '90vh', 
+            style={{
+              width: 'auto',
+              height: 'auto',
+              maxWidth: '100%', 
+              maxHeight: 'calc(100dvh - 140px)', 
               objectFit: 'contain', 
               borderRadius: '8px',
               boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
               userSelect: 'none',
               WebkitUserSelect: 'none',
               WebkitTouchCallout: 'none',
-              pointerEvents: 'none', // 防止圖片干擾事件
+              pointerEvents: 'none',
+              display: 'block',
+              margin: '0 auto'
             }} 
           />
         </SheetAnnotator>
@@ -326,13 +339,13 @@ export function SheetViewerModal({
         <div 
           style={{ 
             position: 'fixed',
-            bottom: '20px',
+            bottom: '16px',
             display: 'inline-flex', 
             alignItems: 'center', 
-            gap: '12px', 
+            gap: '8px', 
             color: '#ffffff',
-            backgroundColor: 'rgba(15, 23, 42, 0.8)',
-            padding: '6px 14px',
+            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+            padding: '6px 12px',
             borderRadius: '30px',
             border: '1px solid rgba(255, 255, 255, 0.18)',
             backdropFilter: 'blur(16px)',
@@ -350,24 +363,24 @@ export function SheetViewerModal({
             style={{ 
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '4px',
               height: '34px',
-              padding: '0 14px', 
+              padding: '0 12px', 
               borderRadius: '18px', 
               backgroundColor: isPrevDisabled ? 'transparent' : 'rgba(255, 255, 255, 0.15)', 
               color: isPrevDisabled ? 'rgba(255, 255, 255, 0.3)' : '#ffffff', 
               border: 'none', 
               cursor: isPrevDisabled ? 'not-allowed' : 'pointer', 
               fontWeight: '600', 
-              fontSize: '13px',
+              fontSize: '12.5px',
               transition: 'all 0.2s ease'
             }}
           >
             <ChevronLeft size={16} />
-            <span>上一首 / 上首</span>
+            <span>上一首</span>
           </button>
 
-          <span style={{ fontSize: '13px', fontWeight: '600', color: 'rgba(255, 255, 255, 0.7)', padding: '0 6px' }}>
+          <span style={{ fontSize: '12.5px', fontWeight: '600', color: 'rgba(255, 255, 255, 0.7)', padding: '0 4px' }}>
             {currentImageIndex + 1} / {activeSheetImages.length} 頁
           </span>
 
@@ -380,20 +393,20 @@ export function SheetViewerModal({
             style={{ 
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '4px',
               height: '34px',
-              padding: '0 14px', 
+              padding: '0 12px', 
               borderRadius: '18px', 
               backgroundColor: isNextDisabled ? 'transparent' : 'rgba(255, 255, 255, 0.15)', 
               color: isNextDisabled ? 'rgba(255, 255, 255, 0.3)' : '#ffffff', 
               border: 'none', 
               cursor: isNextDisabled ? 'not-allowed' : 'pointer', 
               fontWeight: '600', 
-              fontSize: '13px',
+              fontSize: '12.5px',
               transition: 'all 0.2s ease'
             }}
           >
-            <span>下一首 / 下首</span>
+            <span>下一首</span>
             <ChevronRight size={16} />
           </button>
         </div>
