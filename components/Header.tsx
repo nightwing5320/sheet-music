@@ -37,16 +37,23 @@ const primaryButtonStyle = {
   boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
 };
 
-const dangerButtonStyle = {
-  ...baseButtonStyle,
-  backgroundColor: 'transparent',
-  color: 'var(--text-secondary)',
-  border: '1px solid var(--border-color)',
+const dangerButtonStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  padding: '8px 16px',
+  borderRadius: '8px',
+  border: '1px solid rgba(239, 68, 68, 0.3)',
+  backgroundColor: 'rgba(239, 68, 68, 0.08)',
+  color: '#ef4444',
+  fontWeight: '600',
+  fontSize: '14px',
+  cursor: 'pointer',
 };
 
 interface HeaderProps {
   userDisplayName: string
-  is_admin?: boolean // 📌 新增：是否為管理者
+  is_admin?: boolean // 新增：是否為管理者
   setlistCount: number
   isSetlistOpen: boolean
   onToggleSetlist: () => void
@@ -55,7 +62,7 @@ interface HeaderProps {
 
 export function Header({ 
   userDisplayName,
-  is_admin = false, // 📌 預設為 false
+  is_admin = false, // 預設為 false
   setlistCount, 
   onToggleSetlist, 
   onLogout 
@@ -118,7 +125,7 @@ export function Header({
         {/* 明暗切換元件 */}
         <ThemeToggle />
 
-        {/* 📌 管理者審核入口 (僅在 is_admin 為 true 時顯示) */}
+        {/* 管理者審核入口 (僅在 is_admin 為 true 時顯示) */}
         {is_admin && (
           <Link 
             href="/admin" 
@@ -161,7 +168,22 @@ export function Header({
         {/* 登出按鈕 */}
         <button 
           onClick={onLogout} 
-          style={dangerButtonStyle}>
+          style={{
+            ...dangerButtonStyle,
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+            e.currentTarget.style.backgroundColor = '#ef4444' // 懸停時背景變為亮紅色
+            e.currentTarget.style.color = '#ffffff'            // 文字與圖示變為白色
+            e.currentTarget.style.borderColor = '#ef4444'     // 邊框同步變紅
+          }}
+          onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+            // 移開時恢復為原始 dangerButtonStyle 的樣式
+            e.currentTarget.style.backgroundColor = dangerButtonStyle.backgroundColor || 'transparent'
+            e.currentTarget.style.color = dangerButtonStyle.color || '#ef4444'
+            e.currentTarget.style.borderColor = dangerButtonStyle.borderColor || 'rgba(239, 68, 68, 0.3)'
+          }}
+        >
           <LogOut size={18} />
           <span>登出</span>
         </button>
