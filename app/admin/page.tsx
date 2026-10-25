@@ -285,7 +285,7 @@ export default function AdminPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <ShieldCheck size={28} style={{ color: '#2563eb' }} />
           <div>
-            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>樂譜管理後台 - 帳號審核與管理</h1>
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>波波貓的後台</h1>
             <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--text-secondary, #64748b)' }}>
               當前管理者：{currentUser?.email}
             </p>

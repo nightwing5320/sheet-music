@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { Sheet } from '@/types' // 📌 匯入統一型態
+import { Sheet } from '@/types'
 
 // 匯入獨立元件
 import { Header } from '@/components/Header'
@@ -13,7 +13,6 @@ import { SheetViewerModal } from '@/components/SheetViewerModal'
 
 import { Music, Zap, Moon, HelpCircle } from 'lucide-react'
 
-// 強制動態渲染，防止 Next.js 建置預覽時因無金鑰失敗
 export const dynamic = 'force-dynamic'
 
 export default function Home() {
@@ -33,7 +32,7 @@ export default function Home() {
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
   const [userDisplayName, setUserDisplayName] = useState<string>('')
-  const [isAdmin, setIsAdmin] = useState<boolean>(false) // 新增管理者狀態
+  const [isAdmin, setIsAdmin] = useState<boolean>(false)
 
   const router = useRouter()
   const supabase = createClient()
@@ -41,7 +40,7 @@ export default function Home() {
   // 筆記資料 State
   const [annotations, setAnnotations] = useState<Record<string, any>>({})
 
-  // 初始讀取 LocalStorage 紀錄
+  // 初始讀取 LocalStorage 紀錄筆記
   useEffect(() => {
     const savedAnnotations = localStorage.getItem('worship_sheet_annotations')
     if (savedAnnotations) {
@@ -55,7 +54,6 @@ export default function Home() {
 
   // 更新筆記並同步存至 LocalStorage
   const handleUpdateAnnotations = (annotationKey: string, newPaths: any[]) => {
-    console.log('✍️ 正在儲存筆記，Key 為:', annotationKey, '內容:', newPaths)
     setAnnotations((prev) => {
       const updated = { ...prev, [annotationKey]: newPaths }
       localStorage.setItem('worship_sheet_annotations', JSON.stringify(updated))
@@ -66,17 +64,19 @@ export default function Home() {
   useEffect(() => {
     fetchUserProfile()
     fetchSheets()
+    
+    // 先從 LocalStorage 快取中讀取歌單預覽
     const savedSetlist = localStorage.getItem('worship_setlist')
     if (savedSetlist) {
       try {
         setSetlist(JSON.parse(savedSetlist))
       } catch (e) {
-        console.error('Failed to load setlist', e)
+        console.error('Failed to load local setlist', e)
       }
     }
   }, [])
 
-  // 📌 修正：查詢 profiles 時一併取出 is_admin
+  // 📌 獲取 Profile，並從雲端讀取使用者的 setlist 歌單
   const fetchUserProfile = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -84,7 +84,7 @@ export default function Home() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('display_name, is_admin') // 👈 加上 is_admin
+        .select('display_name, is_admin, setlist')
         .eq('id', user.id)
         .single()
 
@@ -97,16 +97,38 @@ export default function Home() {
           setUserDisplayName(user.email.split('@')[0])
         }
 
-        // 📌 設定是否為 Admin
         setIsAdmin(!!profile.is_admin)
+
+        // 📌 雲端若有 setlist 紀錄，優先套用雲端資料並更新 LocalStorage
+        if (profile.setlist && Array.isArray(profile.setlist)) {
+          setSetlist(profile.setlist)
+          localStorage.setItem('worship_setlist', JSON.stringify(profile.setlist))
+        }
       }
     } catch (err) {
       console.error('Error fetching user profile:', err)
     }
   }
 
+  // 📌 當 setlist 歌單變更時，同時寫入 LocalStorage 與同步上傳至 Supabase 雲端
   useEffect(() => {
     localStorage.setItem('worship_setlist', JSON.stringify(setlist))
+
+    const syncSetlistToCloud = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        await supabase
+          .from('profiles')
+          .update({ setlist })
+          .eq('id', user.id)
+      } catch (err) {
+        console.error('Failed to sync setlist to cloud:', err)
+      }
+    }
+
+    syncSetlistToCloud()
   }, [setlist])
 
   useEffect(() => {
@@ -184,7 +206,6 @@ export default function Home() {
     if (window.confirm('確定要清除今天的敬拜歌單嗎？')) setSetlist([])
   }
 
-  // 開啟 Modal 時，同步保存目前點擊的 Sheet 物件
   const openModal = (sheet: Sheet, setlistIdx: number | null = null) => {
     const pages = (sheet.image_urls && sheet.image_urls.length > 0) ? sheet.image_urls : [sheet.file_url]
     setSelectedSheet(sheet)
@@ -250,7 +271,7 @@ export default function Home() {
 
   return (
     <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px 20px', color: 'var(--text-primary)' }}>
-      {/* 📌 頂部 Header 元件（傳入 isAdmin） */}
+      {/* 頂部 Header 元件 */}
       <Header
         userDisplayName={userDisplayName}
         is_admin={isAdmin}
@@ -282,11 +303,8 @@ export default function Home() {
         />
       </div>
 
-
-      {/* 彩色頁籤分類區域程式碼 */}
+      {/* 分類按鈕區 */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px', flexWrap: 'wrap' }}>
-        
-        {/* 全部 (藍色) */}
         <button 
           onClick={() => setActiveTab('all')} 
           style={{ 
@@ -308,7 +326,6 @@ export default function Home() {
           <span>全部 ({countAll})</span>
         </button>
 
-        {/* 快歌 (黃色) */}
         <button 
           onClick={() => setActiveTab('fast')} 
           style={{ 
@@ -330,7 +347,6 @@ export default function Home() {
           <span>快歌 ({countFast})</span>
         </button>
 
-        {/* 慢歌 (綠色) */}
         <button 
           onClick={() => setActiveTab('slow')} 
           style={{ 
@@ -352,7 +368,6 @@ export default function Home() {
           <span>慢歌 ({countSlow})</span>
         </button>
 
-        {/* 未分類 (灰色/紅色) */}
         <button 
           onClick={() => setActiveTab('unclassified')} 
           style={{ 
@@ -373,10 +388,9 @@ export default function Home() {
           <HelpCircle size={15} />
           <span>未分類 ({countUnclassified})</span>
         </button>
-
       </div>
 
-      {/* 樂譜清單區塊 */}
+      {/* 樂譜列表 */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary)' }}>載入樂譜庫中...</div>
       ) : filteredSheets.length === 0 ? (
@@ -398,10 +412,10 @@ export default function Home() {
         </div>
       )}
 
-      {/* 修正後的 SheetViewerModal 渲染條件 */}
+      {/* 樂譜開啟檢視與塗鴉 Modal */}
       {activeSheetImages.length > 0 && selectedSheet && (
         <SheetViewerModal
-          selectedSheet={selectedSheet} // 傳入目前選中的樂譜物件
+          selectedSheet={selectedSheet}
           activeSheetImages={activeSheetImages}
           currentImageIndex={currentImageIndex}
           currentSetlistIndex={currentSetlistIndex}
