@@ -270,7 +270,7 @@ export default function Home() {
   })
 
   return (
-    <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px 20px', color: 'var(--text-primary)' }}>
+    <main style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', padding: '32px 20px', color: 'var(--text-primary)', overflowX: 'hidden'}}>
       {/* 頂部 Header 元件 */}
       <Header
         userDisplayName={userDisplayName}

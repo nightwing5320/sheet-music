@@ -159,7 +159,8 @@ export function SheetViewerModal({
         justifyContent: 'center',
         zIndex: 9999,
         touchAction: 'none',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        height: '100dvh'
       }}
     >
       {/* 頂部右上角：塗鴉筆記與關閉按鈕 */}
