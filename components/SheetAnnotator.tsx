@@ -32,7 +32,7 @@ export function SheetAnnotator({
   const [strokeWidth, setStrokeWidth] = useState(4)
   const svgRef = useRef<SVGSVGElement | null>(null)
 
-  // 新增：縮放 (Scale) 與 平移 (Position) 狀態
+  // 縮放 (Scale) 與 平移 (Position) 狀態
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const touchStartRef = useRef<{ dist: number; scale: number; x: number; y: number; posX: number; posY: number } | null>(null)
@@ -180,24 +180,28 @@ export function SheetAnnotator({
       }}
     >
 
-      {/* 塗鴉模式專屬懸浮工具列 (Annotation Floating Toolbar) */}
+      {/* 塗鴉模式專屬懸浮工具列 (Annotation Floating Toolbar - 響應式微型化) */}
       {isEditing && (
         <div style={{
           position: 'absolute',
-          top: '26px',
+          top: '16px',
           left: '50%',
           transform: 'translateX(-50%)',
-          backgroundColor: 'rgba(15, 23, 42, 0.85)',
+          backgroundColor: 'rgba(15, 23, 42, 0.9)',
           backdropFilter: 'blur(16px)',
           border: '1px solid rgba(255, 255, 255, 0.18)',
-          padding: '8px 18px',
+          padding: '6px 12px',
           borderRadius: '30px',
           display: 'flex',
           alignItems: 'center',
-          gap: '14px',
+          gap: '10px',
           zIndex: 10002,
           boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)',
-          color: 'white'
+          color: 'white',
+          maxWidth: 'calc(100vw - 24px)', // 📌 防止撐爆手機螢幕
+          overflowX: 'auto',              // 📌 螢幕極窄時允許橫向滑動
+          WebkitOverflowScrolling: 'touch',
+          boxSizing: 'border-box'
         }}>
           {/* 重置縮放按鈕 (當放大時自動顯示當前倍率) */}
           {scale > 1 && (
@@ -215,7 +219,8 @@ export function SheetAnnotator({
                 padding: '3px 8px',
                 cursor: 'pointer',
                 fontSize: '12px',
-                fontWeight: '600'
+                fontWeight: '600',
+                flexShrink: 0
               }}
             >
               <RotateCcw size={13} />
@@ -224,14 +229,14 @@ export function SheetAnnotator({
           )}
 
           {/* 顏色選擇器 */}
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
             {['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#000000', '#ffffff'].map((c) => (
               <button
                 key={c}
                 onClick={() => setColor(c)}
                 style={{
-                  width: '22px',
-                  height: '22px',
+                  width: '20px',
+                  height: '20px',
                   borderRadius: '50%',
                   backgroundColor: c,
                   border: color === c ? '2px solid #ffffff' : '1px solid rgba(255, 255, 255, 0.39)',
@@ -239,16 +244,17 @@ export function SheetAnnotator({
                   transform: color === c ? 'scale(1.2)' : 'scale(1)',
                   boxShadow: color === c ? '0 0 10px rgba(255, 255, 255, 0.5)' : 'none',
                   transition: 'all 0.2s ease',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  flexShrink: 0
                 }}
               />
             ))}
           </div>
 
-          <div style={{ width: '1px', height: '15px', backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
+          <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.2)', flexShrink: 0 }} />
 
-          {/* 筆劃粗細選擇器 (切換為低調圖示按鈕風格) */}
-          <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+          {/* 筆劃粗細選擇器 */}
+          <div style={{ display: 'flex', gap: '2px', alignItems: 'center', flexShrink: 0 }}>
             {[
               { label: '細', value: 2 },
               { label: '中', value: 4 },
@@ -258,7 +264,7 @@ export function SheetAnnotator({
                 key={sw.value}
                 onClick={() => setStrokeWidth(sw.value)}
                 style={{
-                  padding: '3px 7px',
+                  padding: '2px 6px',
                   borderRadius: '6px',
                   fontSize: '12px',
                   fontWeight: '600',
@@ -266,7 +272,8 @@ export function SheetAnnotator({
                   color: strokeWidth === sw.value ? '#ffffff' : 'rgba(255, 255, 255, 0.6)',
                   border: 'none',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0
                 }}
               >
                 {sw.label}
@@ -274,7 +281,7 @@ export function SheetAnnotator({
             ))}
           </div>
 
-          <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
+          <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.2)', flexShrink: 0 }} />
 
           {/* 復原按鈕 */}
           <button
@@ -284,18 +291,18 @@ export function SheetAnnotator({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
+              justifyContent: 'center',
+              width: '28px',
+              height: '28px',
               background: 'none',
               border: 'none',
               color: paths.length === 0 ? 'rgba(255, 255, 255, 0.3)' : '#ffffff',
               cursor: paths.length === 0 ? 'not-allowed' : 'pointer',
-              fontSize: '13px',
-              fontWeight: '500',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              flexShrink: 0
             }}
           >
-            <Undo2 size={15} />
-            <span>復原</span>
+            <Undo2 size={16} />
           </button>
 
           {/* 清空按鈕 */}
@@ -306,18 +313,18 @@ export function SheetAnnotator({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
+              justifyContent: 'center',
+              width: '28px',
+              height: '28px',
               background: 'none',
               border: 'none',
               color: paths.length === 0 ? 'rgba(255, 255, 255, 0.3)' : '#f87171',
               cursor: paths.length === 0 ? 'not-allowed' : 'pointer',
-              fontSize: '13px',
-              fontWeight: '500',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              flexShrink: 0
             }}
           >
-            <Trash2 size={15} />
-            <span>清空</span>
+            <Trash2 size={16} />
           </button>
         </div>
       )}
