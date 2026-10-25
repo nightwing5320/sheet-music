@@ -183,8 +183,8 @@ export function SheetAnnotator({
       {/* 塗鴉模式專屬懸浮工具列 (Annotation Floating Toolbar - 響應式微型化) */}
       {isEditing && (
         <div style={{
-          position: 'absolute',
-          top: '6px',
+          position: 'fixed',
+          top: '16px',
           left: '50%',
           transform: 'translateX(-50%)',
           backgroundColor: 'rgba(15, 23, 42, 0.9)',
@@ -194,7 +194,7 @@ export function SheetAnnotator({
           borderRadius: '30px',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
+          gap: '8px',
           zIndex: 10002,
           boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)',
           color: 'white',
