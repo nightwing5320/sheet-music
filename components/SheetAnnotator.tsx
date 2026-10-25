@@ -198,8 +198,8 @@ export function SheetAnnotator({
           zIndex: 10002,
           boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)',
           color: 'white',
-          maxWidth: 'calc(100vw - 24px)', // 📌 防止撐爆手機螢幕
-          overflowX: 'auto',              // 📌 螢幕極窄時允許橫向滑動
+          maxWidth: 'calc(100vw - 24px)', // 防止撐爆手機螢幕
+          overflowX: 'auto',              // 螢幕極窄時允許橫向滑動
           WebkitOverflowScrolling: 'touch',
           boxSizing: 'border-box'
         }}>
