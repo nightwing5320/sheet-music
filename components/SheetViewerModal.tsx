@@ -110,7 +110,7 @@ export function SheetViewerModal({
         posX: position.x,
         posY: position.y
       }
-    } else if (e.touches.length === 1 && scale > 1 && !isEditing) {
+    } else if (e.touches.length === 1 && scale > 1) {
       touchStartRef.current = {
         dist: 0,
         scale,
@@ -138,7 +138,7 @@ export function SheetViewerModal({
       } else {
         setPosition((prev) => clampPosition(prev.x, prev.y, newScale))
       }
-    } else if (e.touches.length === 1 && touchStartRef.current.dist === 0 && scale > 1 && !isEditing) {
+    } else if (e.touches.length === 1 && touchStartRef.current.dist === 0 && scale > 1) {
       const deltaX = e.touches[0].clientX - touchStartRef.current.x
       const deltaY = e.touches[0].clientY - touchStartRef.current.y
       
