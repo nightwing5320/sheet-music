@@ -119,7 +119,9 @@ export function Header({
         }}
       >
         {/* 明暗切換元件 */}
-        <ThemeToggle />
+        <div id="tour-theme-toggle">
+          <ThemeToggle />
+        </div>
 
         {/* 管理者審核入口 (僅在 is_admin 為 true 時顯示) */}
         {is_admin && (
@@ -169,7 +171,7 @@ export function Header({
         </Link>
 
         {/* 當日歌單 */}
-        <button 
+        <button id="tour-setlist-btn"
           onClick={onToggleSetlist} 
           style={secondaryButtonStyle}
           onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
@@ -188,7 +190,7 @@ export function Header({
         </button>
 
         {/* 上傳樂譜 */}
-        <Link  
+        <Link id="tour-upload-btn"
           href="/upload" 
           style={primaryButtonStyle}
           onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {

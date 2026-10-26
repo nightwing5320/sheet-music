@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Sheet } from '@/types'
@@ -10,6 +10,7 @@ import { Header } from '@/components/Header'
 import { SetlistSection } from '@/components/SetlistSection'
 import { SheetCard } from '@/components/SheetCard'
 import { SheetViewerModal } from '@/components/SheetViewerModal'
+import { SpotlightTourModal, TourStep } from '@/components/SpotlightTourModal'
 
 import { Music, Zap, Moon, HelpCircle, Search, X } from 'lucide-react'
 
@@ -23,6 +24,16 @@ export default function Home() {
   
   const [setlist, setSetlist] = useState<Sheet[]>([])
   const [isSetlistOpen, setIsSetlistOpen] = useState(false)
+
+  const [showTour, setShowTour] = useState(false)
+
+  useEffect(() => {
+    const hasSeen = localStorage.getItem('has_seen_spotlight_tour')
+    if (!hasSeen) {
+      const timer =setTimeout(() => setShowTour(true), 500)
+      return () => clearTimeout(timer)
+    }
+  },[])
 
   // 記錄目前選中的樂譜物件與 Modal 狀態
   const [selectedSheet, setSelectedSheet] = useState<Sheet | null>(null)
@@ -52,6 +63,11 @@ export default function Home() {
     }
   }, [])
 
+  const handleCloseTour = () => {
+    setShowTour(false)
+    localStorage.setItem('has_seen_spotlight_tour', 'true')
+  }
+
   // 更新筆記並同步存至 LocalStorage
   const handleUpdateAnnotations = (annotationKey: string, newPaths: any[]) => {
     setAnnotations((prev) => {
@@ -60,6 +76,27 @@ export default function Home() {
       return updated
     })
   }
+
+  const TOUR_STEPS: TourStep[] = [
+    {
+      targetSelector: '#tour-setlist-btn',
+      title: '當日練團歌單',
+      description: '點擊此處可開啟或編輯今天的演出歌單，支援一鍵連續播放多首樂譜！',
+      position: 'bottom'
+    },
+    {
+      targetSelector: '#tour-upload-btn',
+      title: '上傳新樂譜',
+      description: '快速上傳 PDF 或圖片格式樂譜，系統會自動生成清晰預覽與跨頁連結。',
+      position: 'bottom'
+    },
+    {
+      targetSelector: '#tour-theme-toggle',
+      title: '切換深淺色模式',
+      description: '針對現場表演昏暗環境，隨時切換深色（Dark Mode）護眼模式。',
+      position: 'bottom'
+    }
+  ]
 
   useEffect(() => {
     fetchUserProfile()
@@ -279,6 +316,13 @@ export default function Home() {
         isSetlistOpen={isSetlistOpen}
         onToggleSetlist={() => setIsSetlistOpen(!isSetlistOpen)}
         onLogout={handleLogout}
+      />
+
+      {/* 高級 Spotlight 箭頭指向導覽 */}
+      <SpotlightTourModal
+        isOpen={showTour}
+        steps={TOUR_STEPS}
+        onClose={handleCloseTour}
       />
 
       {/* 歌單展折區元件 */}
