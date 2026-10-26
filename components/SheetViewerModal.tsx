@@ -241,7 +241,7 @@ export function SheetViewerModal({
           }}
         >
           <Info size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />
-          <span>雙指可縮放 ｜ 單指拖曳移動 ｜ 點按“筆記”可用觸控筆直接劃記</span>
+          <span>雙指可縮放 ｜ 單指拖曳移動 ｜ 點按“筆記”可用觸控筆在譜上劃記</span>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '6px', borderLeft: '1px solid rgba(255,255,255,0.2)', paddingLeft: '8px' }}>
             <button
