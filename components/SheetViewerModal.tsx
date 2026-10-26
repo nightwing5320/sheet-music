@@ -99,7 +99,6 @@ export function SheetViewerModal({
 
   // 處理縮放與拖曳手勢
   const handleContainerTouchStart = (e: React.TouchEvent) => {
-    if (isEditing) return // 塗鴉模式下關閉整體縮放
 
     if (e.touches.length === 2) {
       const dist = getDistance(e.touches)
@@ -111,7 +110,7 @@ export function SheetViewerModal({
         posX: position.x,
         posY: position.y
       }
-    } else if (e.touches.length === 1 && scale > 1) {
+    } else if (e.touches.length === 1 && scale > 1 && !isEditing) {
       touchStartRef.current = {
         dist: 0,
         scale,
@@ -120,13 +119,13 @@ export function SheetViewerModal({
         posX: position.x,
         posY: position.y
       }
-    } else {
+    } else if (!isEditing) {
       onTouchStart(e)
     }
   }
 
   const handleContainerTouchMove = (e: React.TouchEvent) => {
-    if (isEditing || !touchStartRef.current) return
+    if (!touchStartRef.current) return
 
     if (e.touches.length === 2 && touchStartRef.current.dist > 0) {
       const newDist = getDistance(e.touches)
@@ -139,7 +138,7 @@ export function SheetViewerModal({
       } else {
         setPosition((prev) => clampPosition(prev.x, prev.y, newScale))
       }
-    } else if (e.touches.length === 1 && touchStartRef.current.dist === 0 && scale > 1) {
+    } else if (e.touches.length === 1 && touchStartRef.current.dist === 0 && scale > 1 && !isEditing) {
       const deltaX = e.touches[0].clientX - touchStartRef.current.x
       const deltaY = e.touches[0].clientY - touchStartRef.current.y
       
