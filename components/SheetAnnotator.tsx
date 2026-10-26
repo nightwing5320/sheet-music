@@ -111,7 +111,7 @@ export function SheetAnnotator({
           borderRadius: '30px',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
+          gap: '8px',
           zIndex: 10002,
           boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)',
           color: 'white',
