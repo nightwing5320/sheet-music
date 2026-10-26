@@ -90,8 +90,9 @@ export default function LoginPage() {
       // 檢查是否已獲得管理員審核
       const { data: profile } = await supabase
           .from('profiles')
-          .select('is_approved')
+          .update({ last_sign_in_at: new Date().toISOString() })
           .eq('id', user.id)
+          .select('is_approved')
           .single();
 
       if (!profile || !profile.is_approved) {
