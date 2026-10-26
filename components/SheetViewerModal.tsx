@@ -44,12 +44,11 @@ export function SheetViewerModal({
 }: SheetViewerModalProps) {
   const [isEditing, setIsEditing] = useState(false)
 
-  // 放大縮小與平移狀態
+  // 📌 縮放 (Scale) 與 平移 (Position) 狀態（全域統一在此管理）
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
-  
-  // 紀錄雙指觸控起始距離與位移
   const touchStartRef = useRef<{ dist: number; scale: number; x: number; y: number; posX: number; posY: number } | null>(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
 
   if (!activeSheetImages || activeSheetImages.length === 0) return null
 
@@ -66,19 +65,43 @@ export function SheetViewerModal({
   const isPrevDisabled = currentImageIndex === 0 && (currentSetlistIndex === null || currentSetlistIndex === 0)
   const isNextDisabled = currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)
 
-  // 計算雙指之間的距離
+  // 📌 重置縮放
+  const handleResetZoom = (e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    setScale(1)
+    setPosition({ x: 0, y: 0 })
+  }
+
+  // 計算兩點間距離 (雙指縮放)
   const getDistance = (touches: React.TouchList) => {
     const dx = touches[0].clientX - touches[1].clientX
     const dy = touches[0].clientY - touches[1].clientY
     return Math.sqrt(dx * dx + dy * dy)
   }
 
+  // 📌 邊界限制夾緊機制（防止單指把樂譜拖到螢幕外）
+  const clampPosition = (newX: number, newY: number, currentScale: number) => {
+    if (!containerRef.current || currentScale <= 1) {
+      return { x: 0, y: 0 }
+    }
+    const rect = containerRef.current.getBoundingClientRect()
+    const maxX = (rect.width * (currentScale - 1)) / 2
+    const maxY = (rect.height * (currentScale - 1)) / 2
+
+    return {
+      x: Math.min(Math.max(newX, -maxX), maxX),
+      y: Math.min(Math.max(newY, -maxY), maxY)
+    }
+  }
+
   // 處理縮放與拖曳手勢
   const handleContainerTouchStart = (e: React.TouchEvent) => {
-    if (isEditing) return // 塗鴉模式下關閉整體放大縮小平移，避免畫筆誤觸
+    if (isEditing) return // 塗鴉模式下關閉整體縮放
 
     if (e.touches.length === 2) {
-      // 雙指縮放開始
       const dist = getDistance(e.touches)
       touchStartRef.current = {
         dist,
@@ -89,7 +112,6 @@ export function SheetViewerModal({
         posY: position.y
       }
     } else if (e.touches.length === 1 && scale > 1) {
-      // 單指平移拖曳（僅在已放大的狀態下）
       touchStartRef.current = {
         dist: 0,
         scale,
@@ -107,24 +129,24 @@ export function SheetViewerModal({
     if (isEditing || !touchStartRef.current) return
 
     if (e.touches.length === 2 && touchStartRef.current.dist > 0) {
-      // 雙指 Pinch 縮放處理
       const newDist = getDistance(e.touches)
       const factor = newDist / touchStartRef.current.dist
-      const newScale = Math.min(Math.max(touchStartRef.current.scale * factor, 1), 3.5) // 限制倍率 1x ~ 3.5x
+      const newScale = Math.min(Math.max(touchStartRef.current.scale * factor, 1), 3.5)
       
       setScale(newScale)
       if (newScale === 1) {
         setPosition({ x: 0, y: 0 })
+      } else {
+        setPosition((prev) => clampPosition(prev.x, prev.y, newScale))
       }
     } else if (e.touches.length === 1 && touchStartRef.current.dist === 0 && scale > 1) {
-      // 單指拖曳平移處理
       const deltaX = e.touches[0].clientX - touchStartRef.current.x
       const deltaY = e.touches[0].clientY - touchStartRef.current.y
       
-      setPosition({
-        x: touchStartRef.current.posX + deltaX,
-        y: touchStartRef.current.posY + deltaY
-      })
+      const rawX = touchStartRef.current.posX + deltaX
+      const rawY = touchStartRef.current.posY + deltaY
+
+      setPosition(clampPosition(rawX, rawY, scale))
     }
   }
 
@@ -133,12 +155,6 @@ export function SheetViewerModal({
     if (!isEditing && scale === 1) {
       onTouchEnd(e)
     }
-  }
-
-  // 重置縮放
-  const handleResetZoom = () => {
-    setScale(1)
-    setPosition({ x: 0, y: 0 })
   }
 
   return (
@@ -164,15 +180,13 @@ export function SheetViewerModal({
         boxSizing: 'border-box'
       }}
     >
-      {/* 頂部右上角：塗鴉筆記與關閉按鈕 */}
+      {/* 頂部右上角：塗鴉與關閉 */}
       <div style={{ position: 'fixed', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 10001 }}>
-        {/* 重置縮放按鈕（僅在被放大時顯示） */}
+        {/* 📌 重置縮放按鈕（點擊直接還原倍率） */}
         {scale > 1 && (
           <button
-            onClick={(e) => {
-              e.stopPropagation()
-              handleResetZoom()
-            }}
+            onClick={handleResetZoom}
+            onTouchStart={handleResetZoom}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -180,10 +194,10 @@ export function SheetViewerModal({
               height: '38px',
               padding: '0 12px',
               borderRadius: '10px',
-              backgroundColor: 'rgba(15, 23, 42, 0.85)',
-              border: '1px solid rgba(255, 255, 255, 0.18)',
+              backgroundColor: 'rgba(239, 68, 68, 0.9)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
               color: '#ffffff',
-              fontWeight: '600',
+              fontWeight: '700',
               cursor: 'pointer',
               fontSize: '13px',
               backdropFilter: 'blur(8px)',
@@ -191,7 +205,7 @@ export function SheetViewerModal({
             }}
           >
             <RotateCcw size={15} />
-            <span>{Math.round(scale * 100)}%</span>
+            <span>{Math.round(scale * 100)}% (重置)</span>
           </button>
         )}
 
@@ -199,7 +213,7 @@ export function SheetViewerModal({
           onClick={(e) => {
             e.stopPropagation()
             setIsEditing(!isEditing)
-            if (!isEditing) handleResetZoom() // 進入塗鴉模式自動歸位 1x
+            if (!isEditing) handleResetZoom()
           }}
           style={{
             display: 'inline-flex',
@@ -216,7 +230,6 @@ export function SheetViewerModal({
             fontSize: '13px',
             backdropFilter: 'blur(8px)',
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            transition: 'all 0.2s ease'
           }}
         >
           {isEditing ? (
@@ -232,13 +245,11 @@ export function SheetViewerModal({
           )}
         </button>
 
-        {/* 關閉 Modal 按鈕 */}
         <button 
           onClick={(e) => {
             e.stopPropagation()
             onClose()
           }}
-          title="關閉"
           style={{ 
             display: 'inline-flex',
             alignItems: 'center',
@@ -250,15 +261,13 @@ export function SheetViewerModal({
             border: '1px solid rgba(255, 255, 255, 0.18)',
             color: '#ffffff', 
             cursor: 'pointer',
-            backdropFilter: 'blur(8px)',
-            transition: 'all 0.2s ease',
           }}
         >
           <X size={18} />
         </button>
       </div>
 
-      {/* 頂部左上角：歌單資訊標籤 */}
+      {/* 頂部左上角歌單 */}
       {!isEditing && currentSetlistIndex !== null && setlist[currentSetlistIndex] && (
         <div style={{
           position: 'fixed',
@@ -275,9 +284,7 @@ export function SheetViewerModal({
           fontWeight: '600',
           fontSize: '12.5px',
           zIndex: 10001,
-          backdropFilter: 'blur(8px)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-          maxWidth: 'calc(100vw - 180px)',
+          maxWidth: 'calc(100vw - 220px)',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap'
@@ -289,8 +296,9 @@ export function SheetViewerModal({
         </div>
       )}
 
-      {/* 樂譜與塗鴉 Transform 縮放 Container */}
+      {/* 📌 Transform 樂譜與塗鴉放大部分 */}
       <div 
+        ref={containerRef}
         style={{ 
           width: '100%', 
           maxWidth: '100%',
@@ -298,7 +306,7 @@ export function SheetViewerModal({
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center', 
-          padding: '70px 12px 70px 12px', // 上下留空間給控制按鈕列
+          padding: '70px 12px 70px 12px',
           boxSizing: 'border-box',
           transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
           transformOrigin: 'center center',
@@ -325,7 +333,6 @@ export function SheetViewerModal({
               boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
               userSelect: 'none',
               WebkitUserSelect: 'none',
-              WebkitTouchCallout: 'none',
               pointerEvents: 'none',
               display: 'block',
               margin: '0 auto'
@@ -334,7 +341,7 @@ export function SheetViewerModal({
         </SheetAnnotator>
       </div>
 
-      {/* 底部懸浮膠囊翻頁導覽 */}
+      {/* 底部翻頁 */}
       {!isEditing && (
         <div 
           style={{ 
@@ -348,33 +355,14 @@ export function SheetViewerModal({
             padding: '6px 12px',
             borderRadius: '30px',
             border: '1px solid rgba(255, 255, 255, 0.18)',
-            backdropFilter: 'blur(16px)',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.4)',
             zIndex: 10001
           }}
           onClick={(e) => e.stopPropagation()}
         >
           <button 
-            onClick={() => {
-              handleResetZoom()
-              onPrev()
-            }}
+            onClick={() => { handleResetZoom(); onPrev() }}
             disabled={isPrevDisabled}
-            style={{ 
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              height: '34px',
-              padding: '0 12px', 
-              borderRadius: '18px', 
-              backgroundColor: isPrevDisabled ? 'transparent' : 'rgba(255, 255, 255, 0.15)', 
-              color: isPrevDisabled ? 'rgba(255, 255, 255, 0.3)' : '#ffffff', 
-              border: 'none', 
-              cursor: isPrevDisabled ? 'not-allowed' : 'pointer', 
-              fontWeight: '600', 
-              fontSize: '12.5px',
-              transition: 'all 0.2s ease'
-            }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '34px', padding: '0 12px', borderRadius: '18px', backgroundColor: isPrevDisabled ? 'transparent' : 'rgba(255, 255, 255, 0.15)', color: isPrevDisabled ? 'rgba(255, 255, 255, 0.3)' : '#ffffff', border: 'none', cursor: isPrevDisabled ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '12.5px' }}
           >
             <ChevronLeft size={16} />
             <span>上一首</span>
@@ -385,26 +373,9 @@ export function SheetViewerModal({
           </span>
 
           <button 
-            onClick={() => {
-              handleResetZoom()
-              onNext()
-            }}
+            onClick={() => { handleResetZoom(); onNext() }}
             disabled={isNextDisabled}
-            style={{ 
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              height: '34px',
-              padding: '0 12px', 
-              borderRadius: '18px', 
-              backgroundColor: isNextDisabled ? 'transparent' : 'rgba(255, 255, 255, 0.15)', 
-              color: isNextDisabled ? 'rgba(255, 255, 255, 0.3)' : '#ffffff', 
-              border: 'none', 
-              cursor: isNextDisabled ? 'not-allowed' : 'pointer', 
-              fontWeight: '600', 
-              fontSize: '12.5px',
-              transition: 'all 0.2s ease'
-            }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '34px', padding: '0 12px', borderRadius: '18px', backgroundColor: isNextDisabled ? 'transparent' : 'rgba(255, 255, 255, 0.15)', color: isNextDisabled ? 'rgba(255, 255, 255, 0.3)' : '#ffffff', border: 'none', cursor: isNextDisabled ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '12.5px' }}
           >
             <span>下一首</span>
             <ChevronRight size={16} />
