@@ -81,13 +81,13 @@ export default function Home() {
     {
       targetSelector: '#tour-setlist-btn',
       title: '當日練團歌單',
-      description: '點擊此處可開啟或編輯今天的演出歌單，支援一鍵連續播放多首樂譜！',
+      description: '點擊此處可開啟或編輯今天的歌單，支援連續播放多首歌曲！',
       position: 'bottom'
     },
     {
       targetSelector: '#tour-profile-btn',
       title: '個人設定',
-      description: '可在這裡修改你在樂譜庫中顯示的使用者名稱（Display Name）與密碼。',
+      description: '可在這裡修改使用者名稱與密碼。',
       position: 'bottom'
     },
     {
@@ -103,9 +103,27 @@ export default function Home() {
       position: 'bottom'
     },
     {
+      targetSelector: '#tour-add-setlist-btn',
+      title: '加入 / 移除當日歌單',
+      description: '點擊此按鈕可迅速將這首樂譜加入今日的練習/表演歌單中。',
+      position: 'top'
+    },
+    {
+      targetSelector: '#tour-edit-btn',
+      title: '編輯樂譜資訊',
+      description: '修正歌曲標題、Key 調性、速度（快歌/慢歌）或替換樂譜圖片檔。',
+      position: 'top'
+    },
+    {
+      targetSelector: '#tour-delete-btn',
+      title: '刪除樂譜',
+      description: '永久從樂譜庫中移除該首歌曲（含塗鴉筆記與相關圖檔）。',
+      position: 'top'
+    },
+    {
       targetSelector: '#tour-help-btn',
       title: '使用說明與導覽',
-      description: '點擊此處可查看使用說明，點擊即可重新啟動導覽模式。',
+      description: '點擊此處可查看使用說明，重新啟動導覽模式。',
       position: 'bottom'
     }
   ]
@@ -523,10 +541,11 @@ export default function Home() {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-          {filteredSheets.map((sheet) => (
+          {filteredSheets.map((sheet, index) => (
             <SheetCard
               key={sheet.id}
               sheet={sheet}
+              isFirst={index === 0}
               isInSetlist={setlist.some((item) => item.id === sheet.id)}
               onOpenModal={openModal}
               onToggleSetlist={addToSetlist}

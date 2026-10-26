@@ -7,6 +7,7 @@ import { Edit3, Trash2, Plus, Check, ZoomIn } from 'lucide-react'
 interface SheetCardProps {
   sheet: Sheet
   isInSetlist: boolean
+  isFirst?: boolean
   onToggleSetlist: (sheet: Sheet) => void
   onOpenModal: (sheet: Sheet) => void
   onDeleteSheet?: (id: number, title: string) => void
@@ -15,6 +16,7 @@ interface SheetCardProps {
 export function SheetCard({
   sheet,
   isInSetlist,
+  isFirst,
   onToggleSetlist,
   onOpenModal,
   onDeleteSheet,
@@ -22,7 +24,9 @@ export function SheetCard({
   const imageUrl = sheet.image_urls?.[0] || sheet.file_url
 
   return (
-    <div style={{
+    <div
+      id={isFirst ? 'tour-first-sheet' : undefined} 
+      style={{
       borderRadius: '16px',
       overflow: 'hidden',
       backgroundColor: 'var(--card-bg, #ffffff)', 
@@ -115,6 +119,7 @@ export function SheetCard({
           {/* 編輯按鈕 (改用 Lucide Edit3 + 修復 Link 屬性) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
           <Link 
+            id={isFirst ? 'tour-edit-btn' : undefined}
             href={`/edit/${sheet.id}`} 
             style={{ 
               display: 'inline-flex',
@@ -152,6 +157,7 @@ export function SheetCard({
           {/* 刪除按鈕 (改用 Lucide Trash2 純圖示 + Hover 效果) */}
           {onDeleteSheet && (
             <button
+              id={isFirst ? 'tour-delete-btn' : undefined}
               onClick={() => onDeleteSheet(sheet.id, sheet.title)}
               title="刪除樂譜"
               style={{
@@ -190,6 +196,7 @@ export function SheetCard({
           
           {/* 加入歌單按鈕 (改用 Lucide Check & Plus) */}
           <button
+            id={isFirst ? 'tour-add-to-setlist-btn' : undefined}
             onClick={() => onToggleSetlist(sheet)}
             style={{
               width: '100%',
