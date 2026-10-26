@@ -99,6 +99,14 @@ export function SheetViewerModal({
 
   // 處理縮放與拖曳手勢
   const handleContainerTouchStart = (e: React.TouchEvent) => {
+    // 如果觸控來源是 Apple Pencil (stylus / pen)，直接忽略，讓 SheetAnnotator 去畫線
+    const nativeEvent = e.nativeEvent as TouchEvent
+    if (nativeEvent.touches.length > 0) {
+      const touch = nativeEvent.touches[0] as any
+      if (touch.touchType === 'stylus') {
+        return // Apple Pencil 下筆時，不觸發單指拖曳！[cite: 1]
+      }
+    }
 
     if (e.touches.length === 2) {
       const dist = getDistance(e.touches)
