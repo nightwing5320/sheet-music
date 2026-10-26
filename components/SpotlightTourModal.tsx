@@ -72,7 +72,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
       }
     }
 
-    const margin = 14
+    const margin = 20
     const prefPos = step.position || 'bottom'
 
     // 預設 Bottom
@@ -83,19 +83,19 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
     let arrowTransform = 'translateX(-50%) rotate(45deg)'
 
     if (prefPos === 'top') {
-      top = targetRect.top - margin - 140
-      arrowTop = 'calc(100% - 4px)'
+      top = targetRect.top - margin
+      arrowTop = 'calc(100% - 5px)'
     } else if (prefPos === 'left') {
-      top = targetRect.top + targetRect.height / 2 - 60
+      top = targetRect.top + targetRect.height / 2 - 80
       left = targetRect.left - 320 - margin
       arrowTop = '50%'
-      arrowLeft = 'calc(100% - 4px)'
+      arrowLeft = 'calc(100% - 5px)'
       arrowTransform = 'translateY(-50%) rotate(45deg)'
     } else if (prefPos === 'right') {
-      top = targetRect.top + targetRect.height / 2 - 60
+      top = targetRect.top + targetRect.height / 2 - 80
       left = targetRect.right + margin
       arrowTop = '50%'
-      arrowLeft = -4
+      arrowLeft = -5
       arrowTransform = 'translateY(-50%) rotate(45deg)'
     }
 
@@ -107,6 +107,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
         position: 'fixed',
         top: `${top}px`,
         left: `${left}px`,
+        transform: 'prefPos === "top" ? "translateY(-100%)" : "none"',
         width: '320px',
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
       },
@@ -115,7 +116,8 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
         width: '12px',
         height: '12px',
         backgroundColor: 'var(--card-bg, #0f172a)',
-        border: '1px solid var(--border-color, rgba(255,255,255,0.2))',
+        borderRight: '1px solid rgba(255, 255, 255, 0.18)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.18)',
         top: arrowTop,
         left: arrowLeft,
         transform: arrowTransform,
