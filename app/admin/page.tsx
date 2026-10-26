@@ -186,7 +186,9 @@ export default function AdminPage() {
       setUpdatingId(user.id)
 
       const res = await fetch(`/api/admin/users?userId=${user.id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id })
       })
 
       const result = await res.json()
@@ -196,6 +198,7 @@ export default function AdminPage() {
       alert('成功刪除使用者帳號！')
     } catch (err: any) {
       alert('刪除失敗：' + err.message)
+      checkAdminAndFetchUsers()
     } finally {
       setUpdatingId(null)
     }

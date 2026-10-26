@@ -83,3 +83,36 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+
+// app/api/admin/users/route.ts
+
+export async function DELETE(request: Request) {
+  try {
+    const { userId } = await request.json()
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
+    }
+
+    const supabaseAdmin = getSupabaseAdmin()
+
+    // 1. 刪除 profiles 資料表紀錄
+    await supabaseAdmin
+      .from('profiles')
+      .delete()
+      .eq('id', userId)
+
+    // 2. 刪除 auth.users 帳號
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId)
+    
+    // 即使 auth.users 之前在後台已經被手動刪除過，這裡也安全忽略
+    if (authError && !authError.message.includes('User not found')) {
+      throw authError
+    }
+
+    // 3. 📌 必須明確回傳 JSON 格式
+    return NextResponse.json({ success: true, userId })
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 })
+  }
+}
