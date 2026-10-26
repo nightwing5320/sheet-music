@@ -117,7 +117,7 @@ export default function Home() {
     {
       targetSelector: '#tour-delete-btn',
       title: '刪除樂譜',
-      description: '永久從樂譜庫中移除該首歌曲（含塗鴉筆記與相關圖檔）',
+      description: '從樂譜庫中永久移除該首歌曲',
       position: 'top'
     },
     {

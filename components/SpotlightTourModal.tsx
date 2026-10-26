@@ -22,6 +22,13 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
 
   const step = steps[currentStepIndex]
 
+  useEffect(() => {
+    if (!isOpen) {
+      setCurrentStepIndex(0)
+      setTargetRect(null)
+    }
+  }, [isOpen])
+
   // 定位目標元素的位置
   useEffect(() => {
     if (!isOpen || !step) return
