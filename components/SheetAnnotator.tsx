@@ -173,7 +173,7 @@ export function SheetAnnotator({
         onClick={handleUndo}
         disabled={paths.length === 0}
         title="復原上一步"
-        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', background: 'none', border: 'none', color: paths.length === 0 ? 'rgba(255, 255, 255, 0.3)' : '#ffffff', cursor: paths.length === 0 ? 'not-allowed' : 'pointer', flexShrink: 0 }}
+        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '25px', height: '28px', background: 'none', border: 'none', color: paths.length === 0 ? 'rgba(255, 255, 255, 0.3)' : '#ffffff', cursor: paths.length === 0 ? 'not-allowed' : 'pointer', flexShrink: 0 }}
       >
         <Undo2 size={16} />
       </button>
@@ -183,7 +183,7 @@ export function SheetAnnotator({
         onClick={handleClearAll}
         disabled={paths.length === 0}
         title="清空所有筆記"
-        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', background: 'none', border: 'none', color: paths.length === 0 ? 'rgba(255, 255, 255, 0.3)' : '#f87171', cursor: paths.length === 0 ? 'not-allowed' : 'pointer', flexShrink: 0 }}
+        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '25px', height: '28px', background: 'none', border: 'none', color: paths.length === 0 ? 'rgba(255, 255, 255, 0.3)' : '#f87171', cursor: paths.length === 0 ? 'not-allowed' : 'pointer', flexShrink: 0 }}
       >
         <Trash2 size={16} />
       </button>
