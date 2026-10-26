@@ -29,6 +29,7 @@ interface UserProfile {
   is_approved: boolean
   is_admin?: boolean
   created_at?: string
+  last_sign_in_at?: string | null
 }
 
 export default function AdminPage() {
@@ -50,6 +51,19 @@ export default function AdminPage() {
   useEffect(() => {
     checkAdminAndFetchUsers()
   }, [])
+
+  const formatDate = (dateStr?: string | null) => {
+  if (!dateStr) return '尚未登入過'
+  const d = new Date(dateStr)
+  return d.toLocaleString('zh-TW', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  })
+}
 
   const checkAdminAndFetchUsers = async () => {
     try {
@@ -418,6 +432,10 @@ export default function AdminPage() {
                   )}
                   <div style={{ fontSize: '11.5px', color: 'var(--text-secondary, #94a3b8)', marginTop: '2px' }}>
                     ID: {u.id.substring(0, 18)}...
+                  </div>
+                  {/* 顯示最後登入時間 (Last Sign In At) */}
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary, #64748b)', marginTop: '4px', display: 'flex', gap: '12px' }}>
+                    <span>🕒 最後登入：<strong style={{ color: 'var(--text-primary, #0f172a)' }}>{formatDate(u.last_sign_in_at)}</strong></span>
                   </div>
                 </div>
               </div>

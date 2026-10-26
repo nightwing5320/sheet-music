@@ -1,3 +1,4 @@
+// app/api/admin/users/route.ts
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
@@ -6,92 +7,78 @@ function getSupabaseAdmin() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Supabase URL or Service Role Key is missing from environment variables.')
+    throw new Error('Supabase URL or Service Role Key is missing.')
   }
 
   return createClient(supabaseUrl, serviceRoleKey)
 }
 
-// 取得所有使用者 Profile 清單
+// 1. 取得所有使用者 (整合 auth.users 的 last_sign_in_at 與 profiles)
 export async function GET() {
   try {
     const supabaseAdmin = getSupabaseAdmin()
-    const { data, error } = await supabaseAdmin
+
+    // 從 Auth Admin API 抓取所有 Auth 帳號 (包含 last_sign_in_at, email, created_at)
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.listUsers()
+    if (authError) throw authError
+
+    // 從 profiles 資料表抓取審核資訊 (is_approved, is_admin, display_name)
+    const { data: profileData, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('*')
-      .order('updated_at', { ascending: false })
 
-    if (error) throw error
+    if (profileError) throw profileError
 
-    return NextResponse.json({ users: data })
+    // 建立 Profiles 快速 Lookup Map
+    const profileMap = new Map(profileData.map(p => [p.id, p]))
+
+    // 組合 Auth Users 與 Profile 資料
+    const combinedUsers = authData.users.map(user => {
+      const profile = profileMap.get(user.id) || {}
+      return {
+        id: user.id,
+        email: user.email,
+        display_name: profile.display_name || null,
+        is_approved: profile.is_approved ?? false,
+        is_admin: profile.is_admin ?? false,
+        created_at: user.created_at,
+        last_sign_in_at: user.last_sign_in_at || null // 📌 取得 Supabase 後台原生記錄的時間
+      }
+    })
+
+    // 按最後登入時間（或註冊時間）排序
+    combinedUsers.sort((a, b) => {
+      const dateA = a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0
+      const dateB = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0
+      return dateB - dateA
+    })
+
+    return NextResponse.json({ users: combinedUsers })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
 
-// 更新使用者的審核狀態、名稱或 Email
+// 2. 更新使用者的審核狀態 (is_approved)
 export async function PATCH(request: Request) {
   try {
-    const { userId, isApproved, displayName, email } = await request.json()
+    const { userId, isApproved } = await request.json()
 
     if (!userId) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
     }
 
     const supabaseAdmin = getSupabaseAdmin()
-
-    if (email !== undefined) {
-      const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(userId, { email })
-      if (authError) throw authError
-
-      await supabaseAdmin
-        .from('profiles')
-        .update({ email })
-        .eq('id', userId)
-    }
-
-    const updatePayload: Record<string, any> = {}
-    if (isApproved !== undefined) updatePayload.is_approved = isApproved
-    if (displayName !== undefined) updatePayload.display_name = displayName
-
-    if (Object.keys(updatePayload).length > 0) {
-      const { error: profileError } = await supabaseAdmin
-        .from('profiles')
-        .update(updatePayload)
-        .eq('id', userId)
-
-      if (profileError) throw profileError
-    }
-
-    const { data: updatedProfile } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from('profiles')
-      .select('*')
+      .update({ is_approved: isApproved })
       .eq('id', userId)
+      .select()
       .single()
 
-    return NextResponse.json({ success: true, user: updatedProfile })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
-  }
-}
-
-// 刪除使用者帳號
-export async function DELETE(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
-    }
-
-    const supabaseAdmin = getSupabaseAdmin()
-
-    // 從 Supabase Auth 中刪除使用者（CASCADE 會自動清空 profiles 資料）
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
     if (error) throw error
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, user: data })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
