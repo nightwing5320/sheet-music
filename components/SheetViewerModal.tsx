@@ -65,7 +65,7 @@ export function SheetViewerModal({
   const isPrevDisabled = currentImageIndex === 0 && (currentSetlistIndex === null || currentSetlistIndex === 0)
   const isNextDisabled = currentImageIndex === activeSheetImages.length - 1 && (currentSetlistIndex === null || currentSetlistIndex === setlist.length - 1)
 
-  // 📌 重置縮放
+  // 重置縮放
   const handleResetZoom = (e?: React.MouseEvent | React.TouchEvent) => {
     if (e) {
       e.preventDefault()
@@ -82,7 +82,7 @@ export function SheetViewerModal({
     return Math.sqrt(dx * dx + dy * dy)
   }
 
-  // 📌 邊界限制夾緊機制（防止單指把樂譜拖到螢幕外）
+  // 邊界限制夾緊機制（防止單指把樂譜拖到螢幕外）
   const clampPosition = (newX: number, newY: number, currentScale: number) => {
     if (!containerRef.current || currentScale <= 1) {
       return { x: 0, y: 0 }
@@ -212,7 +212,7 @@ export function SheetViewerModal({
             }}
           >
             <RotateCcw size={15} />
-            <span>{Math.round(scale * 100)}% (重置)</span>
+            <span>{Math.round(scale * 100)}%</span>
           </button>
         )}
 
@@ -247,7 +247,7 @@ export function SheetViewerModal({
           ) : (
             <>
               <Pencil size={15} />
-              <span>塗鴉筆記</span>
+              <span>新增筆記</span>
             </>
           )}
         </button>
