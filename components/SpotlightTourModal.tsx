@@ -72,7 +72,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
       }
     }
 
-    const margin = 20
+    const margin = 14
     const prefPos = step.position || 'bottom'
 
     // 預設 Bottom
@@ -83,7 +83,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
     let arrowTransform = 'translateX(-50%) rotate(45deg)'
 
     if (prefPos === 'top') {
-      top = targetRect.top - margin
+      top = targetRect.top - margin - 140
       arrowTop = 'calc(100% - 5px)'
     } else if (prefPos === 'left') {
       top = targetRect.top + targetRect.height / 2 - 80
