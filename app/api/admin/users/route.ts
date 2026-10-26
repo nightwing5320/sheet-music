@@ -13,7 +13,7 @@ function getSupabaseAdmin() {
   return createClient(supabaseUrl, serviceRoleKey)
 }
 
-// 1. 取得所有使用者 (整合 auth.users 的 last_sign_in_at 與 profiles)
+// 取得所有使用者 (整合 auth.users 的 last_sign_in_at 與 profiles)
 export async function GET() {
   try {
     const supabaseAdmin = getSupabaseAdmin()
@@ -42,7 +42,7 @@ export async function GET() {
         is_approved: profile.is_approved ?? false,
         is_admin: profile.is_admin ?? false,
         created_at: user.created_at,
-        last_sign_in_at: user.last_sign_in_at || null // 📌 取得 Supabase 後台原生記錄的時間
+        last_sign_in_at: user.last_sign_in_at || null // 取得 Supabase 後台原生記錄的時間
       }
     })
 
@@ -59,7 +59,7 @@ export async function GET() {
   }
 }
 
-// 2. 更新使用者的審核狀態 (is_approved)
+// 更新使用者的審核狀態 (is_approved)
 export async function PATCH(request: Request) {
   try {
     const { userId, isApproved } = await request.json()

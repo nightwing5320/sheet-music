@@ -32,7 +32,7 @@ export function SheetAnnotator({
   const [strokeWidth, setStrokeWidth] = useState(4)
   const svgRef = useRef<SVGSVGElement | null>(null)
   
-  // 📌 確保 Client 端掛載後才渲染 Portal
+  // 確保 Client 端掛載後才渲染 Portal
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
@@ -92,7 +92,7 @@ export function SheetAnnotator({
     if (confirm('確定要清空當前頁面的筆記嗎？')) onChangePaths([])
   }
 
-  // 📌 工具列 DOM 元件
+  // 工具列 DOM 元件
   const toolbarContent = isEditing ? (
     <div 
       onClick={(e) => e.stopPropagation()}
@@ -192,7 +192,7 @@ export function SheetAnnotator({
 
   return (
     <>
-      {/* 📌 使用 Portal 將塗鴉工具列脫離任何 transform 容器，直接掛在 document.body */}
+      {/* 使用 Portal 將塗鴉工具列脫離任何 transform 容器，直接掛在 document.body */}
       {mounted && toolbarContent && createPortal(toolbarContent, document.body)}
 
       {/* 樂譜與 SVG 塗鴉畫布容器 */}
