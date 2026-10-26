@@ -196,7 +196,7 @@ export function SheetCard({
           
           {/* 加入歌單按鈕 (改用 Lucide Check & Plus) */}
           <button
-            id={isFirst ? 'tour-add-to-setlist-btn' : undefined}
+            id={isFirst ? 'tour-add-setlist-btn' : undefined}
             onClick={() => onToggleSetlist(sheet)}
             style={{
               width: '100%',
