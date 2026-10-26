@@ -427,7 +427,7 @@ export default function AdminPage() {
                   </div>
                   {u.email && (
                     <div style={{ fontSize: '12.5px', color: 'var(--text-secondary, #64748b)', marginTop: '2px' }}>
-                      ✉️ {u.email}
+                      Mail: {u.email}
                     </div>
                   )}
                   <div style={{ fontSize: '11.5px', color: 'var(--text-secondary, #94a3b8)', marginTop: '2px' }}>
@@ -435,7 +435,7 @@ export default function AdminPage() {
                   </div>
                   {/* 顯示最後登入時間 (Last Sign In At) */}
                   <div style={{ fontSize: '12px', color: 'var(--text-secondary, #64748b)', marginTop: '4px', display: 'flex', gap: '12px' }}>
-                    <span>🕒 最後登入：<strong style={{ color: 'var(--text-primary, #0f172a)' }}>{formatDate(u.last_sign_in_at)}</strong></span>
+                    <span>最後登入：<strong style={{ color: 'var(--text-primary, #0f172a)' }}>{formatDate(u.last_sign_in_at)}</strong></span>
                   </div>
                 </div>
               </div>
