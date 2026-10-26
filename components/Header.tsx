@@ -99,7 +99,7 @@ export function Header({
 
         <p style={{ 
           margin: 0, 
-          fontSize: '16px', 
+          fontSize: '18px', 
           fontWeight: '600', 
           color: 'var(--text-secondary)',
           display: 'flex',
