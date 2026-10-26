@@ -218,12 +218,7 @@ export function Header({
           id="tour-help-btn"
           onClick={onOpenTour}
           title="功能說明導覽"
-          style={{
-            ...secondaryButtonStyle,
-            width: '42px',
-            padding: 0,
-            color: 'var(--text-secondary)'
-          }}
+          style={secondaryButtonStyle}
         >
           <HelpCircle size={18} />
         </button>
