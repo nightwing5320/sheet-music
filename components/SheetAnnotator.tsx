@@ -100,7 +100,7 @@ export function SheetAnnotator({
       {/* 塗鴉懸浮工具列 */}
       {isEditing && (
         <div style={{
-          position: 'absolute',
+          position: 'fixed',
           top: '16px',
           left: '50%',
           transform: 'translateX(-50%)',

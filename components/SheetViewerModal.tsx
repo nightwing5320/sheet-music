@@ -189,7 +189,7 @@ export function SheetViewerModal({
     >
       {/* 頂部右上角：塗鴉與關閉 */}
       <div style={{ position: 'fixed', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 10001 }}>
-        {/* 📌 重置縮放按鈕（點擊直接還原倍率） */}
+        {/* 重置縮放按鈕（點擊直接還原倍率） */}
         {scale > 1 && (
           <button
             onClick={handleResetZoom}
