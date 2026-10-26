@@ -145,7 +145,7 @@ export function Header({
             }}
           >
             <ShieldCheck size={18} />
-            <span>帳號審核</span>
+            <span>管理員</span>
           </Link>
         )}
 

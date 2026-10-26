@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Sheet } from '@/types'
 import { SheetAnnotator, PathData } from './SheetAnnotator'
 import { 
@@ -10,7 +10,8 @@ import {
   ListMusic, 
   ChevronLeft, 
   ChevronRight,
-  RotateCcw
+  RotateCcw,
+  Info
 } from 'lucide-react'
 
 interface SheetViewerModalProps {
@@ -44,7 +45,25 @@ export function SheetViewerModal({
 }: SheetViewerModalProps) {
   const [isEditing, setIsEditing] = useState(false)
 
-  // 📌 縮放 (Scale) 與 平移 (Position) 狀態（全域統一在此管理）
+  // 提示條顯示狀態與 localStorage 記憶
+  const [showGestureHint, setShowGestureHint] = useState(false)
+
+  useEffect(() => {
+    // 檢查使用者是否曾點擊「不再顯示」
+    const hideHint = localStorage.getItem('hide_sheet_viewer_gesture_hint')
+    if (!hideHint) {
+      setShowGestureHint(true)
+    }
+  }, [])
+
+  const handleDismissHint = (dontShowAgain: boolean) => {
+    setShowGestureHint(false)
+    if (dontShowAgain) {
+      localStorage.setItem('hide_sheet_viewer_gesture_hint', 'true')
+    }
+  }
+
+  // 縮放 (Scale) 與 平移 (Position) 狀態
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const touchStartRef = useRef<{ dist: number; scale: number; x: number; y: number; posX: number; posY: number } | null>(null)
@@ -82,7 +101,7 @@ export function SheetViewerModal({
     return Math.sqrt(dx * dx + dy * dy)
   }
 
-  // 邊界限制夾緊機制（防止單指把樂譜拖到螢幕外）
+  // 邊界限制夾緊機制
   const clampPosition = (newX: number, newY: number, currentScale: number) => {
     if (!containerRef.current || currentScale <= 1) {
       return { x: 0, y: 0 }
@@ -99,12 +118,11 @@ export function SheetViewerModal({
 
   // 處理縮放與拖曳手勢
   const handleContainerTouchStart = (e: React.TouchEvent) => {
-    // 如果觸控來源是 Apple Pencil (stylus / pen)，直接忽略，讓 SheetAnnotator 去畫線
     const nativeEvent = e.nativeEvent as TouchEvent
     if (nativeEvent.touches.length > 0) {
       const touch = nativeEvent.touches[0] as any
       if (touch.touchType === 'stylus') {
-        return // Apple Pencil 下筆時，不觸發單指拖曳！[cite: 1]
+        return
       }
     }
 
@@ -133,6 +151,14 @@ export function SheetViewerModal({
   }
 
   const handleContainerTouchMove = (e: React.TouchEvent) => {
+    const nativeEvent = e.nativeEvent as TouchEvent
+    if (nativeEvent.touches.length > 0) {
+      const touch = nativeEvent.touches[0] as any
+      if (touch.touchType === 'stylus') {
+        return
+      }
+    }
+
     if (!touchStartRef.current) return
 
     if (e.touches.length === 2 && touchStartRef.current.dist > 0) {
@@ -187,9 +213,71 @@ export function SheetViewerModal({
         boxSizing: 'border-box'
       }}
     >
-      {/* 頂部右上角：塗鴉與關閉 */}
+      {/* 頂部懸浮手勢操作說明條 (提示膠囊) */}
+      {showGestureHint && !isEditing && (
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: 'fixed',
+            top: '16px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            backgroundColor: 'rgba(30, 41, 59, 0.92)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            color: '#ffffff',
+            padding: '6px 14px',
+            borderRadius: '24px',
+            fontSize: '12px',
+            fontWeight: '500',
+            zIndex: 10003,
+            backdropFilter: 'blur(12px)',
+            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.35)',
+            whiteSpace: 'nowrap',
+            maxWidth: 'calc(100vw - 32px)',
+            boxSizing: 'border-box'
+          }}
+        >
+          <Info size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />
+          <span>💡 雙指可縮放 ｜ 單指拖曳移動 ｜ Apple Pencil 可直接畫記</span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '6px', borderLeft: '1px solid rgba(255,255,255,0.2)', paddingLeft: '8px' }}>
+            <button
+              onClick={() => handleDismissHint(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#38bdf8',
+                cursor: 'pointer',
+                fontSize: '11.5px',
+                fontWeight: '600',
+                padding: '2px 4px'
+              }}
+            >
+              不再顯示
+            </button>
+            <button
+              onClick={() => handleDismissHint(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'rgba(255,255,255,0.6)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '2px'
+              }}
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 頂部右上角：塗鴉與關閉按鈕 */}
       <div style={{ position: 'fixed', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 10001 }}>
-        {/* 重置縮放按鈕（點擊直接還原倍率） */}
         {scale > 1 && (
           <button
             onClick={handleResetZoom}
@@ -212,7 +300,7 @@ export function SheetViewerModal({
             }}
           >
             <RotateCcw size={15} />
-            <span>{Math.round(scale * 100)}%</span>
+            <span>{Math.round(scale * 100)}% (重置)</span>
           </button>
         )}
 
@@ -274,7 +362,7 @@ export function SheetViewerModal({
         </button>
       </div>
 
-      {/* 頂部左上角歌單 */}
+      {/* 頂部左上角歌單標籤 */}
       {!isEditing && currentSetlistIndex !== null && setlist[currentSetlistIndex] && (
         <div style={{
           position: 'fixed',
@@ -303,7 +391,7 @@ export function SheetViewerModal({
         </div>
       )}
 
-      {/* 📌 Transform 樂譜與塗鴉放大部分 */}
+      {/* 樂譜 Transform 容器 */}
       <div 
         ref={containerRef}
         style={{ 
@@ -348,7 +436,7 @@ export function SheetViewerModal({
         </SheetAnnotator>
       </div>
 
-      {/* 底部翻頁 */}
+      {/* 底部導覽膠囊 */}
       {!isEditing && (
         <div 
           style={{ 
