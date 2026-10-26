@@ -242,12 +242,12 @@ export function SheetViewerModal({
           {isEditing ? (
             <>
               <Check size={16} strokeWidth={2.5} />
-              <span>完成筆記</span>
+              <span>完成</span>
             </>
           ) : (
             <>
               <Pencil size={15} />
-              <span>新增筆記</span>
+              <span>筆記</span>
             </>
           )}
         </button>
