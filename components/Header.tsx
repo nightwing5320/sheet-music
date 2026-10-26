@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Settings, ListMusic, Plus, LogOut, Piano, Sparkles, ShieldCheck } from 'lucide-react'
+import { Settings, ListMusic, Plus, LogOut, Piano, Sparkles, ShieldCheck, HelpCircle } from 'lucide-react'
 
 // 將基礎樣式物件放在 Component 外面
 const baseButtonStyle: React.CSSProperties = {
@@ -54,6 +54,7 @@ interface HeaderProps {
   isSetlistOpen: boolean
   onToggleSetlist: () => void
   onLogout: () => void
+  onOpenTour?: () => void
 }
 
 export function Header({ 
@@ -61,7 +62,8 @@ export function Header({
   is_admin = false,
   setlistCount, 
   onToggleSetlist, 
-  onLogout 
+  onLogout,
+  onOpenTour
 }: HeaderProps) {
   return (
     <header 
@@ -153,6 +155,7 @@ export function Header({
 
         {/* 個人設定 */}
         <Link 
+          id="tour-profile-btn"
           href="/profile" 
           style={secondaryButtonStyle}
           onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -171,7 +174,8 @@ export function Header({
         </Link>
 
         {/* 當日歌單 */}
-        <button id="tour-setlist-btn"
+        <button 
+          id="tour-setlist-btn"
           onClick={onToggleSetlist} 
           style={secondaryButtonStyle}
           onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
@@ -190,7 +194,8 @@ export function Header({
         </button>
 
         {/* 上傳樂譜 */}
-        <Link id="tour-upload-btn"
+        <Link 
+          id="tour-upload-btn"
           href="/upload" 
           style={primaryButtonStyle}
           onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -207,6 +212,21 @@ export function Header({
           <Plus size={18} />
           <span>上傳樂譜</span>
         </Link>
+
+        {/* 提示按鈕 */}
+        <button
+          id="tour-help-btn"
+          onClick={onOpenTour}
+          title="功能說明導覽"
+          style={{
+            ...secondaryButtonStyle,
+            width: '42px',
+            padding: 0,
+            color: 'var(--text-secondary)'
+          }}
+        >
+          <HelpCircle size={18} />
+        </button>
 
         {/* 登出按鈕 */}
         <button 

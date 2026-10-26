@@ -129,7 +129,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 99999, pointerEvents: 'auto' }}>
       
-      {/* 📌 1. 光圈遮罩 (Spotlight Hole Effect) */}
+      {/* 1. 光圈遮罩 (Spotlight Hole Effect) */}
       {targetRect ? (
         <div
           style={{
@@ -150,7 +150,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)' }} />
       )}
 
-      {/* 📌 2. 說明氣泡框與指向箭頭 */}
+      {/* 2. 說明氣泡框與指向箭頭 */}
       <div 
         style={{
           ...tooltipStyle,

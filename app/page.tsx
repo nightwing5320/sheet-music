@@ -85,6 +85,12 @@ export default function Home() {
       position: 'bottom'
     },
     {
+      targetSelector: '#tour-profile-btn',
+      title: '個人設定',
+      description: '可在這裡修改你在樂譜庫中顯示的使用者名稱（Display Name）與密碼。',
+      position: 'bottom'
+    },
+    {
       targetSelector: '#tour-upload-btn',
       title: '上傳新樂譜',
       description: '快速上傳 PDF 或圖片格式樂譜，系統會自動生成清晰預覽與跨頁連結。',
@@ -93,7 +99,13 @@ export default function Home() {
     {
       targetSelector: '#tour-theme-toggle',
       title: '切換深淺色模式',
-      description: '針對現場表演昏暗環境，隨時切換深色（Dark Mode）護眼模式。',
+      description: '依個人喜好隨時切換深/淺色模式。',
+      position: 'bottom'
+    },
+    {
+      targetSelector: '#tour-help-btn',
+      title: '使用說明與導覽',
+      description: '點擊此處可查看使用說明，點擊即可重新啟動導覽模式。',
       position: 'bottom'
     }
   ]
@@ -316,6 +328,7 @@ export default function Home() {
         isSetlistOpen={isSetlistOpen}
         onToggleSetlist={() => setIsSetlistOpen(!isSetlistOpen)}
         onLogout={handleLogout}
+        onOpenTour={() => setShowTour(true)} //點擊重新觸發導覽
       />
 
       {/* 高級 Spotlight 箭頭指向導覽 */}
