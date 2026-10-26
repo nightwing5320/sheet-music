@@ -80,50 +80,50 @@ export default function Home() {
   const TOUR_STEPS: TourStep[] = [
     {
       targetSelector: '#tour-setlist-btn',
-      title: '當日練團歌單',
-      description: '點擊此處可開啟或編輯今天的歌單，支援連續播放多首歌曲！',
+      title: '當日敬拜歌單',
+      description: '點擊此處可開啟、刪除或編輯今天的歌單',
       position: 'bottom'
     },
     {
       targetSelector: '#tour-profile-btn',
       title: '個人設定',
-      description: '可在這裡修改使用者名稱與密碼。',
+      description: '可在這裡修改使用者名稱與密碼',
       position: 'bottom'
     },
     {
       targetSelector: '#tour-upload-btn',
       title: '上傳新樂譜',
-      description: '快速上傳 PDF 或圖片格式樂譜，系統會自動生成清晰預覽與跨頁連結。',
+      description: '快速上傳 PDF 或圖片格式樂譜，系統會自動生成清晰預覽與跨頁連結',
       position: 'bottom'
     },
     {
       targetSelector: '#tour-theme-toggle',
       title: '切換深淺色模式',
-      description: '依個人喜好隨時切換深/淺色模式。',
+      description: '依個人喜好隨時切換深/淺色模式',
       position: 'bottom'
     },
     {
       targetSelector: '#tour-add-setlist-btn',
-      title: '加入 / 移除當日歌單',
-      description: '點擊此按鈕可迅速將這首樂譜加入今日的練習/表演歌單中。',
+      title: '加入歌單',
+      description: '點擊此按鈕可迅速將樂譜加入今天的歌單',
       position: 'top'
     },
     {
       targetSelector: '#tour-edit-btn',
       title: '編輯樂譜資訊',
-      description: '修正歌曲標題、Key 調性、速度（快歌/慢歌）或替換樂譜圖片檔。',
+      description: '修正歌曲標題、調性及速度（快歌/慢歌）',
       position: 'top'
     },
     {
       targetSelector: '#tour-delete-btn',
       title: '刪除樂譜',
-      description: '永久從樂譜庫中移除該首歌曲（含塗鴉筆記與相關圖檔）。',
+      description: '永久從樂譜庫中移除該首歌曲（含塗鴉筆記與相關圖檔）',
       position: 'top'
     },
     {
       targetSelector: '#tour-help-btn',
       title: '使用說明與導覽',
-      description: '點擊此處可查看使用說明，重新啟動導覽模式。',
+      description: '點擊此處可查看使用說明，重新啟動導覽模式',
       position: 'bottom'
     }
   ]
