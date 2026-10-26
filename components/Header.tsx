@@ -120,6 +120,30 @@ export function Header({
           flexWrap: 'wrap'
         }}
       >
+        {/* 導覽按鈕 */}
+        <button
+          id="tour-help-btn"
+          onClick={onOpenTour}
+          title="功能說明導覽"
+          style={{
+            ...secondaryButtonStyle,
+            width: '42px',
+            padding: 0
+          }}
+          onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+            e.currentTarget.style.borderColor = 'var(--text-secondary)'
+            e.currentTarget.style.transform = 'translateY(-1px)'
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)'
+          }}
+          onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+            e.currentTarget.style.borderColor = 'var(--border-color)'
+            e.currentTarget.style.transform = 'translateY(0)'
+            e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)'
+          }}
+        >
+          <HelpCircle size={18} />
+        </button>
+
         {/* 明暗切換元件 */}
         <div id="tour-theme-toggle">
           <ThemeToggle />
@@ -212,30 +236,6 @@ export function Header({
           <Plus size={18} />
           <span>上傳樂譜</span>
         </Link>
-
-        {/* 提示按鈕 */}
-        <button
-          id="tour-help-btn"
-          onClick={onOpenTour}
-          title="功能說明導覽"
-          style={{
-            ...secondaryButtonStyle,
-            width: '42px',
-            padding: 0
-          }}
-          onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-            e.currentTarget.style.borderColor = 'var(--text-secondary)'
-            e.currentTarget.style.transform = 'translateY(-1px)'
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)'
-          }}
-          onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-            e.currentTarget.style.borderColor = 'var(--border-color)'
-            e.currentTarget.style.transform = 'translateY(0)'
-            e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)'
-          }}
-        >
-          <HelpCircle size={18} />
-        </button>
 
         {/* 登出按鈕 */}
         <button 
