@@ -103,7 +103,7 @@ export function SheetAnnotator({
           position: 'fixed',
           top: '16px',
           left: '50%',
-          transform: 'translateX(-50%)',
+          //transform: 'translateX(-50%)',
           backgroundColor: 'rgba(15, 23, 42, 0.9)',
           backdropFilter: 'blur(16px)',
           border: '1px solid rgba(255, 255, 255, 0.18)',
