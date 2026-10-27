@@ -32,9 +32,9 @@
 
 /* 米咖大地主題 (Coffee) */
 .theme-coffee {
-  --background: #f7f3e9;        /* 燕麥暖米色背景 */
+  --background: #feefc8;        /* 燕麥暖米色背景 */
   --card-bg: rgba(255, 253, 249, 0.94); /* 微透光暖奶茶色卡片 */
-  --text-primary: #2c1e16;     /* 濃縮咖啡黑/深褐文字 */
+  --text-primary: #472917;     /* 濃縮咖啡黑/深褐文字 */
   --text-secondary: #7a6555;   /* 溫暖可可中灰 */
   --border-color: #e8dfce;     /* 柔和米灰邊框 */
   --input-bg: #ffffff;
