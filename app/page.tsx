@@ -1,20 +1,22 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Sheet } from '@/types'
 
-// Components
+// 匯入獨立元件
 import { Header } from '@/components/Header'
 import { SetlistSection } from '@/components/SetlistSection'
 import { SheetCard } from '@/components/SheetCard'
 import { SheetViewerModal } from '@/components/SheetViewerModal'
 import { SpotlightTourModal, TourStep } from '@/components/SpotlightTourModal'
 
-import { Music, Zap, Moon, HelpCircle, Search, X } from 'lucide-react'
+import { Music, Zap, Moon, HelpCircle, Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
+
+const PAGE_SIZE = 12 // 📌 每頁顯示 12 首樂譜
 
 export default function Home() {
   const [sheets, setSheets] = useState<Sheet[]>([])
@@ -28,7 +30,11 @@ export default function Home() {
   const [showTour, setShowTour] = useState(false)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
 
-  // Selected sheet and viewer state
+  // 📌 新增：當前頁碼 State
+  const [currentPage, setCurrentPage] = useState(1)
+  const listTopRef = useRef<HTMLDivElement>(null)
+
+  // 選中的樂譜物件與 Modal 狀態
   const [selectedSheet, setSelectedSheet] = useState<Sheet | null>(null)
   const [activeSheetImages, setActiveSheetImages] = useState<string[]>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -41,7 +47,7 @@ export default function Home() {
   const router = useRouter()
   const supabase = createClient()
 
-  // Annotation State
+  // 筆記資料 State
   const [annotations, setAnnotations] = useState<Record<string, any>>({})
 
   useEffect(() => {
@@ -110,7 +116,7 @@ export default function Home() {
     {
       targetSelector: '#tour-edit-btn',
       title: '編輯樂譜資訊',
-      description: '修正歌曲標題、調性及速度',
+      description: '修正歌曲標題、調性及速度（快歌/慢歌）',
       position: 'top'
     },
     {
@@ -314,7 +320,23 @@ export default function Home() {
     setTouchStartX(null)
   }
 
-  // Dynamic Keys from database (Normalized NFKC for full-width characters)
+  // 📌 篩選條件改變時，自動重置頁碼回到第 1 頁
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setCurrentPage(1)
+  }
+
+  const handleKeySelect = (key: string | null) => {
+    setSelectedKey(key)
+    setCurrentPage(1)
+  }
+
+  const handleTabSelect = (tab: 'all' | 'fast' | 'slow' | 'unclassified') => {
+    setActiveTab(tab)
+    setCurrentPage(1)
+  }
+
+  // 動態 Key 標籤列表 (NFKC 正規化全形轉半形)
   const dynamicKeys = Array.from(
     new Set(
       sheets
@@ -326,7 +348,7 @@ export default function Home() {
     )
   ).sort((a, b) => a.localeCompare(b))
 
-  // 1. Keyword search filter
+  // 1. 搜尋過濾
   const searchFilteredSheets = sheets.filter((sheet) => {
     const term = searchTerm.toLowerCase()
     const matchesTitle = sheet.title.toLowerCase().includes(term)
@@ -334,7 +356,7 @@ export default function Home() {
     return matchesTitle || matchesKey
   })
 
-  // 2. Exact Key filter (distinguishes A from Ab, B from Bb)
+  // 2. 調性過濾 (精確區分 A 與 Ab)
   const keyFilteredSheets = searchFilteredSheets.filter((sheet) => {
     if (!selectedKey) return true
     if (!sheet.artist) return false
@@ -344,24 +366,37 @@ export default function Home() {
 
     if (rawKey === targetKey) return true
 
-    // Word boundary regex to prevent "A" matching "Ab"
     const regex = new RegExp(`\\b${targetKey}(?![b#])`, 'i')
     return regex.test(rawKey)
   })
 
-  // 3. Tab counts
+  // 3. 數量計算
   const countAll = keyFilteredSheets.length
   const countFast = keyFilteredSheets.filter((s) => s.tempo === 'fast').length
   const countSlow = keyFilteredSheets.filter((s) => s.tempo === 'slow').length
   const countUnclassified = keyFilteredSheets.filter((s) => !s.tempo || (s.tempo !== 'fast' && s.tempo !== 'slow')).length
 
-  // 4. Final list filtered by speed tab
-  const filteredSheets = keyFilteredSheets.filter((sheet) => {
+  // 4. 速度分類過濾後的完整陣列
+  const allFilteredSheets = keyFilteredSheets.filter((sheet) => {
     if (activeTab === 'fast') return sheet.tempo === 'fast'
     if (activeTab === 'slow') return sheet.tempo === 'slow'
     if (activeTab === 'unclassified') return !sheet.tempo || (sheet.tempo !== 'fast' && sheet.tempo !== 'slow')
     return true
   })
+
+  // 5. 📌 分頁計算 (Pagination)
+  const totalPages = Math.ceil(allFilteredSheets.length / PAGE_SIZE) || 1
+  const startIndex = (currentPage - 1) * PAGE_SIZE
+  const paginatedSheets = allFilteredSheets.slice(startIndex, startIndex + PAGE_SIZE)
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return
+    setCurrentPage(newPage)
+    // 換頁時平滑滾動回樂譜列表頂部
+    if (listTopRef.current) {
+      listTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
 
   return (
     <main style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', padding: '32px 20px', color: 'var(--text-primary)', overflowX: 'hidden'}}>
@@ -394,7 +429,7 @@ export default function Home() {
         />
       )}
 
-      {/* Search Bar */}
+      {/* 搜尋欄 */}
       <div style={{ position: 'relative', marginBottom: '20px', width: '100%' }}>
         <Search 
           size={18} 
@@ -412,7 +447,7 @@ export default function Home() {
           type="text"
           placeholder="搜尋樂譜名稱或調性 (例如：C, G, Am)..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           style={{ 
             width: '100%', 
             padding: '12px 40px', 
@@ -437,7 +472,7 @@ export default function Home() {
 
         {searchTerm && (
           <button
-            onClick={() => setSearchTerm('')}
+            onClick={() => handleSearchChange('')}
             type="button"
             title="清除搜尋"
             style={{
@@ -462,14 +497,14 @@ export default function Home() {
         )}
       </div>
 
-      {/* Key Filter Tags */}
+      {/* 調性標籤 */}
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '20px' }}>
         <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)', marginRight: '4px' }}>
           調性：
         </span>
 
         <button
-          onClick={() => setSelectedKey(null)}
+          onClick={() => handleKeySelect(null)}
           style={{
             padding: '4px 10px',
             borderRadius: '6px',
@@ -490,7 +525,7 @@ export default function Home() {
           return (
             <button
               key={key}
-              onClick={() => setSelectedKey(isSelected ? null : key)}
+              onClick={() => handleKeySelect(isSelected ? null : key)}
               style={{
                 padding: '4px 10px',
                 borderRadius: '6px',
@@ -510,10 +545,10 @@ export default function Home() {
         })}
       </div>
 
-      {/* Speed Tabs */}
+      {/* 速度分類標籤 */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px', flexWrap: 'wrap' }}>
         <button 
-          onClick={() => setActiveTab('all')} 
+          onClick={() => handleTabSelect('all')} 
           style={{ 
             display: 'inline-flex',
             alignItems: 'center',
@@ -534,7 +569,7 @@ export default function Home() {
         </button>
 
         <button 
-          onClick={() => setActiveTab('fast')} 
+          onClick={() => handleTabSelect('fast')} 
           style={{ 
             display: 'inline-flex',
             alignItems: 'center',
@@ -555,7 +590,7 @@ export default function Home() {
         </button>
 
         <button 
-          onClick={() => setActiveTab('slow')} 
+          onClick={() => handleTabSelect('slow')} 
           style={{ 
             display: 'inline-flex',
             alignItems: 'center',
@@ -576,7 +611,7 @@ export default function Home() {
         </button>
 
         <button 
-          onClick={() => setActiveTab('unclassified')} 
+          onClick={() => handleTabSelect('unclassified')} 
           style={{ 
             display: 'inline-flex',
             alignItems: 'center',
@@ -597,27 +632,87 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Sheets Grid */}
+      {/* 📌 樂譜列表頂部錨點 (用於換頁平滑滾動) */}
+      <div ref={listTopRef} />
+
+      {/* 樂譜列表 */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary)' }}>載入樂譜庫中...</div>
-      ) : filteredSheets.length === 0 ? (
+      ) : paginatedSheets.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 0', backgroundColor: 'var(--card-bg)', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
           <p style={{ color: 'var(--text-secondary)', margin: 0 }}>{searchTerm || selectedKey ? '找不到符合條件的樂譜' : '這個分類目前還沒有樂譜！'}</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-          {filteredSheets.map((sheet, index) => (
-            <SheetCard
-              key={sheet.id}
-              sheet={sheet}
-              isFirst={index === 0}
-              isInSetlist={setlist.some((item) => item.id === sheet.id)}
-              onOpenModal={openModal}
-              onToggleSetlist={addToSetlist}
-              onDeleteSheet={handleDelete}
-            />
-          ))}
-        </div>
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+            {paginatedSheets.map((sheet, index) => (
+              <SheetCard
+                key={sheet.id}
+                sheet={sheet}
+                isFirst={index === 0 && currentPage === 1}
+                isInSetlist={setlist.some((item) => item.id === sheet.id)}
+                onOpenModal={openModal}
+                onToggleSetlist={addToSetlist}
+                onDeleteSheet={handleDelete}
+              />
+            ))}
+          </div>
+
+          {/* 📌 分頁控制列 (Pagination Bar) */}
+          {totalPages > 1 && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '36px', padding: '16px 0' }}>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--card-bg)',
+                  color: currentPage === 1 ? 'var(--text-secondary)' : 'var(--text-primary)',
+                  opacity: currentPage === 1 ? 0.5 : 1,
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <ChevronLeft size={18} />
+                <span>上一頁</span>
+              </button>
+
+              <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-secondary)' }}>
+                第 {currentPage} / {totalPages} 頁 (共 {allFilteredSheets.length} 首)
+              </span>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--card-bg)',
+                  color: currentPage === totalPages ? 'var(--text-secondary)' : 'var(--text-primary)',
+                  opacity: currentPage === totalPages ? 0.5 : 1,
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <span>下一頁</span>
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Viewer Modal */}

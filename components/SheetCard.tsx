@@ -52,6 +52,8 @@ export function SheetCard({
         <img 
           src={imageUrl} 
           alt={sheet.title} 
+          loading="lazy"
+          decoding="async"
           style={{
             width: '100%',
             height: '100%',
