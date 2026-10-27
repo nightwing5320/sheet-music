@@ -345,8 +345,8 @@ export default function Home() {
     if (!selectedKey) return true
     if (!sheet.artist) return false
 
-    const rawKey = sheet.artist.trim().toLowerCase()
-    const targetKey = selectedKey.trim().toLowerCase()
+    const rawKey = sheet.artist.trim()
+    const targetKey = selectedKey.trim()
 
     return rawKey.includes(targetKey)
   })
@@ -357,7 +357,7 @@ export default function Home() {
   const countSlow = keyFilteredSheets.filter((s) => s.tempo === 'slow').length
   const countUnclassified = keyFilteredSheets.filter((s) => !s.tempo || (s.tempo !== 'fast' && s.tempo !== 'slow')).length
 
-  // 4. 📌 最終顯示列表：從 keyFilteredSheets（已套用調性過濾）中過濾速度頁籤
+  // 4. 最終顯示列表：從 keyFilteredSheets（已套用調性過濾）中過濾速度頁籤
   const filteredSheets = keyFilteredSheets.filter((sheet) => {
     if (activeTab === 'fast') return sheet.tempo === 'fast'
     if (activeTab === 'slow') return sheet.tempo === 'slow'

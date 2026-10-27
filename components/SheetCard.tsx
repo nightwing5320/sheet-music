@@ -116,7 +116,7 @@ export function SheetCard({
             </div>
           </div>
 
-          {/* 編輯按鈕 (改用 Lucide Edit3 + 修復 Link 屬性) */}
+          {/* 編輯按鈕*/}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
           <Link 
             id={isFirst ? 'tour-edit-btn' : undefined}
@@ -154,7 +154,7 @@ export function SheetCard({
             <span>編輯</span>
           </Link>
 
-          {/* 刪除按鈕 (改用 Lucide Trash2 純圖示 + Hover 效果) */}
+          {/* 刪除按鈕*/}
           {onDeleteSheet && (
             <button
               id={isFirst ? 'tour-delete-btn' : undefined}
@@ -166,6 +166,7 @@ export function SheetCard({
                 justifyContent: 'center',
                 height: '34px',
                 borderRadius: '10px',
+                fontSize: '13px',
                 backgroundColor: 'transparent',
                 border: '1px solid var(--border-color, #e2e8f0)',
                 color: 'var(--text-secondary, #94a3b8)',
@@ -184,7 +185,7 @@ export function SheetCard({
                 e.currentTarget.style.backgroundColor = 'transparent'
               }}
             >
-              <Trash2 size={15} />
+              <Trash2 size={14} />
               <span>刪除</span>
             </button>
           )}
