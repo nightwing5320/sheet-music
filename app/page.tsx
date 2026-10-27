@@ -16,6 +16,8 @@ import { Music, Zap, Moon, HelpCircle, Search, X } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
+const COMMON_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+
 export default function Home() {
   const [sheets, setSheets] = useState<Sheet[]>([])
   const [loading, setLoading] = useState(true)
@@ -26,6 +28,8 @@ export default function Home() {
   const [isSetlistOpen, setIsSetlistOpen] = useState(false)
 
   const [showTour, setShowTour] = useState(false)
+
+  const [selectedKey, setSelectedKey] = useState<string | null>(null)
 
   useEffect(() => {
     const hasSeen = localStorage.getItem('has_seen_spotlight_tour')
@@ -324,6 +328,13 @@ export default function Home() {
     return sheet.title.toLowerCase().includes(term) || (sheet.artist?.toLowerCase().includes(term) ?? false)
   })
 
+  const keyFilteredSheets = searchFilteredSheets.filter((sheet) => {
+    if (!selectedKey) return true
+    const sheetKey = (sheet.artist || '').trim().toUpperCase()
+    const targetKey = selectedKey.trim().toUpperCase()
+    return sheetKey === targetKey
+  })
+
   const countAll = searchFilteredSheets.length
   const countFast = searchFilteredSheets.filter((s) => s.tempo === 'fast').length
   const countSlow = searchFilteredSheets.filter((s) => s.tempo === 'slow').length
@@ -445,6 +456,56 @@ export default function Home() {
           </button>
         )}
       </div>
+
+        {/* 新增：調性快速過濾標籤 (Key Filter Tags) */}
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '20px' }}>
+          <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)', marginRight: '4px' }}>
+            調性：
+          </span>
+
+        {/* 清除選取按鈕 */}
+        <button
+          onClick={() => setSelectedKey(null)}
+          style={{
+            padding: '4px 10px',
+            borderRadius: '6px',
+            border: selectedKey === null ? '1px solid #3b82f6' : '1px solid var(--border-color)',
+            backgroundColor: selectedKey === null ? 'rgba(59, 130, 246, 0.15)' : 'var(--card-bg)',
+            color: selectedKey === null ? '#3b82f6' : 'var(--text-secondary)',
+            fontSize: '12px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          全部
+        </button>
+
+        {COMMON_KEYS.map((key) => {
+          const isSelected = selectedKey === key
+          return (
+            <button
+              key={key}
+              onClick={() => setSelectedKey(isSelected ? null : key)}
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                border: isSelected ? '1px solid #3b82f6' : '1px solid var(--border-color)',
+                backgroundColor: isSelected ? '#3b82f6' : 'var(--card-bg)',
+                color: isSelected ? '#ffffff' : 'var(--text-primary)',
+                fontSize: '12px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                boxShadow: isSelected ? '0 2px 8px rgba(59, 130, 246, 0.3)' : 'none'
+              }}
+            >
+              {key}
+            </button>
+          )
+        })}
+      </div>
+
       {/* 分類按鈕區 */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px', flexWrap: 'wrap' }}>
         <button 

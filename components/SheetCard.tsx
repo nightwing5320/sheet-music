@@ -186,6 +186,7 @@ export function SheetCard({
               }}
             >
               <Trash2 size={15} />
+              <span>刪除</span>
             </button>
           )}
           </div>
