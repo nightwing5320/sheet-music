@@ -1,11 +1,11 @@
 'use client'
 
-import { use, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Sheet } from '@/types'
 
-// 匯入獨立元件
+// Components
 import { Header } from '@/components/Header'
 import { SetlistSection } from '@/components/SetlistSection'
 import { SheetCard } from '@/components/SheetCard'
@@ -15,7 +15,6 @@ import { SpotlightTourModal, TourStep } from '@/components/SpotlightTourModal'
 import { Music, Zap, Moon, HelpCircle, Search, X } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
-
 
 export default function Home() {
   const [sheets, setSheets] = useState<Sheet[]>([])
@@ -27,28 +26,9 @@ export default function Home() {
   const [isSetlistOpen, setIsSetlistOpen] = useState(false)
 
   const [showTour, setShowTour] = useState(false)
-
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
-  const dynamicKeys = Array.from(
-    new Set(
-      sheets
-        .map((s) => {
-          return s.artist?.normalize('NFKC')?.trim()
-        })
-        .filter((k): k is string => typeof k === 'string' && k.length > 0)
-    )
-  ).sort((a, b) => a.localeCompare(b))
-  
 
-  useEffect(() => {
-    const hasSeen = localStorage.getItem('has_seen_spotlight_tour')
-    if (!hasSeen) {
-      const timer = setTimeout(() => setShowTour(true), 500)
-      return () => clearTimeout(timer)
-    }
-  }, [])
-
-  // 記錄目前選中的樂譜物件與 Modal 狀態
+  // Selected sheet and viewer state
   const [selectedSheet, setSelectedSheet] = useState<Sheet | null>(null)
   const [activeSheetImages, setActiveSheetImages] = useState<string[]>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -61,10 +41,17 @@ export default function Home() {
   const router = useRouter()
   const supabase = createClient()
 
-  // 筆記資料 State
+  // Annotation State
   const [annotations, setAnnotations] = useState<Record<string, any>>({})
 
-  // 初始讀取 LocalStorage 紀錄筆記
+  useEffect(() => {
+    const hasSeen = localStorage.getItem('has_seen_spotlight_tour')
+    if (!hasSeen) {
+      const timer = setTimeout(() => setShowTour(true), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [])
+
   useEffect(() => {
     const savedAnnotations = localStorage.getItem('worship_sheet_annotations')
     if (savedAnnotations) {
@@ -81,7 +68,6 @@ export default function Home() {
     localStorage.setItem('has_seen_spotlight_tour', 'true')
   }
 
-  // 更新筆記並同步存至 LocalStorage
   const handleUpdateAnnotations = (annotationKey: string, newPaths: any[]) => {
     setAnnotations((prev) => {
       const updated = { ...prev, [annotationKey]: newPaths }
@@ -145,7 +131,6 @@ export default function Home() {
     fetchUserProfile()
     fetchSheets()
     
-    // 先從 LocalStorage 快取中讀取歌單預覽
     const savedSetlist = localStorage.getItem('worship_setlist')
     if (savedSetlist) {
       try {
@@ -156,7 +141,6 @@ export default function Home() {
     }
   }, [])
 
-  // 獲取 Profile，並從雲端讀取使用者的 setlist 歌單
   const fetchUserProfile = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -179,7 +163,6 @@ export default function Home() {
 
         setIsAdmin(!!profile.is_admin)
 
-        // 雲端若有 setlist 紀錄，優先套用雲端資料並更新 LocalStorage
         if (profile.setlist && Array.isArray(profile.setlist)) {
           setSetlist(profile.setlist)
           localStorage.setItem('worship_setlist', JSON.stringify(profile.setlist))
@@ -190,7 +173,6 @@ export default function Home() {
     }
   }
 
-  // 當 setlist 歌單變更時，同時寫入 LocalStorage 與同步上傳至 Supabase 雲端
   useEffect(() => {
     localStorage.setItem('worship_setlist', JSON.stringify(setlist))
 
@@ -332,7 +314,19 @@ export default function Home() {
     setTouchStartX(null)
   }
 
-  // 1. 關鍵字搜尋過濾
+  // Dynamic Keys from database (Normalized NFKC for full-width characters)
+  const dynamicKeys = Array.from(
+    new Set(
+      sheets
+        .map((s) => {
+          if (!s.artist) return null
+          return s.artist.normalize('NFKC').trim()
+        })
+        .filter((k): k is string => typeof k === 'string' && k.length > 0)
+    )
+  ).sort((a, b) => a.localeCompare(b))
+
+  // 1. Keyword search filter
   const searchFilteredSheets = sheets.filter((sheet) => {
     const term = searchTerm.toLowerCase()
     const matchesTitle = sheet.title.toLowerCase().includes(term)
@@ -340,28 +334,28 @@ export default function Home() {
     return matchesTitle || matchesKey
   })
 
-  // 2. 調性標籤過濾
+  // 2. Exact Key filter (distinguishes A from Ab, B from Bb)
   const keyFilteredSheets = searchFilteredSheets.filter((sheet) => {
     if (!selectedKey) return true
     if (!sheet.artist) return false
 
-    const rawKey = sheet.artist.normalize('NKFC').trim().toLowerCase()
+    const rawKey = sheet.artist.normalize('NFKC').trim().toLowerCase()
     const targetKey = selectedKey.normalize('NFKC').trim().toLowerCase()
 
     if (rawKey === targetKey) return true
 
-    const regex = new RegExp('\\b${targetKey}(?![b#])', 'i')
-
+    // Word boundary regex to prevent "A" matching "Ab"
+    const regex = new RegExp(`\\b${targetKey}(?![b#])`, 'i')
     return regex.test(rawKey)
   })
 
-  // 3. 計算已經過調性與搜尋過濾後的各速度數量
+  // 3. Tab counts
   const countAll = keyFilteredSheets.length
   const countFast = keyFilteredSheets.filter((s) => s.tempo === 'fast').length
   const countSlow = keyFilteredSheets.filter((s) => s.tempo === 'slow').length
   const countUnclassified = keyFilteredSheets.filter((s) => !s.tempo || (s.tempo !== 'fast' && s.tempo !== 'slow')).length
 
-  // 4. 最終顯示列表：從 keyFilteredSheets（已套用調性過濾）中過濾速度頁籤
+  // 4. Final list filtered by speed tab
   const filteredSheets = keyFilteredSheets.filter((sheet) => {
     if (activeTab === 'fast') return sheet.tempo === 'fast'
     if (activeTab === 'slow') return sheet.tempo === 'slow'
@@ -371,7 +365,7 @@ export default function Home() {
 
   return (
     <main style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', padding: '32px 20px', color: 'var(--text-primary)', overflowX: 'hidden'}}>
-      {/* 頂部 Header 元件 */}
+      {/* Header */}
       <Header
         userDisplayName={userDisplayName}
         is_admin={isAdmin}
@@ -379,17 +373,17 @@ export default function Home() {
         isSetlistOpen={isSetlistOpen}
         onToggleSetlist={() => setIsSetlistOpen(!isSetlistOpen)}
         onLogout={handleLogout}
-        onOpenTour={() => setShowTour(true)} //點擊重新觸發導覽
+        onOpenTour={() => setShowTour(true)}
       />
 
-      {/* 高級 Spotlight 箭頭指向導覽 */}
+      {/* Spotlight Tour */}
       <SpotlightTourModal
         isOpen={showTour}
         steps={TOUR_STEPS}
         onClose={handleCloseTour}
       />
 
-      {/* 歌單展折區元件 */}
+      {/* Setlist Section */}
       {isSetlistOpen && (
         <SetlistSection
           setlist={setlist}
@@ -400,9 +394,8 @@ export default function Home() {
         />
       )}
 
-      {/* 搜尋欄（附帶一鍵清除按鈕） */}
+      {/* Search Bar */}
       <div style={{ position: 'relative', marginBottom: '20px', width: '100%' }}>
-        {/* 左側搜尋放大鏡圖示 */}
         <Search 
           size={18} 
           style={{ 
@@ -415,7 +408,6 @@ export default function Home() {
           }} 
         />
 
-        {/* 搜尋輸入框 */}
         <input
           type="text"
           placeholder="搜尋樂譜名稱或調性 (例如：C, G, Am)..."
@@ -423,7 +415,7 @@ export default function Home() {
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ 
             width: '100%', 
-            padding: '12px 40px 12px 40px', // 左右兩側留出空間給圖示
+            padding: '12px 40px', 
             fontSize: '15px', 
             borderRadius: '10px', 
             border: '1px solid var(--border-color)', 
@@ -443,7 +435,6 @@ export default function Home() {
           }}
         />
 
-        {/* 右側一鍵清除按鈕 (只有在有輸入文字時顯示) */}
         {searchTerm && (
           <button
             onClick={() => setSearchTerm('')}
@@ -465,27 +456,18 @@ export default function Home() {
               color: 'var(--text-secondary)',
               transition: 'all 0.15s ease'
             }}
-            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.currentTarget.style.backgroundColor = 'var(--border-color)'
-              e.currentTarget.style.color = 'var(--text-primary)'
-            }}
-            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = 'var(--text-secondary)'
-            }}
           >
             <X size={16} />
           </button>
         )}
       </div>
 
-      {/* 調性快速過濾標籤 */}
+      {/* Key Filter Tags */}
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '20px' }}>
         <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)', marginRight: '4px' }}>
           調性：
         </span>
 
-        {/* 清除選取按鈕 */}
         <button
           onClick={() => setSelectedKey(null)}
           style={{
@@ -528,7 +510,7 @@ export default function Home() {
         })}
       </div>
 
-      {/* 分類按鈕區 */}
+      {/* Speed Tabs */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px', flexWrap: 'wrap' }}>
         <button 
           onClick={() => setActiveTab('all')} 
@@ -615,7 +597,7 @@ export default function Home() {
         </button>
       </div>
 
-      {/* 樂譜列表 */}
+      {/* Sheets Grid */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary)' }}>載入樂譜庫中...</div>
       ) : filteredSheets.length === 0 ? (
@@ -638,7 +620,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 樂譜開啟檢視與塗鴉 Modal */}
+      {/* Viewer Modal */}
       {activeSheetImages.length > 0 && selectedSheet && (
         <SheetViewerModal
           selectedSheet={selectedSheet}
