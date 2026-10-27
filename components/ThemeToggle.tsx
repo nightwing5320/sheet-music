@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { Palette } from 'lucide-react'
 
-// 📌 支援的主題清單
+// 支援的主題清單
 const THEME_OPTIONS = [
   { id: 'light', label: '淺色' },
   { id: 'dark', label: '深色' },
@@ -46,7 +46,7 @@ export function ThemeToggle() {
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
       }}
     >
-      {/* 🎨 調色盤圖示 */}
+      {/* 調色盤圖示 */}
       <Palette size={16} style={{ color: 'var(--primary-color, var(--text-primary))', flexShrink: 0 }} />
 
       {/* 下拉選單 Select */}
@@ -55,8 +55,8 @@ export function ThemeToggle() {
         onChange={(e) => setTheme(e.target.value)}
         style={{
           border: 'none',
-          backgroundColor: 'transparent',
-          color: 'var(--text-primary)',
+          backgroundColor: 'transparent !important',
+          color: 'var(--text-primary) !important',
           fontSize: '14px',
           fontWeight: '600',
           cursor: 'pointer',

@@ -134,7 +134,7 @@ body {
 }
 
 /* 確保所有 input 輸入框文字深色、背景白色 */
-input, select, textarea {
+input, textarea {
   color: #111827 !important;
   background-color: #ffffff !important;
 }
