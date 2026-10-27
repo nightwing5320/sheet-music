@@ -514,7 +514,7 @@ export default function Home() {
               fontWeight: '600',
               cursor: 'pointer',
               transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: selectedKey === null ? '0 2px 10px rgba(139, 92, 246, 0.8)' : 'none'
+              boxShadow: 'none'
             }}
           >
             全部
@@ -536,7 +536,7 @@ export default function Home() {
                   fontWeight: '700',
                   cursor: 'pointer',
                   transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: isSelected ? '0 2px 10px rgba(139, 92, 246, 0.25)' : 'none'
+                  boxShadow: 'none'
                 }}
                 onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                   if (!isSelected) {
