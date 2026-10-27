@@ -16,7 +16,7 @@ import { Music, Zap, Moon, HelpCircle, Search, X } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-const COMMON_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Am', 'Bm']
+const COMMON_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'Bb', 'Ab']
 
 export default function Home() {
   const [sheets, setSheets] = useState<Sheet[]>([])
