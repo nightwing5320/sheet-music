@@ -508,13 +508,13 @@ export default function Home() {
               padding: '6px 14px',
               borderRadius: '20px',
               border: selectedKey === null ? '1px solid #8b5cf6' : '1px solid var(--border-color)',
-              backgroundColor: selectedKey === null ? 'rgba(139, 92, 246, 0.18)' : 'var(--card-bg)',
+              backgroundColor: selectedKey === null ? 'rgba(139, 92, 246, 0.8)' : 'var(--card-bg)',
               color: selectedKey === null ? '#ffffff' : 'var(--text-secondary)',
               fontSize: '13px',
               fontWeight: '600',
               cursor: 'pointer',
               transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: selectedKey === null ? '0 2px 10px rgba(139, 92, 246, 0.25)' : 'none'
+              boxShadow: selectedKey === null ? '0 2px 10px rgba(139, 92, 246, 0.8)' : 'none'
             }}
           >
             全部
@@ -530,7 +530,7 @@ export default function Home() {
                   padding: '6px 14px',
                   borderRadius: '20px',
                   border: isSelected ? '1px solid #8b5cf6' : '1px solid var(--border-color)',
-                  backgroundColor: isSelected ? 'rgba(139, 92, 246, 0.18)' : 'var(--card-bg)',
+                  backgroundColor: isSelected ? 'rgba(139, 92, 246, 0.8)' : 'var(--card-bg)',
                   color: isSelected ? '#ffffff' : 'var(--text-primary)',
                   fontSize: '13px',
                   fontWeight: '700',
