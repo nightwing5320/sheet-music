@@ -30,21 +30,21 @@
 
 /* app/globals.css */
 
-/* ☕ 米色 / 咖啡色 / 黑色 大地色系主題 */
+/* 米咖大地主題 (Coffee) */
 .theme-coffee {
-  --background: #fdfbf7;        /* 柔和米色背景 */
-  --card-bg: #ffffff;          /* 純白卡片襯托米色 */
-  --text-primary: #221c18;     /* 深濃縮咖啡黑/深褐文字 */
-  --text-secondary: #786454;   /* 溫和中灰咖啡色 */
-  --border-color: #e8dfd5;     /* 溫暖米灰細邊框 */
+  --background: #fdfbf7;
+  --card-bg: #ffffff;
+  --text-primary: #221c18;
+  --text-secondary: #786454;
+  --border-color: #e8dfd5;
   --input-bg: #ffffff;
-  --primary-color: #8c6d53;     /* 摩卡咖啡色主色 */
-  --primary-hover: #6f533d;     /* 焦糖咖啡 Hover */
-  --primary-light: rgba(140, 109, 83, 0.15);
+  --primary-color: #8c6d53;
+  --primary-hover: #6f533d;
+  --bg-pattern: none;
 }
 
 /* ☕ 深色深焙咖啡主題 (Dark Espresso) */
-.dark.theme-coffee, .theme-coffee-dark {
+.theme-coffee-dark {
   --background: #1a1412;        /* 深焙咖啡豆黑背景 */
   --card-bg: #261f1c;          /* 濃縮咖啡卡片底色 */
   --text-primary: #f5ebe0;     /* 燕麥奶暖白文字 */
@@ -76,8 +76,9 @@
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
+/* 櫻花粉紅主題 (Sakura Pink + 花瓣 SVG 圖騰) */
 .theme-pink {
-  --background: #fff5f7;
+  --background: #fff0f5;
   --card-bg: #ffffff;
   --text-primary: #831843;
   --text-secondary: #9d174d;
@@ -85,7 +86,22 @@
   --input-bg: #ffffff;
   --primary-color: #ec4899;
   --primary-hover: #db2777;
-  --primary-light: rgba(236, 72, 153, 0.15);
+  
+  /* 輕柔 SVG 櫻花花瓣重複無縫背景 */
+  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 100 100'%3E%3Cpath fill='%23f472b6' fill-opacity='0.12' d='M50,15 C55,30 75,30 70,45 C65,60 45,60 50,75 C45,60 25,60 30,45 C35,30 45,30 50,15 Z'/%3E%3Ccircle cx='20' cy='20' r='3' fill='%23f472b6' fill-opacity='0.15'/%3E%3Ccircle cx='80' cy='70' r='4' fill='%23f472b6' fill-opacity='0.15'/%3E%3C/svg%3E");
+}
+
+/* 薄荷森林主題 (Mint Sage) */
+.theme-mint {
+  --background: #f0fdf4;
+  --card-bg: #ffffff;
+  --text-primary: #14532d;
+  --text-secondary: #166534;
+  --border-color: #bbf7d0;
+  --input-bg: #ffffff;
+  --primary-color: #10b981;
+  --primary-hover: #059669;
+  --bg-pattern: none;
 }
 
 @theme inline {

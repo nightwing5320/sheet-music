@@ -4,9 +4,9 @@
 
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
-import { Sun, Moon, Coffee, Palette } from 'lucide-react'
+import { Sun, Moon, Coffee, Palette, Leaf } from 'lucide-react'
 
-const THEMES = ['light', 'dark', 'theme-coffee', 'theme-pink']
+const THEMES = ['light', 'dark', 'theme-coffee', 'theme-coffee-dark', 'theme-pink', 'theme-mint']
 
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme()
@@ -50,17 +50,27 @@ export function ThemeToggle() {
         border: '1px solid var(--border-color)',
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
       }}
-      title="切換主題 (淺色 / 深色 / 咖啡米色 / 粉紅)"
+      title="切換主題 (淺色 / 深色 / 咖啡米色 / 咖啡深色 / 粉紅 / 薄荷)"
     >
       {currentTheme === 'theme-coffee' ? (
         <>
           <Coffee size={18} style={{ color: '#8c6d53' }} />
           <span>米咖</span>
         </>
-      ) : theme === 'theme-pink' ? (
+      ) : currentTheme === 'theme-coffee-dark' ? (
+        <>
+          <Coffee size={18} style={{ color: '#c49a78' }} />
+          <span>深咖</span>
+        </>
+      ) : currentTheme === 'theme-pink' ? (
         <>
           <Palette size={18} style={{ color: '#ec4899' }} />
           <span>粉紅</span>
+        </>
+      ): theme === 'theme-mint' ? (
+        <>
+          <Leaf size={18} style={{ color: '#10b981' }} />
+          <span>薄荷</span>
         </>
       ) : theme === 'dark' ? (
         <>
