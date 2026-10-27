@@ -32,7 +32,7 @@
 
 /* 米咖大地主題 (Coffee) */
 .theme-coffee {
-  --background: #feefc8;        /* 燕麥暖米色背景 */
+  --background: #fff8e6;        /* 燕麥暖米色背景 */
   --card-bg: rgba(255, 253, 249, 0.94); /* 微透光暖奶茶色卡片 */
   --text-primary: #472917;     /* 濃縮咖啡黑/深褐文字 */
   --text-secondary: #7a6555;   /* 溫暖可可中灰 */
