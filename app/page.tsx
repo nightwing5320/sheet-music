@@ -16,7 +16,7 @@ import { Music, Zap, Moon, HelpCircle, Search, X } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-
+const COMMON_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Am', 'Bm']
 
 export default function Home() {
   const [sheets, setSheets] = useState<Sheet[]>([])
@@ -31,21 +31,13 @@ export default function Home() {
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
 
-  const availableKeys = Array.from(
-    new Set(
-      sheets
-        .map((s) => s.artist?.trim().toUpperCase())
-        .filter((k): k is string => Boolean(k))
-    )
-  )
-
   useEffect(() => {
     const hasSeen = localStorage.getItem('has_seen_spotlight_tour')
     if (!hasSeen) {
-      const timer =setTimeout(() => setShowTour(true), 500)
+      const timer = setTimeout(() => setShowTour(true), 500)
       return () => clearTimeout(timer)
     }
-  },[])
+  }, [])
 
   // 記錄目前選中的樂譜物件與 Modal 狀態
   const [selectedSheet, setSelectedSheet] = useState<Sheet | null>(null)
@@ -331,6 +323,7 @@ export default function Home() {
     setTouchStartX(null)
   }
 
+  // 1. 關鍵字搜尋過濾
   const searchFilteredSheets = sheets.filter((sheet) => {
     const term = searchTerm.toLowerCase()
     const matchesTitle = sheet.title.toLowerCase().includes(term)
@@ -338,6 +331,7 @@ export default function Home() {
     return matchesTitle || matchesKey
   })
 
+  // 2. 調性標籤過濾（使用 includes 與 toLowerCase 確保涵蓋如 "1=G", "G major" 等字串）
   const keyFilteredSheets = searchFilteredSheets.filter((sheet) => {
     if (!selectedKey) return true
     if (!sheet.artist) return false
@@ -345,17 +339,17 @@ export default function Home() {
     const rawKey = sheet.artist.trim().toLowerCase()
     const targetKey = selectedKey.trim().toLowerCase()
 
-    if (rawKey === targetKey) return true
-
     return rawKey.includes(targetKey)
   })
 
-  const countAll = searchFilteredSheets.length
-  const countFast = searchFilteredSheets.filter((s) => s.tempo === 'fast').length
-  const countSlow = searchFilteredSheets.filter((s) => s.tempo === 'slow').length
-  const countUnclassified = searchFilteredSheets.filter((s) => !s.tempo || (s.tempo !== 'fast' && s.tempo !== 'slow')).length
+  // 3. 計算已經過調性與搜尋過濾後的各速度數量
+  const countAll = keyFilteredSheets.length
+  const countFast = keyFilteredSheets.filter((s) => s.tempo === 'fast').length
+  const countSlow = keyFilteredSheets.filter((s) => s.tempo === 'slow').length
+  const countUnclassified = keyFilteredSheets.filter((s) => !s.tempo || (s.tempo !== 'fast' && s.tempo !== 'slow')).length
 
-  const filteredSheets = searchFilteredSheets.filter((sheet) => {
+  // 4. 📌 最終顯示列表：從 keyFilteredSheets（已套用調性過濾）中過濾速度頁籤
+  const filteredSheets = keyFilteredSheets.filter((sheet) => {
     if (activeTab === 'fast') return sheet.tempo === 'fast'
     if (activeTab === 'slow') return sheet.tempo === 'slow'
     if (activeTab === 'unclassified') return !sheet.tempo || (sheet.tempo !== 'fast' && sheet.tempo !== 'slow')
@@ -496,7 +490,7 @@ export default function Home() {
           全部
         </button>
 
-        {availableKeys.map((key) => {
+        {COMMON_KEYS.map((key) => {
           const isSelected = selectedKey === key
           return (
             <button
@@ -613,7 +607,7 @@ export default function Home() {
         <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary)' }}>載入樂譜庫中...</div>
       ) : filteredSheets.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 0', backgroundColor: 'var(--card-bg)', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
-          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>{searchTerm ? '找不到符合條件的樂譜' : '這個分類目前還沒有樂譜！'}</p>
+          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>{searchTerm || selectedKey ? '找不到符合條件的樂譜' : '這個分類目前還沒有樂譜！'}</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
