@@ -498,51 +498,67 @@ export default function Home() {
       </div>
 
       {/* 調性標籤 */}
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '20px' }}>
-        <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)', marginRight: '4px' }}>
-          調性：
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)', opacity: 0.8, letterSpacing: '0.5px' }}>
+          調性
         </span>
 
-        <button
-          onClick={() => handleKeySelect(null)}
-          style={{
-            padding: '4px 10px',
-            borderRadius: '6px',
-            border: selectedKey === null ? '1px solid #3b82f6' : '1px solid var(--border-color)',
-            backgroundColor: selectedKey === null ? 'rgba(59, 130, 246, 0.15)' : 'var(--card-bg)',
-            color: selectedKey === null ? '#3b82f6' : 'var(--text-secondary)',
-            fontSize: '12px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.15s ease'
-          }}
-        >
-          全部
-        </button>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* 清除選取（全部）按鈕 */}
+          <button
+            onClick={() => handleKeySelect(null)}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '20px',
+              border: selectedKey === null ? '1px solid #3b82f6' : '1px solid var(--border-color)',
+              backgroundColor: selectedKey === null ? '#3b82f6' : 'var(--card-bg)',
+              color: selectedKey === null ? '#ffffff' : 'var(--text-secondary)',
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: selectedKey === null ? '0 2px 10px rgba(59, 130, 246, 0.35)' : 'none'
+            }}
+          >
+            全部
+          </button>
 
-        {dynamicKeys.map((key) => {
-          const isSelected = selectedKey === key
-          return (
-            <button
-              key={key}
-              onClick={() => handleKeySelect(isSelected ? null : key)}
-              style={{
-                padding: '4px 10px',
-                borderRadius: '6px',
-                border: isSelected ? '1px solid #3b82f6' : '1px solid var(--border-color)',
-                backgroundColor: isSelected ? '#3b82f6' : 'var(--card-bg)',
-                color: isSelected ? '#ffffff' : 'var(--text-primary)',
-                fontSize: '12px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                boxShadow: isSelected ? '0 2px 8px rgba(59, 130, 246, 0.3)' : 'none'
-              }}
-            >
-              {key}
-            </button>
-          )
-        })}
+          {dynamicKeys.map((key) => {
+            const isSelected = selectedKey === key
+            return (
+              <button
+                key={key}
+                onClick={() => handleKeySelect(isSelected ? null : key)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  border: isSelected ? '1px solid #3b82f6' : '1px solid var(--border-color)',
+                  backgroundColor: isSelected ? '#3b82f6' : 'var(--card-bg)',
+                  color: isSelected ? '#ffffff' : 'var(--text-primary)',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: isSelected ? '0 2px 10px rgba(59, 130, 246, 0.35)' : 'none'
+                }}
+                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--text-secondary)'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                  }
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--border-color)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }
+                }}
+              >
+                {key}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* 速度分類標籤 */}
