@@ -225,7 +225,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '4px',
-                padding: '6px 14px',
+                padding: '6px 10px',
                 borderRadius: '8px',
                 border: 'none',
                 backgroundColor: '#3b82f6',
@@ -235,7 +235,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
                 cursor: 'pointer'
               }}
             >
-              <span>{currentStepIndex === steps.length - 1 ? '完成導覽' : '下一個'}</span>
+              <span>{currentStepIndex === steps.length - 1 ? '完成導覽' : '下一步'}</span>
               {currentStepIndex === steps.length - 1 ? <Check size={14} /> : <ChevronRight size={14} />}
             </button>
           </div>
