@@ -33,7 +33,7 @@
 /* 米咖大地主題 (Coffee) */
 .theme-coffee {
   --background: #f7f3e9;        /* 燕麥暖米色背景 */
-  --card-bg: #fffdf9;          /* 暖奶茶色卡片底色 */
+  --card-bg: rgba(255, 253, 249, 0.94); /* 微透光暖奶茶色卡片 */
   --text-primary: #2c1e16;     /* 濃縮咖啡黑/深褐文字 */
   --text-secondary: #7a6555;   /* 溫暖可可中灰 */
   --border-color: #e8dfce;     /* 柔和米灰邊框 */
@@ -41,7 +41,9 @@
   --primary-color: #6f4e37;     /* 深烘焙摩卡咖啡主色 */
   --primary-hover: #523725;     /* 焦糖深咖 Hover */
   --primary-light: rgba(111, 78, 55, 0.15);
-  --bg-pattern: none;
+
+  /* ☕ 240x240 大畫布：隨機旋轉與大小不一的咖啡杯、馬克杯與咖啡豆圖案 */
+  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%238c6d53' stroke-opacity='0.22' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3C!-- 咖啡杯 1: 正向微傾斜馬克杯 --%3E%3Cg transform='translate(40, 30) rotate(18) scale(1)'%3E%3Cpath d='M 0,0 L 22,0 L 20,20 C 19,25 15,28 10,28 C 5,28 1,25 0,20 Z' /%3E%3Cpath d='M 21,5 C 26,5 27,15 20,17' /%3E%3Cpath d='M 5,-6 C 7,-3 5,-1 7,2' stroke-width='1.5' stroke-opacity='0.18' /%3E%3Cpath d='M 14,-6 C 16,-3 14,-1 16,2' stroke-width='1.5' stroke-opacity='0.18' /%3E%3C/g%3E%3C!-- 咖啡杯 2: 橫向大幅度旋轉小外帶杯 --%3E%3Cg transform='translate(170, 60) rotate(-45) scale(0.75)'%3E%3Cpath d='M 0,0 L 24,0 L 20,30 L 4,30 Z' /%3E%3Crect x='-2' y='-5' width='28' height='5' rx='2' fill='%238c6d53' fill-opacity='0.15' /%3E%3C/g%3E%3C!-- 咖啡杯 3: 底部反向傾斜中型杯 --%3E%3Cg transform='translate(100, 150) rotate(75) scale(0.85)'%3E%3Cpath d='M 0,0 L 22,0 L 20,20 C 19,25 15,28 10,28 C 5,28 1,25 0,20 Z' /%3E%3Cpath d='M 21,5 C 26,5 27,15 20,17' /%3E%3C/g%3E%3C!-- 咖啡豆 1 & 2 (隨機散落點綴) --%3E%3Cg transform='translate(130, 35) rotate(30)' fill='%238c6d53' fill-opacity='0.18' stroke='none'%3E%3Cpath d='M 0,4 C -4,4 -6,0 0,-6 C 6,0 4,4 0,4 Z' /%3E%3C/g%3E%3Cg transform='translate(35, 175) rotate(-60) scale(1.2)' fill='%238c6d53' fill-opacity='0.18' stroke='none'%3E%3Cpath d='M 0,4 C -4,4 -6,0 0,-6 C 6,0 4,4 0,4 Z' /%3E%3C/g%3E%3Cg transform='translate(205, 170) rotate(15) scale(0.9)' fill='%238c6d53' fill-opacity='0.18' stroke='none'%3E%3Cpath d='M 0,4 C -4,4 -6,0 0,-6 C 6,0 4,4 0,4 Z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
 .dark {

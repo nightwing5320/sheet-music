@@ -4,7 +4,7 @@
 
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
-import { Sun, Moon, Coffee, Palette, Leaf } from 'lucide-react'
+import { Sun, Moon, Coffee, Flower, Leaf } from 'lucide-react'
 
 const THEMES = ['light', 'dark', 'theme-coffee', 'theme-pink', 'theme-mint']
 
@@ -59,7 +59,7 @@ export function ThemeToggle() {
         </>
       ) : currentTheme === 'theme-pink' ? (
         <>
-          <Palette size={18} style={{ color: '#ec4899' }} />
+          <Flower size={18} style={{ color: '#ec4899' }} />
           <span>粉紅</span>
         </>
       ): theme === 'theme-mint' ? (
@@ -69,12 +69,12 @@ export function ThemeToggle() {
         </>
       ) : theme === 'dark' ? (
         <>
-          <Moon size={18} style={{ color: '#a78bfa' }} />
+          <Moon size={18} style={{ color: '#5119f8' }} />
           <span>深色</span>
         </>
       ) : (
         <>
-          <Sun size={18} style={{ color: '#f59e0b' }} />
+          <Sun size={18} style={{ color: '#b1b0ae' }} />
           <span>淺色</span>
         </>
       )}
