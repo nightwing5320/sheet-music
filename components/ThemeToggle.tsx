@@ -6,8 +6,10 @@ import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { Sun, Moon, Coffee, Palette } from 'lucide-react'
 
+const THEMES = ['light', 'dark', 'theme-coffee', 'theme-pink']
+
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -18,12 +20,13 @@ export function ThemeToggle() {
     return <div style={{ height: '42px', width: '96px' }} />
   }
 
+  const currentTheme = theme || resolvedTheme || 'light'
+
   // 循環切換：light -> dark -> theme-coffee -> theme-pink -> light
   const toggleNextTheme = () => {
-    if (theme === 'light') setTheme('dark')
-    else if (theme === 'dark') setTheme('theme-coffee')
-    else if (theme === 'theme-coffee') setTheme('theme-pink')
-    else setTheme('light')
+    const currentIndex = THEMES.indexOf(currentTheme)
+    const nextIndex = currentIndex === -1 ? 1 : (currentIndex + 1) % THEMES.length
+    setTheme(THEMES[nextIndex])
   }
 
   return (
@@ -49,7 +52,7 @@ export function ThemeToggle() {
       }}
       title="切換主題 (淺色 / 深色 / 咖啡米色 / 粉紅)"
     >
-      {theme === 'theme-coffee' ? (
+      {currentTheme === 'theme-coffee' ? (
         <>
           <Coffee size={18} style={{ color: '#8c6d53' }} />
           <span>米咖</span>
