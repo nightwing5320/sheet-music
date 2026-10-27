@@ -163,16 +163,20 @@ export function SheetCard({
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                gap: '6px',
                 height: '34px',
-                borderRadius: '10px',
+                padding: '0 12px',
+                borderRadius: '8px',
                 fontSize: '13px',
+                fontWeight: '500',
+                color: 'var(--text-secondary, #64748b)',
                 backgroundColor: 'transparent',
                 border: '1px solid var(--border-color, #e2e8f0)',
-                color: 'var(--text-secondary, #94a3b8)',
+                textDecoration: 'none',
+                lineHeight: '1',
+                boxSizing: 'border-box',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                flexShrink: 0,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = '#ef4444'
@@ -180,7 +184,7 @@ export function SheetCard({
                 e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--text-secondary, #94a3b8)'
+                e.currentTarget.style.color = 'var(--text-secondary, #64748b)'
                 e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
                 e.currentTarget.style.backgroundColor = 'transparent'
               }}
