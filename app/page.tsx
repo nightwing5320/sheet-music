@@ -340,15 +340,19 @@ export default function Home() {
     return matchesTitle || matchesKey
   })
 
-  // 2. 調性標籤過濾（使用 includes 與 toLowerCase 確保涵蓋如 "1=G", "G major" 等字串）
+  // 2. 調性標籤過濾
   const keyFilteredSheets = searchFilteredSheets.filter((sheet) => {
     if (!selectedKey) return true
     if (!sheet.artist) return false
 
-    const rawKey = sheet.artist.trim()
-    const targetKey = selectedKey.trim()
+    const rawKey = sheet.artist.normalize('NKFC').trim().toLowerCase()
+    const targetKey = selectedKey.normalize('NFKC').trim().toLowerCase()
 
-    return rawKey.includes(targetKey)
+    if (rawKey === targetKey) return true
+
+    const regex = new RegExp('\\b' + targetKey + '\\b', 'i')
+
+    return regex.test(rawKey)
   })
 
   // 3. 計算已經過調性與搜尋過濾後的各速度數量
