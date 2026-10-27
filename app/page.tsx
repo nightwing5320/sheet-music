@@ -16,7 +16,7 @@ import { Music, Zap, Moon, HelpCircle, Search, X } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-const COMMON_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+const COMMON_KEYS = ['C', 'D', 'E', 'F', 'G', 'A']
 
 export default function Home() {
   const [sheets, setSheets] = useState<Sheet[]>([])
@@ -325,7 +325,9 @@ export default function Home() {
 
   const searchFilteredSheets = sheets.filter((sheet) => {
     const term = searchTerm.toLowerCase()
-    return sheet.title.toLowerCase().includes(term) || (sheet.artist?.toLowerCase().includes(term) ?? false)
+    const matchesTitle = sheet.title.toLowerCase().includes(term)
+    const matchesKey = sheet.artist?.toLowerCase().includes(term) ?? false
+    return matchesTitle || matchesKey
   })
 
   const keyFilteredSheets = searchFilteredSheets.filter((sheet) => {
@@ -457,11 +459,11 @@ export default function Home() {
         )}
       </div>
 
-        {/* 新增：調性快速過濾標籤 (Key Filter Tags) */}
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '20px' }}>
-          <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)', marginRight: '4px' }}>
-            調性：
-          </span>
+      {/* 調性快速過濾標籤 */}
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '20px' }}>
+        <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)', marginRight: '4px' }}>
+          調性：
+        </span>
 
         {/* 清除選取按鈕 */}
         <button

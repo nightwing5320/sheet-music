@@ -40,7 +40,7 @@ export function SetlistSection({
           </h2>
         </div>
 
-        {/* 一鍵清空按鈕 (Ghost 質感風格) */}
+        {/* 一鍵清空按鈕 */}
         <button
           onClick={onClearSetlist}
           style={{

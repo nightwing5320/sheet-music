@@ -164,7 +164,6 @@ export function SheetCard({
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '34px',
                 height: '34px',
                 borderRadius: '10px',
                 backgroundColor: 'transparent',
