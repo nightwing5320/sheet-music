@@ -110,7 +110,7 @@ export default function Home() {
     {
       targetSelector: '#tour-edit-btn',
       title: '編輯樂譜資訊',
-      description: '修正歌曲標題、調性及速度（快歌/慢歌）',
+      description: '修正歌曲標題、調性及速度',
       position: 'top'
     },
     {
