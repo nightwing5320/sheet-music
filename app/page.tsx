@@ -332,9 +332,14 @@ export default function Home() {
 
   const keyFilteredSheets = searchFilteredSheets.filter((sheet) => {
     if (!selectedKey) return true
-    const sheetKey = (sheet.artist || '').trim().toUpperCase()
-    const targetKey = selectedKey.trim().toUpperCase()
-    return sheetKey === targetKey
+    if (!sheet.artist) return false
+
+    const rawKey = sheet.artist.trim().toLowerCase()
+    const targetKey = selectedKey.trim().toLowerCase()
+
+    if (rawKey === targetKey) return true
+
+    return rawKey.includes(targetKey)
   })
 
   const countAll = searchFilteredSheets.length
