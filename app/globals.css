@@ -28,6 +28,34 @@
   --font-size-2xl: 36px;        /* 大標題 */
 }
 
+/* app/globals.css */
+
+/* ☕ 米色 / 咖啡色 / 黑色 大地色系主題 */
+.theme-coffee {
+  --background: #fdfbf7;        /* 柔和米色背景 */
+  --card-bg: #ffffff;          /* 純白卡片襯托米色 */
+  --text-primary: #221c18;     /* 深濃縮咖啡黑/深褐文字 */
+  --text-secondary: #786454;   /* 溫和中灰咖啡色 */
+  --border-color: #e8dfd5;     /* 溫暖米灰細邊框 */
+  --input-bg: #ffffff;
+  --primary-color: #8c6d53;     /* 摩卡咖啡色主色 */
+  --primary-hover: #6f533d;     /* 焦糖咖啡 Hover */
+  --primary-light: rgba(140, 109, 83, 0.15);
+}
+
+/* ☕ 深色深焙咖啡主題 (Dark Espresso) */
+.dark.theme-coffee, .theme-coffee-dark {
+  --background: #1a1412;        /* 深焙咖啡豆黑背景 */
+  --card-bg: #261f1c;          /* 濃縮咖啡卡片底色 */
+  --text-primary: #f5ebe0;     /* 燕麥奶暖白文字 */
+  --text-secondary: #b39f8d;   /* 淺咖奶茶色 */
+  --border-color: #3d312a;     /* 深咖邊框 */
+  --input-bg: #261f1c;
+  --primary-color: #c49a78;     /* 淺拿鐵咖啡主色 */
+  --primary-hover: #b08563;
+  --primary-light: rgba(196, 154, 120, 0.2);
+}
+
 .dark {
   /* 深色模式：沉穩暗石墨調 (無高飽和刺眼色) */
   --background: #0f172a;        /* 深深藍灰 (Slate 900) */
@@ -46,6 +74,18 @@
   --accent-blue: #4338ca;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.theme-pink {
+  --background: #fff5f7;
+  --card-bg: #ffffff;
+  --text-primary: #831843;
+  --text-secondary: #9d174d;
+  --border-color: #fbcfe8;
+  --input-bg: #ffffff;
+  --primary-color: #ec4899;
+  --primary-hover: #db2777;
+  --primary-light: rgba(236, 72, 153, 0.15);
 }
 
 @theme inline {

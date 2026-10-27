@@ -142,7 +142,7 @@ export function SheetCard({
               transition: 'all 0.2s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#2563eb'                           // 滑鼠移入：文字與 Icon 變深藍色
+              e.currentTarget.style.color = '#2563eb'                           
               e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.3)'     // 邊框變半透明藍色
               e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)' // 背景呈現微亮淡藍色
             }}

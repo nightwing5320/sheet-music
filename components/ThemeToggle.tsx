@@ -1,8 +1,10 @@
+// components/ThemeToggle.tsx
+
 'use client'
 
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
-import { Sun, Moon } from 'lucide-react'
+import { Sun, Moon, Coffee, Palette } from 'lucide-react'
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -13,25 +15,20 @@ export function ThemeToggle() {
   }, [])
 
   if (!mounted) {
-    return (
-      <div 
-        style={{ 
-          height: '42px', 
-          width: '88px', 
-          borderRadius: '10px', 
-          backgroundColor: 'var(--card-bg)',
-          border: '1px solid var(--border-color)',
-          boxSizing: 'border-box'
-        }} 
-      />
-    )
+    return <div style={{ height: '42px', width: '96px' }} />
   }
 
-  const isDark = theme === 'dark'
+  // 循環切換：light -> dark -> theme-coffee -> theme-pink -> light
+  const toggleNextTheme = () => {
+    if (theme === 'light') setTheme('dark')
+    else if (theme === 'dark') setTheme('theme-coffee')
+    else if (theme === 'theme-coffee') setTheme('theme-pink')
+    else setTheme('light')
+  }
 
   return (
     <button
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      onClick={toggleNextTheme}
       style={{
         height: '42px',
         padding: '0 16px',
@@ -50,27 +47,27 @@ export function ThemeToggle() {
         border: '1px solid var(--border-color)',
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
       }}
-      onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-        e.currentTarget.style.borderColor = 'var(--text-secondary)'
-        e.currentTarget.style.transform = 'translateY(-1px)'
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)'
-      }}
-      onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-        e.currentTarget.style.borderColor = 'var(--border-color)'
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)'
-      }}
-      title="切換明暗模式"
+      title="切換主題 (淺色 / 深色 / 咖啡米色 / 粉紅)"
     >
-      {isDark ? (
+      {theme === 'theme-coffee' ? (
         <>
-          <Sun size={18} style={{ color: '#f59e0b' }} />
-          <span>淺色</span>
+          <Coffee size={18} style={{ color: '#8c6d53' }} />
+          <span>米咖</span>
+        </>
+      ) : theme === 'theme-pink' ? (
+        <>
+          <Palette size={18} style={{ color: '#ec4899' }} />
+          <span>粉紅</span>
+        </>
+      ) : theme === 'dark' ? (
+        <>
+          <Moon size={18} style={{ color: '#a78bfa' }} />
+          <span>深色</span>
         </>
       ) : (
         <>
-          <Moon size={18} style={{ color: '#6366f1' }} />
-          <span>深色</span>
+          <Sun size={18} style={{ color: '#f59e0b' }} />
+          <span>淺色</span>
         </>
       )}
     </button>
