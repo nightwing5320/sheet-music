@@ -16,7 +16,7 @@ import { Music, Zap, Moon, HelpCircle, Search, X } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-const COMMON_KEYS = ['C', 'D', 'E', 'F', 'G', 'A']
+
 
 export default function Home() {
   const [sheets, setSheets] = useState<Sheet[]>([])
@@ -30,6 +30,14 @@ export default function Home() {
   const [showTour, setShowTour] = useState(false)
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
+
+  const availableKeys = Array.from(
+    new Set(
+      sheets
+        .map((s) => s.artist?.trim().toUpperCase())
+        .filter((k): k is string => Boolean(k))
+    )
+  )
 
   useEffect(() => {
     const hasSeen = localStorage.getItem('has_seen_spotlight_tour')
@@ -488,7 +496,7 @@ export default function Home() {
           全部
         </button>
 
-        {COMMON_KEYS.map((key) => {
+        {availableKeys.map((key) => {
           const isSelected = selectedKey === key
           return (
             <button
