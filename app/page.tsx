@@ -516,6 +516,18 @@ export default function Home() {
               transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
               boxShadow: 'none'
             }}
+            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+              if (selectedKey !== null) {
+                e.currentTarget.style.borderColor = 'var(--text-secondary)'
+                e.currentTarget.style.transform = 'translateY(-1px)'
+              }
+            }}
+            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+              if (selectedKey !== null) {
+                e.currentTarget.style.borderColor = 'var(--border-color)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }
+            }}
           >
             全部
           </button>
