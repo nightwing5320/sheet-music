@@ -88,7 +88,7 @@
   --primary-hover: #db2777;
   
   /* 輕柔 SVG 櫻花花瓣重複無縫背景 */
-  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 100 100'%3E%3Cpath fill='%23f472b6' fill-opacity='0.12' d='M50,15 C55,30 75,30 70,45 C65,60 45,60 50,75 C45,60 25,60 30,45 C35,30 45,30 50,15 Z'/%3E%3Ccircle cx='20' cy='20' r='3' fill='%23f472b6' fill-opacity='0.15'/%3E%3Ccircle cx='80' cy='70' r='4' fill='%23f472b6' fill-opacity='0.15'/%3E%3C/svg%3E");
+  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100'%3E%3Cpath fill='%23f472b6' fill-opacity='0.25' d='M50 15 C55 35 80 35 75 50 C70 65 50 65 50 85 C45 65 25 65 20 50 C25 35 45 35 50 15 Z'/%3E%3Ccircle cx='25' cy='25' r='4' fill='%23f472b6' fill-opacity='0.2'/%3E%3Ccircle cx='85' cy='75' r='5' fill='%23fb7185' fill-opacity='0.25'/%3E%3C/svg%3E");
 }
 
 /* 薄荷森林主題 (Mint Sage) */
