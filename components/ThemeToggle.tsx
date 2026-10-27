@@ -8,11 +8,11 @@ import { Palette } from 'lucide-react'
 
 // 📌 支援的主題清單
 const THEME_OPTIONS = [
-  { id: 'light', label: '☀️ 淺色模式' },
-  { id: 'dark', label: '🌙 深色模式' },
-  { id: 'theme-coffee', label: '☕ 日系米咖' },
-  { id: 'theme-pink', label: '🌸 櫻花粉紅' },
-  { id: 'theme-mint', label: '🌿 薄荷森林' },
+  { id: 'light', label: '淺色' },
+  { id: 'dark', label: '深色' },
+  { id: 'theme-coffee', label: '米咖' },
+  { id: 'theme-pink', label: '粉紅' },
+  { id: 'theme-mint', label: '薄荷' },
 ]
 
 export function ThemeToggle() {
