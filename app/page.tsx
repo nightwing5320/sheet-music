@@ -499,9 +499,6 @@ export default function Home() {
 
       {/* 調性標籤 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)', opacity: 0.8, letterSpacing: '0.5px' }}>
-          調性
-        </span>
 
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
           {/* 清除選取（全部）按鈕 */}
