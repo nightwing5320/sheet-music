@@ -32,7 +32,9 @@ export default function Home() {
   const dynamicKeys = Array.from(
     new Set(
       sheets
-        .map((s) => s.artist?.trim())
+        .map((s) => {
+          return s.artist?.normalize('NFKC')?.trim()
+        })
         .filter((k): k is string => typeof k === 'string' && k.length > 0)
     )
   ).sort((a, b) => a.localeCompare(b))
