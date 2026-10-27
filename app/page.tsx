@@ -501,20 +501,20 @@ export default function Home() {
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
 
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-          {/* 清除選取（全部）按鈕 */}
+          {/* 全部按鈕 */}
           <button
             onClick={() => handleKeySelect(null)}
             style={{
               padding: '6px 14px',
               borderRadius: '20px',
-              border: selectedKey === null ? '1px solid #3b82f6' : '1px solid var(--border-color)',
-              backgroundColor: selectedKey === null ? '#3b82f6' : 'var(--card-bg)',
+              border: selectedKey === null ? '1px solid #8b5cf6' : '1px solid var(--border-color)',
+              backgroundColor: selectedKey === null ? 'rgba(139, 92, 246, 0.18)' : 'var(--card-bg)',
               color: selectedKey === null ? '#ffffff' : 'var(--text-secondary)',
               fontSize: '13px',
               fontWeight: '600',
               cursor: 'pointer',
               transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: selectedKey === null ? '0 2px 10px rgba(59, 130, 246, 0.35)' : 'none'
+              boxShadow: selectedKey === null ? '0 2px 10px rgba(139, 92, 246, 0.25)' : 'none'
             }}
           >
             全部
@@ -529,14 +529,14 @@ export default function Home() {
                 style={{
                   padding: '6px 14px',
                   borderRadius: '20px',
-                  border: isSelected ? '1px solid #3b82f6' : '1px solid var(--border-color)',
-                  backgroundColor: isSelected ? '#3b82f6' : 'var(--card-bg)',
+                  border: isSelected ? '1px solid #8b5cf6' : '1px solid var(--border-color)',
+                  backgroundColor: isSelected ? 'rgba(139, 92, 246, 0.18)' : 'var(--card-bg)',
                   color: isSelected ? '#ffffff' : 'var(--text-primary)',
                   fontSize: '13px',
                   fontWeight: '700',
                   cursor: 'pointer',
                   transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: isSelected ? '0 2px 10px rgba(59, 130, 246, 0.35)' : 'none'
+                  boxShadow: isSelected ? '0 2px 10px rgba(139, 92, 246, 0.25)' : 'none'
                 }}
                 onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                   if (!isSelected) {
