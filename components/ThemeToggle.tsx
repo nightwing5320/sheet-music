@@ -4,9 +4,16 @@
 
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
-import { Sun, Moon, Coffee, Flower, Leaf } from 'lucide-react'
+import { Palette } from 'lucide-react'
 
-const THEMES = ['light', 'dark', 'theme-coffee', 'theme-pink', 'theme-mint']
+// 📌 支援的主題清單
+const THEME_OPTIONS = [
+  { id: 'light', label: '☀️ 淺色模式' },
+  { id: 'dark', label: '🌙 深色模式' },
+  { id: 'theme-coffee', label: '☕ 日系米咖' },
+  { id: 'theme-pink', label: '🌸 櫻花粉紅' },
+  { id: 'theme-mint', label: '🌿 薄荷森林' },
+]
 
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme()
@@ -17,67 +24,70 @@ export function ThemeToggle() {
   }, [])
 
   if (!mounted) {
-    return <div style={{ height: '42px', width: '96px' }} />
+    return <div style={{ height: '42px', width: '130px' }} />
   }
 
   const currentTheme = theme || resolvedTheme || 'light'
 
-  // 循環切換：light -> dark -> theme-coffee -> theme-pink -> light
-  const toggleNextTheme = () => {
-    const currentIndex = THEMES.indexOf(currentTheme)
-    const nextIndex = currentIndex === -1 ? 1 : (currentIndex + 1) % THEMES.length
-    setTheme(THEMES[nextIndex])
-  }
-
   return (
-    <button
-      onClick={toggleNextTheme}
+    <div
       style={{
-        height: '42px',
-        padding: '0 16px',
-        borderRadius: '10px',
-        fontSize: '14px',
-        fontWeight: '600',
+        position: 'relative',
         display: 'inline-flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: '8px',
-        cursor: 'pointer',
-        transition: 'all 0.2s ease',
-        boxSizing: 'border-box',
+        height: '42px',
+        borderRadius: '10px',
         backgroundColor: 'var(--card-bg)',
-        color: 'var(--text-primary)',
         border: '1px solid var(--border-color)',
+        padding: '0 8px 0 12px',
+        gap: '6px',
+        boxSizing: 'border-box',
+        transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
       }}
-      title="切換主題 (淺色 / 深色 / 咖啡米色 / 粉紅 / 薄荷)"
     >
-      {currentTheme === 'theme-coffee' ? (
-        <>
-          <Coffee size={18} style={{ color: '#8c6d53' }} />
-          <span>米咖</span>
-        </>
-      ) : currentTheme === 'theme-pink' ? (
-        <>
-          <Flower size={18} style={{ color: '#ec4899' }} />
-          <span>粉紅</span>
-        </>
-      ): theme === 'theme-mint' ? (
-        <>
-          <Leaf size={18} style={{ color: '#10b981' }} />
-          <span>薄荷</span>
-        </>
-      ) : theme === 'dark' ? (
-        <>
-          <Moon size={18} style={{ color: '#5119f8' }} />
-          <span>深色</span>
-        </>
-      ) : (
-        <>
-          <Sun size={18} style={{ color: '#b1b0ae' }} />
-          <span>淺色</span>
-        </>
-      )}
-    </button>
+      {/* 🎨 調色盤圖示 */}
+      <Palette size={16} style={{ color: 'var(--primary-color, var(--text-primary))', flexShrink: 0 }} />
+
+      {/* 下拉選單 Select */}
+      <select
+        value={currentTheme}
+        onChange={(e) => setTheme(e.target.value)}
+        style={{
+          border: 'none',
+          backgroundColor: 'transparent',
+          color: 'var(--text-primary)',
+          fontSize: '14px',
+          fontWeight: '600',
+          cursor: 'pointer',
+          outline: 'none',
+          paddingRight: '4px',
+          fontFamily: 'inherit',
+          WebkitAppearance: 'none',
+          MozAppearance: 'none',
+          appearance: 'none',
+        }}
+        title="選擇網站主題"
+      >
+        {THEME_OPTIONS.map((opt) => (
+          <option
+            key={opt.id}
+            value={opt.id}
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              color: 'var(--text-primary)',
+              padding: '8px',
+            }}
+          >
+            {opt.label}
+          </option>
+        ))}
+      </select>
+
+      {/* 小箭頭指引 */}
+      <span style={{ fontSize: '10px', color: 'var(--text-secondary)', pointerEvents: 'none', marginLeft: '-2px' }}>
+        ▼
+      </span>
+    </div>
   )
 }
