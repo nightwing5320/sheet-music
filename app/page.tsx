@@ -509,7 +509,7 @@ export default function Home() {
               borderRadius: '20px',
               border: selectedKey === null ? '1px solid #8b5cf6' : '1px solid var(--border-color)',
               backgroundColor: selectedKey === null ? 'rgba(139, 92, 246, 0.8)' : 'var(--card-bg)',
-              color: selectedKey === null ? '#ffffff' : 'var(--text-secondary)',
+              color: selectedKey === null ? '#ffffff' : 'var(--text-primary)',
               fontSize: '13px',
               fontWeight: '600',
               cursor: 'pointer',
