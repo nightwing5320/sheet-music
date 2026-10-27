@@ -43,19 +43,6 @@
   --bg-pattern: none;
 }
 
-/* ☕ 深色深焙咖啡主題 (Dark Espresso) */
-.theme-coffee-dark {
-  --background: #1a1412;        /* 深焙咖啡豆黑背景 */
-  --card-bg: #261f1c;          /* 濃縮咖啡卡片底色 */
-  --text-primary: #f5ebe0;     /* 燕麥奶暖白文字 */
-  --text-secondary: #b39f8d;   /* 淺咖奶茶色 */
-  --border-color: #3d312a;     /* 深咖邊框 */
-  --input-bg: #261f1c;
-  --primary-color: #c49a78;     /* 淺拿鐵咖啡主色 */
-  --primary-hover: #b08563;
-  --primary-light: rgba(196, 154, 120, 0.2);
-}
-
 .dark {
   /* 深色模式：沉穩暗石墨調 (無高飽和刺眼色) */
   --background: #0f172a;        /* 深深藍灰 (Slate 900) */
