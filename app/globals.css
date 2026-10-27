@@ -75,7 +75,7 @@
   --primary-hover: #db2777;
   
   /* 輕柔 SVG 櫻花花瓣重複無縫背景 */
-  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100'%3E%3Cpath fill='%23f472b6' fill-opacity='0.25' d='M50 15 C55 35 80 35 75 50 C70 65 50 65 50 85 C45 65 25 65 20 50 C25 35 45 35 50 15 Z'/%3E%3Ccircle cx='25' cy='25' r='4' fill='%23f472b6' fill-opacity='0.2'/%3E%3Ccircle cx='85' cy='75' r='5' fill='%23fb7185' fill-opacity='0.25'/%3E%3C/svg%3E");
+  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%23f472b6' fill-opacity='0.28'%3E%3Cpath d='M50 22 C47 35 35 37 35 50 C35 63 47 65 50 78 C53 65 65 63 65 50 C65 37 53 35 50 22 Z'/%3E%3Cpath d='M22 50 C35 47 37 35 50 35 C63 35 65 47 78 50 C65 53 63 65 50 65 C37 65 35 53 22 50 Z'/%3E%3Ccircle cx='50' cy='50' r='5' fill='%23fb7185' fill-opacity='0.4'/%3E%3C/g%3E%3Cpath fill='%23fda4af' fill-opacity='0.3' d='M15 15 C18 22 25 22 22 30 C18 28 12 22 15 15 Z'/%3E%3Cpath fill='%23fda4af' fill-opacity='0.3' d='M80 75 C83 82 90 82 87 90 C83 88 77 82 80 75 Z'/%3E%3C/svg%3E");
 }
 
 /* 薄荷森林主題 (Mint Sage) */
@@ -118,6 +118,10 @@ select {
 
 body {
   background-color: var(--background);
+  background-image: var(--bg-pattern);
+  background-attachment: fixed;
+  background-repeat: repeat;
+  background-size: 100px 100px;
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 1rem;
