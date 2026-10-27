@@ -350,7 +350,7 @@ export default function Home() {
 
     if (rawKey === targetKey) return true
 
-    const regex = new RegExp('\\b' + targetKey + '\\b', 'i')
+    const regex = new RegExp('\\b${targetKey}(?![b#])', 'i')
 
     return regex.test(rawKey)
   })
