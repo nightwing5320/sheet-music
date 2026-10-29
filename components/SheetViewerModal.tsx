@@ -49,10 +49,37 @@ export function SheetViewerModal({
   const [showGestureHint, setShowGestureHint] = useState(false)
 
   useEffect(() => {
+    // 📌 1. 鎖定全域身頁面滾動與 Overscroll 橡皮筋拉動
+    const originalOverflow = document.body.style.overflow
+    const originalTouchAction = document.body.style.touchAction
+    const originalOverscroll = document.body.style.overscrollBehavior
+
+    document.body.style.overflow = 'hidden'
+    document.body.style.touchAction = 'none'
+    document.body.style.overscrollBehavior = 'none'
+    document.documentElement.style.overscrollBehavior = 'none'
+
+    // 📌 2. 在 window 級別被動鎖定原生 gesture 縮放 (專治 iPad Safari 放大跑版)
+    const preventSafariGesture = (e: Event) => {
+      e.preventDefault()
+    }
+    window.addEventListener('gesturestart', preventSafariGesture, { passive: false })
+    window.addEventListener('gesturechange', preventSafariGesture, { passive: false })
+
     // 檢查使用者是否曾點擊「不再顯示」
     const hideHint = localStorage.getItem('hide_sheet_viewer_gesture_hint')
     if (!hideHint) {
       setShowGestureHint(true)
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow
+      document.body.style.touchAction = originalTouchAction
+      document.body.style.overscrollBehavior = originalOverscroll
+      document.documentElement.style.overscrollBehavior = 'auto'
+
+      window.removeEventListener('gesturestart', preventSafariGesture)
+      window.removeEventListener('gesturechange', preventSafariGesture)
     }
   }, [])
 
@@ -127,6 +154,9 @@ export function SheetViewerModal({
     }
 
     if (e.touches.length === 2) {
+      // 📌 阻止原生雙指手勢透傳到 window
+      if (e.cancelable) e.preventDefault()
+
       const dist = getDistance(e.touches)
       touchStartRef.current = {
         dist,
@@ -137,6 +167,8 @@ export function SheetViewerModal({
         posY: position.y
       }
     } else if (e.touches.length === 1 && scale > 1) {
+      if (e.cancelable) e.preventDefault()
+
       touchStartRef.current = {
         dist: 0,
         scale,
@@ -162,6 +194,8 @@ export function SheetViewerModal({
     if (!touchStartRef.current) return
 
     if (e.touches.length === 2 && touchStartRef.current.dist > 0) {
+      if (e.cancelable) e.preventDefault()
+
       const newDist = getDistance(e.touches)
       const factor = newDist / touchStartRef.current.dist
       const newScale = Math.min(Math.max(touchStartRef.current.scale * factor, 1), 3.5)
@@ -173,6 +207,8 @@ export function SheetViewerModal({
         setPosition((prev) => clampPosition(prev.x, prev.y, newScale))
       }
     } else if (e.touches.length === 1 && touchStartRef.current.dist === 0 && scale > 1) {
+      if (e.cancelable) e.preventDefault()
+
       const deltaX = e.touches[0].clientX - touchStartRef.current.x
       const deltaY = e.touches[0].clientY - touchStartRef.current.y
       
@@ -199,7 +235,7 @@ export function SheetViewerModal({
       style={{
         position: 'fixed',
         inset: 0,
-        width: '100%',
+        width: '100vw',
         height: '100dvh',
         backgroundColor: 'rgba(15, 23, 42, 0.88)',
         backdropFilter: 'blur(12px)',
@@ -209,6 +245,7 @@ export function SheetViewerModal({
         justifyContent: 'center',
         zIndex: 9999,
         touchAction: 'none',
+        overscrollBehavior: 'none',
         overflow: 'hidden',
         boxSizing: 'border-box'
       }}
