@@ -507,9 +507,9 @@ export default function Home() {
             style={{
               padding: '6px 14px',
               borderRadius: '20px',
-              border: selectedKey === null ? '1px solid #facf83e2' : '1px solid var(--border-color)',
+              border: 'none',
               backgroundColor: selectedKey === null ? '#f8b136e2' : 'var(--card-bg)',
-              color: selectedKey === null ? '#ffffff' : 'var(--text-primary)',
+              color: selectedKey === null ? '#ffffff' : 'var(--text-secondary)',
               fontSize: '13px',
               fontWeight: '600',
               cursor: 'pointer',
@@ -541,9 +541,9 @@ export default function Home() {
                 style={{
                   padding: '6px 14px',
                   borderRadius: '20px',
-                  border: isSelected ? '1px solid #facf83e2' : '1px solid var(--border-color)',
+                  border: 'none',
                   backgroundColor: isSelected ? '#f8b136e2' : 'var(--card-bg)',
-                  color: isSelected ? '#ffffff' : 'var(--text-primary)',
+                  color: isSelected ? '#ffffff' : 'var(--text-secondary)',
                   fontSize: '13px',
                   fontWeight: '700',
                   cursor: 'pointer',
