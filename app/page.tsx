@@ -519,13 +519,11 @@ export default function Home() {
             onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
               if (selectedKey !== null) {
                 e.currentTarget.style.borderColor = 'var(--text-secondary)'
-                e.currentTarget.style.transform = 'translateY(-1px)'
               }
             }}
             onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
               if (selectedKey !== null) {
                 e.currentTarget.style.borderColor = 'var(--border-color)'
-                e.currentTarget.style.transform = 'translateY(0)'
               }
             }}
           >
