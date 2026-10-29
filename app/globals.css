@@ -131,6 +131,16 @@ body {
   line-height: 1.6; /* 加大行高，閱讀更舒適 */
   transition: background-color 0.3s ease, color 0.3s ease;
   margin: 0;
+  height: 100%;
+  max-height: 100%;
+}
+
+body.modal-open {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+  touch-action: none !important;
 }
 
 /* 確保所有 input 輸入框文字深色、背景白色 */
@@ -159,6 +169,8 @@ html {
   overflow-y: scroll; /* 或使用 reserve-gutter: html { scrollbar-gutter: stable; } */
   font-size: var(--font-size-base);
   scrollbar-gutter: stable; /* 避免切換分類時滾動條導致版面跳動 */
+  height: 100%;
+  max-height: 100%;
 }
 
 /* 放大所有標題層次 */

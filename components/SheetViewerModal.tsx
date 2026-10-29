@@ -57,6 +57,7 @@ export function SheetViewerModal({
     document.body.style.overflow = 'hidden'
     document.body.style.touchAction = 'none'
     document.body.style.overscrollBehavior = 'none'
+    document.body.classList.add('modal-open')
     document.documentElement.style.overscrollBehavior = 'none'
 
     // 📌 2. 在 window 級別被動鎖定原生 gesture 縮放 (專治 iPad Safari 放大跑版)
@@ -73,6 +74,7 @@ export function SheetViewerModal({
     }
 
     return () => {
+      document.body.classList.remove('modal-open')
       document.body.style.overflow = originalOverflow
       document.body.style.touchAction = originalTouchAction
       document.body.style.overscrollBehavior = originalOverscroll
@@ -235,8 +237,8 @@ export function SheetViewerModal({
       style={{
         position: 'fixed',
         inset: 0,
-        width: '100vw',
-        height: '100dvh',
+        width: '100%',
+        height: '100%',
         backgroundColor: 'rgba(15, 23, 42, 0.88)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
