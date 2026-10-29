@@ -108,9 +108,9 @@ export default function Home() {
       position: 'bottom'
     },
     {
-      targetSelector: '#tour-add-setlist-btn',
+      targetSelector: '.tour-add-setlist-btn',
       title: '加入歌單',
-      description: '點擊此按鈕可迅速將樂譜加入今天的歌單',
+      description: '點擊此按鈕可將樂譜加入今天的歌單',
       position: 'top'
     },
     {

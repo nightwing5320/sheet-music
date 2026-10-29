@@ -201,9 +201,9 @@ export function SheetCard({
         {/* 底部功能鍵 */}
         <div style={{ display: 'flex', gap: '8px', marginTop: 'auto', alignItems: 'center', width: '100%' }}>
           
-          {/* 加入歌單按鈕 (改用 Lucide Check & Plus) */}
+          {/* 加入歌單按鈕 */}
           <button
-            id={isFirst ? 'tour-add-setlist-btn' : undefined}
+            className={isFirst ? 'tour-add-setlist-btn' : undefined}
             onClick={() => onToggleSetlist(sheet)}
             style={{
               width: '100%',
