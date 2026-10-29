@@ -56,6 +56,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
     window.addEventListener('scroll', updateRect, { capture: true})
 
     return () => {
+      clearTimeout(timer)
       window.removeEventListener('resize', updateRect)
       window.removeEventListener('scroll', updateRect, { capture: true})
     }
