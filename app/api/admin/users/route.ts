@@ -86,27 +86,48 @@ export async function GET() {
   }
 }
 
-// 更新使用者的審核狀態 (is_approved)
+// 更新使用者資料 (is_approved / display_name / email)，只更新有傳入的欄位
 export async function PATCH(request: Request) {
   try {
     const denied = await requireAdmin()
     if (denied) return denied
 
-    const { userId, isApproved } = await request.json()
+    const { userId, isApproved, displayName, email } = await request.json()
 
     if (!userId) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
     }
 
     const supabaseAdmin = getSupabaseAdmin()
-    const { data, error } = await supabaseAdmin
-      .from('profiles')
-      .update({ is_approved: isApproved })
-      .eq('id', userId)
-      .select()
-      .single()
 
-    if (error) throw error
+    // 1. Email 存在 auth.users，需透過 Auth Admin API 更新
+    if (typeof email === 'string' && email.trim()) {
+      const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+        email: email.trim(),
+        email_confirm: true
+      })
+      if (authError) throw authError
+    }
+
+    // 2. 審核狀態與顯示名稱存在 profiles 資料表
+    const profileUpdates: Record<string, unknown> = {}
+    if (typeof isApproved === 'boolean') profileUpdates.is_approved = isApproved
+    if (typeof displayName === 'string') profileUpdates.display_name = displayName.trim() || null
+
+    let data = null
+    if (Object.keys(profileUpdates).length > 0) {
+      const { data: rows, error } = await supabaseAdmin
+        .from('profiles')
+        .update(profileUpdates)
+        .eq('id', userId)
+        .select()
+
+      if (error) throw error
+      if (!rows || rows.length === 0) {
+        return NextResponse.json({ error: '找不到此使用者的 profile 資料' }, { status: 404 })
+      }
+      data = rows[0]
+    }
 
     return NextResponse.json({ success: true, user: data })
   } catch (err: any) {
