@@ -35,7 +35,7 @@ export default function LoginPage() {
     setLoading(true);
     setMessage(null);
 
-    // 1. 忘記密碼模式
+    // 忘記密碼模式
     if (mode === 'forgot') {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/profile`, // 使用者點擊信件連結後跳轉重設密碼的頁面
@@ -53,7 +53,7 @@ export default function LoginPage() {
       return;
     }
 
-    // 2. 註冊模式
+    // 註冊模式
     if (mode === 'signup') {
       const { error } = await supabase.auth.signUp({
         email,
@@ -74,7 +74,7 @@ export default function LoginPage() {
       return;
     }
 
-    // 3. 登入模式
+    // 登入模式
     const { data: { user }, error } = await supabase.auth.signInWithPassword({
       email,
       password,

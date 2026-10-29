@@ -16,7 +16,7 @@ import { Music, Zap, Moon, HelpCircle, Search, X, ChevronLeft, ChevronRight } fr
 
 export const dynamic = 'force-dynamic'
 
-const PAGE_SIZE = 12 // 📌 每頁顯示 12 首樂譜
+const PAGE_SIZE = 12 // 每頁顯示 12 首樂譜
 
 export default function Home() {
   const [sheets, setSheets] = useState<Sheet[]>([])
@@ -30,7 +30,7 @@ export default function Home() {
   const [showTour, setShowTour] = useState(false)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
 
-  // 📌 新增：當前頁碼 State
+  // 當前頁碼 State
   const [currentPage, setCurrentPage] = useState(1)
   const listTopRef = useRef<HTMLDivElement>(null)
 
@@ -320,7 +320,7 @@ export default function Home() {
     setTouchStartX(null)
   }
 
-  // 📌 篩選條件改變時，自動重置頁碼回到第 1 頁
+  // 篩選條件改變時，自動重置頁碼回到第 1 頁
   const handleSearchChange = (value: string) => {
     setSearchTerm(value)
     setCurrentPage(1)
@@ -348,7 +348,7 @@ export default function Home() {
     )
   ).sort((a, b) => a.localeCompare(b))
 
-  // 1. 搜尋過濾
+  // 搜尋過濾
   const searchFilteredSheets = sheets.filter((sheet) => {
     const term = searchTerm.toLowerCase()
     const matchesTitle = sheet.title.toLowerCase().includes(term)
@@ -356,7 +356,7 @@ export default function Home() {
     return matchesTitle || matchesKey
   })
 
-  // 2. 調性過濾 (精確區分 A 與 Ab)
+  // 調性過濾 (精確區分 A 與 Ab)
   const keyFilteredSheets = searchFilteredSheets.filter((sheet) => {
     if (!selectedKey) return true
     if (!sheet.artist) return false
@@ -370,13 +370,13 @@ export default function Home() {
     return regex.test(rawKey)
   })
 
-  // 3. 數量計算
+  // 數量計算
   const countAll = keyFilteredSheets.length
   const countFast = keyFilteredSheets.filter((s) => s.tempo === 'fast').length
   const countSlow = keyFilteredSheets.filter((s) => s.tempo === 'slow').length
   const countUnclassified = keyFilteredSheets.filter((s) => !s.tempo || (s.tempo !== 'fast' && s.tempo !== 'slow')).length
 
-  // 4. 速度分類過濾後的完整陣列
+  // 速度分類過濾後的完整陣列
   const allFilteredSheets = keyFilteredSheets.filter((sheet) => {
     if (activeTab === 'fast') return sheet.tempo === 'fast'
     if (activeTab === 'slow') return sheet.tempo === 'slow'
@@ -384,7 +384,7 @@ export default function Home() {
     return true
   })
 
-  // 5. 📌 分頁計算 (Pagination)
+  // 分頁計算 (Pagination)
   const totalPages = Math.ceil(allFilteredSheets.length / PAGE_SIZE) || 1
   const startIndex = (currentPage - 1) * PAGE_SIZE
   const paginatedSheets = allFilteredSheets.slice(startIndex, startIndex + PAGE_SIZE)
@@ -653,7 +653,7 @@ export default function Home() {
         </button>
       </div>
 
-      {/* 📌 樂譜列表頂部錨點 (用於換頁平滑滾動) */}
+      {/* 樂譜列表頂部錨點 (用於換頁平滑滾動) */}
       <div ref={listTopRef} />
 
       {/* 樂譜列表 */}
@@ -679,7 +679,7 @@ export default function Home() {
             ))}
           </div>
 
-          {/* 📌 分頁控制列 (Pagination Bar) */}
+          {/* 分頁控制列 (Pagination Bar) */}
           {totalPages > 1 && (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '36px', padding: '16px 0' }}>
               <button
