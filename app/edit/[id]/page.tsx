@@ -3,13 +3,14 @@
 import { useEffect, useState, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '../../../lib/supabase'
+import { createClient } from '@/utils/supabase/client'
 import { ArrowLeft, Save, Music, Zap, Moon, HelpCircle, FileText } from 'lucide-react'
 
 export default function EditPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
   const id = resolvedParams.id
   const router = useRouter()
+  const supabase = createClient()
 
   const [title, setTitle] = useState('')
   const [artist, setArtist] = useState('')

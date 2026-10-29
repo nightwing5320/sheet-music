@@ -1,6 +1,30 @@
 // app/api/admin/users/route.ts
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createServerClient } from '@/utils/supabase/server'
+
+// 確認呼叫者已登入且為管理員，否則回傳錯誤 Response
+async function requireAdmin(): Promise<NextResponse | null> {
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // 用 service role 讀取，避免受 RLS 影響
+  const { data: profile } = await getSupabaseAdmin()
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile?.is_admin) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  return null
+}
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -16,6 +40,9 @@ function getSupabaseAdmin() {
 // 取得所有使用者 (整合 auth.users 的 last_sign_in_at 與 profiles)
 export async function GET() {
   try {
+    const denied = await requireAdmin()
+    if (denied) return denied
+
     const supabaseAdmin = getSupabaseAdmin()
 
     // 從 Auth Admin API 抓取所有 Auth 帳號 (包含 last_sign_in_at, email, created_at)
@@ -62,6 +89,9 @@ export async function GET() {
 // 更新使用者的審核狀態 (is_approved)
 export async function PATCH(request: Request) {
   try {
+    const denied = await requireAdmin()
+    if (denied) return denied
+
     const { userId, isApproved } = await request.json()
 
     if (!userId) {
@@ -84,10 +114,11 @@ export async function PATCH(request: Request) {
   }
 }
 
-// app/api/admin/users/route.ts
-
 export async function DELETE(request: Request) {
   try {
+    const denied = await requireAdmin()
+    if (denied) return denied
+
     const { userId } = await request.json()
 
     if (!userId) {

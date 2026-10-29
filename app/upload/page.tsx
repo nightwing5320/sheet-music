@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '../../lib/supabase'
+import { createClient } from '@/utils/supabase/client'
 import { 
   ArrowLeft, 
   PlusCircle, 
@@ -15,6 +15,7 @@ import {
 
 export default function UploadPage() {
   const router = useRouter()
+  const supabase = createClient()
   const [title, setTitle] = useState('')
   const [keyName, setKeyName] = useState('')
   const [tempo, setTempo] = useState<string>('')
