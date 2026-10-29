@@ -45,6 +45,16 @@ export function ThemeToggle() {
         transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
       }}
+      onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+        e.currentTarget.style.borderColor = 'var(--text-secondary)'
+        e.currentTarget.style.transform = 'translateY(-1px)'
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)'
+      }}
+      onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+        e.currentTarget.style.borderColor = 'var(--border-color)'
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)'
+      }}
     >
       {/* 調色盤圖示 */}
       <Palette size={16} style={{ color: 'var(--primary-color, var(--text-primary))', flexShrink: 0 }} />
