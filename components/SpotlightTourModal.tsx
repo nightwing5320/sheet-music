@@ -36,22 +36,33 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
     const updateRect = () => {
       const el = document.querySelector(step.targetSelector)
       if (el) {
-        // 📌 確保自動平滑捲動到畫面中央
-        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
+        const rect = el.getBoundingClientRect()
         
-        // 延遲一小段時間等待捲動定位完成後精準取座標
-        setTimeout(() => {
-          const rect = el.getBoundingClientRect()
-          setTargetRect(rect)
-        }, 150)
+        // 檢查目標元素是否已經在視窗可見範圍內
+        const isInViewport = 
+          rect.top >= 0 &&
+          rect.bottom <= window.innerHeight &&
+          rect.left >= 0 &&
+          rect.right <= window.innerWidth
+
+        if (!isInViewport) {
+          // 如果不在畫面上，才觸發快速滾動
+          el.scrollIntoView({ behavior: 'auto', block: 'center' })
+        }
+
+        // 立即更新座標，不再死等 300ms 延遲
+        requestAnimationFrame(() => {
+          setTargetRect(el.getBoundingClientRect())
+        })
       } else {
         setTargetRect(null)
       }
     }
 
+    updateRect()
+
     const timer = setTimeout(updateRect,50)
 
-    updateRect()
     window.addEventListener('resize', updateRect)
     window.addEventListener('scroll', updateRect, { capture: true})
 
