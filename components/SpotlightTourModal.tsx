@@ -36,9 +36,14 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
     const updateRect = () => {
       const el = document.querySelector(step.targetSelector)
       if (el) {
-        setTargetRect(el.getBoundingClientRect())
-        // 自動捲動到目標位置
-        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        // 📌 確保自動平滑捲動到畫面中央
+        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
+        
+        // 延遲一小段時間等待捲動定位完成後精準取座標
+        setTimeout(() => {
+          const rect = el.getBoundingClientRect()
+          setTargetRect(rect)
+        }, 100)
       } else {
         setTargetRect(null)
       }
@@ -108,6 +113,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
 
     // 螢幕邊界夾緊（防氣泡跑出畫面）
     left = Math.max(16, Math.min(left, window.innerWidth - 336))
+    top = Math.max(16, Math.min(top, window.innerHeight - 200))
 
     return {
       tooltip: {
@@ -121,8 +127,9 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
         position: 'absolute',
         width: '12px',
         height: '12px',
-        backgroundColor: 'var(--card-bg, #0f172a)',
-        border: '1px solid var(--border-color, rgba(255,255,255,0.2))',
+        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+        borderLeft: '1px solid rgba(255, 255, 255, 0.18)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.18)',
         top: arrowTop,
         left: arrowLeft,
         transform: arrowTransform,
@@ -141,11 +148,10 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
         <div
           style={{
             position: 'fixed',
-            inset: 0,
             boxShadow: `0 0 0 9999px rgba(15, 23, 42, 0.75)`,
             borderRadius: '12px',
-            top: `${targetRect.top - 6}px`,
-            left: `${targetRect.left - 6}px`,
+            top: `${targetRect.top - 6}px`,      /* 📌 修正：精準扣除 padding 偏移 */
+            left: `${targetRect.left - 6}px`,    /* 📌 修正：精準扣除 padding 偏移 */
             width: `${targetRect.width + 12}px`,
             height: `${targetRect.height + 12}px`,
             transition: 'all 0.3s ease-out',
