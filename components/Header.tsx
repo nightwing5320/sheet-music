@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Settings, ListMusic, Plus, LogOut, Piano, Rocket, ShieldCheck, HelpCircle } from 'lucide-react'
+import { Settings, ListMusic, Plus, LogOut, Piano, Hand, ShieldCheck, HelpCircle } from 'lucide-react'
 
 // 將基礎樣式物件放在 Component 外面
 const baseButtonStyle: React.CSSProperties = {
@@ -106,7 +106,7 @@ export function Header({
           alignItems: 'center',
           gap: '6px'
         }}>
-          <Rocket size={18} style={{ color: '#f59e0b' }} />
+          <Hand size={18} style={{ color: '#f59e0b' }} />
           <span>嗨！{userDisplayName || '使用者'}</span>
         </p>
       </div>
