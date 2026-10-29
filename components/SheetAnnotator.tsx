@@ -26,6 +26,10 @@ export function SheetAnnotator({
   isEditing,
   children,
 }: SheetAnnotatorProps) {
+  const [toolbarPos, setToolbarPos] = useState<{ x: number; y: number} | null>(null)
+  const isDraggingRef = useRef(false)
+  const dragStartRef = useRef({ x: 0, y: 0, initialX: 0, initialY: 0})
+
   const [isDrawing, setIsDrawing] = useState(false)
   const [currentPath, setCurrentPath] = useState('')
   const [color, setColor] = useState('#ef4444')
@@ -37,6 +41,44 @@ export function SheetAnnotator({
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
+    e.stopPropagation()
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+
+    // 取得目前位置（若為 null 則取預設位置）
+    const currentX = toolbarPos ? toolbarPos.x : (window.innerWidth / 2 - 160)
+    const currentY = toolbarPos ? toolbarPos.y : 80
+
+    dragStartRef.current = {
+      x: clientX,
+      y: clientY,
+      initialX: currentX,
+      initialY: currentY
+    }
+    isDraggingRef.current = true
+  }
+  const handleDragMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!isDraggingRef.current) return
+    e.stopPropagation()
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+
+    const deltaX = clientX - dragStartRef.current.x
+    const deltaY = clientY - dragStartRef.current.y
+
+    // 邊界限制 (防止拖出螢幕外)
+    const newX = Math.min(Math.max(10, dragStartRef.current.initialX + deltaX), window.innerWidth - 200)
+    const newY = Math.min(Math.max(10, dragStartRef.current.initialY + deltaY), window.innerHeight - 80)
+
+    setToolbarPos({ x: newX, y: newY })
+  }
+
+  const handleDragEnd = () => {
+    isDraggingRef.current = false
+  }
 
   const getCoordinates = (e: React.PointerEvent) => {
     if (!svgRef.current) return null
@@ -192,6 +234,48 @@ export function SheetAnnotator({
 
   return (
     <>
+      {/* 塗鴉模式專屬可拖曳工具列 */}
+      {isEditing && (
+        <div
+          onTouchStart={handleDragStart}
+          onTouchMove={handleDragMove}
+          onTouchEnd={handleDragEnd}
+          onMouseDown={handleDragStart}
+          onMouseMove={handleDragMove}
+          onMouseUp={handleDragEnd}
+          style={{
+            position: 'fixed',
+            left: toolbarPos ? `${toolbarPos.x}px` : '50%',
+            top: toolbarPos ? `${toolbarPos.y}px` : '80px',
+            transform: toolbarPos ? 'none' : 'translateX(-50%)',
+            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255, 255, 255, 0.22)',
+            padding: '8px 14px',
+            borderRadius: '30px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            zIndex: 10005,
+            boxShadow: '0 12px 32px rgba(0, 0, 0, 0.5)',
+            color: 'white',
+            cursor: 'grab',
+            userSelect: 'none',
+            touchAction: 'none' /* 阻止瀏覽器預設滾動，順暢拖曳 */
+          }}
+        >
+          {/* 拖曳握把 Indicator */}
+          <div style={{ display: 'flex', gap: '2px', cursor: 'grab', padding: '0 2px' }} title="按住拖曳位置">
+            <div style={{ width: '3px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.4)', borderRadius: '2px' }} />
+            <div style={{ width: '3px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.4)', borderRadius: '2px' }} />
+          </div>
+          {/* 內部工具按鈕 (調色盤、粗細、Undo、Clear) */}
+          <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* ... 原本工具列內容 (調色圓圈、橡皮擦、Undo 等) ... */}
+          </div>
+        </div>
+      )}
+
       {/* 使用 Portal 將塗鴉工具列脫離任何 transform 容器，直接掛在 document.body */}
       {mounted && toolbarContent && createPortal(toolbarContent, document.body)}
 
