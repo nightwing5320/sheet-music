@@ -27,15 +27,16 @@ export function SheetCard({
     <div
       id={isFirst ? 'tour-first-sheet' : undefined} 
       style={{
-      borderRadius: '16px',
-      overflow: 'hidden',
-      backgroundColor: 'var(--card-bg, #ffffff)', 
-      border: '1px solid var(--border-color, #e2e8f0)',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-      display: 'flex',
-      flexDirection: 'column',
-      transition: 'all 0.2s ease',
-    }}>
+        borderRadius: '16px',
+        overflow: 'hidden',
+        backgroundColor: 'var(--card-bg, #ffffff)', 
+        border: '1px solid var(--border-color, #e2e8f0)',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'all 0.2s ease',
+      }}
+    >
       
       {/* 樂譜預覽圖 */}
       <div 
@@ -62,7 +63,7 @@ export function SheetCard({
           }}
         />
 
-        {/* 放大按鈕 (改用 Lucide ZoomIn) */}
+        {/* 放大按鈕 */}
         <button
           onClick={(e) => {
             e.stopPropagation()
@@ -118,51 +119,13 @@ export function SheetCard({
             </div>
           </div>
 
-          {/* 編輯按鈕*/}
+          {/* 編輯與刪除按鈕 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-          <Link 
-            id={isFirst ? 'tour-edit-btn' : undefined}
-            href={`/edit/${sheet.id}`} 
-            style={{ 
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              height: '34px',
-              padding: '0 12px',
-              borderRadius: '8px',
-              fontSize: '13px',
-              fontWeight: '500',
-              color: 'var(--text-secondary, #64748b)',
-              backgroundColor: 'transparent',
-              border: '1px solid var(--border-color, #e2e8f0)',
-              textDecoration: 'none',
-              lineHeight: '1',
-              boxSizing: 'border-box',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#2563eb'                           
-              e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.3)'     // 邊框變半透明藍色
-              e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)' // 背景呈現微亮淡藍色
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'var(--text-secondary, #64748b)'    // 滑鼠移出：復原預設灰色
-              e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
-              e.currentTarget.style.backgroundColor = 'transparent'
-            }}
-          >
-            <Edit3 size={14} />
-            <span>編輯</span>
-          </Link>
-
-          {/* 刪除按鈕*/}
-          {onDeleteSheet && (
-            <button
-              id={isFirst ? 'tour-delete-btn' : undefined}
-              onClick={() => onDeleteSheet(sheet.id, sheet.title)}
-              title="刪除樂譜"
-              style={{
+            {/* 📌 1. 編輯按鈕：改為 className="tour-edit-btn" */}
+            <Link 
+              className="tour-edit-btn"
+              href={`/edit/${sheet.id}`} 
+              style={{ 
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
@@ -181,9 +144,9 @@ export function SheetCard({
                 transition: 'all 0.2s ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#ef4444'
-                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'
-                e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'
+                e.currentTarget.style.color = '#2563eb'                           
+                e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.3)'
+                e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.color = 'var(--text-secondary, #64748b)'
@@ -191,19 +154,58 @@ export function SheetCard({
                 e.currentTarget.style.backgroundColor = 'transparent'
               }}
             >
-              <Trash2 size={14} />
-              <span>刪除</span>
-            </button>
-          )}
+              <Edit3 size={14} />
+              <span>編輯</span>
+            </Link>
+
+            {/* 📌 2. 刪除按鈕：改為 className="tour-delete-btn" */}
+            {onDeleteSheet && (
+              <button
+                className="tour-delete-btn"
+                onClick={() => onDeleteSheet(sheet.id, sheet.title)}
+                title="刪除樂譜"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  height: '34px',
+                  padding: '0 12px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  color: 'var(--text-secondary, #64748b)',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--border-color, #e2e8f0)',
+                  textDecoration: 'none',
+                  lineHeight: '1',
+                  boxSizing: 'border-box',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#ef4444'
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'
+                  e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--text-secondary, #64748b)'
+                  e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }}
+              >
+                <Trash2 size={14} />
+                <span>刪除</span>
+              </button>
+            )}
           </div>
         </div>
 
         {/* 底部功能鍵 */}
         <div style={{ display: 'flex', gap: '8px', marginTop: 'auto', alignItems: 'center', width: '100%' }}>
           
-          {/* 加入歌單按鈕 */}
+          {/* 📌 3. 加入歌單按鈕：固定為 className="tour-add-setlist-btn" */}
           <button
-            className={isFirst ? 'tour-add-setlist-btn' : undefined}
+            className="tour-add-setlist-btn"
             onClick={() => onToggleSetlist(sheet)}
             style={{
               width: '100%',
@@ -217,17 +219,17 @@ export function SheetCard({
               borderRadius: '10px',
               border: 'none',
               background: isInSetlist 
-                ? 'var(--active-green-bg, #c9fae3)'    // 已加入：極淡柔和翡翠綠底
-                : 'var(--text-primary, #1e293b)',      // 未加入：深灰石墨色
+                ? 'var(--active-green-bg, #c9fae3)'
+                : 'var(--text-primary, #1e293b)',
               color: isInSetlist 
-                ? 'var(--active-green-text, #047857)'  // 已加入：深翡翠綠字
-                : 'var(--background, #ffffff)',        // 未加入：白字
+                ? 'var(--active-green-text, #047857)'
+                : 'var(--background, #ffffff)',
               fontWeight: '600',
               fontSize: '15px',
               cursor: 'pointer',
               boxShadow: isInSetlist 
                 ? 'none' 
-                : '0 2px 6px rgba(0, 0, 0, 0.08)',    // 柔和微陰影
+                : '0 2px 6px rgba(0, 0, 0, 0.08)',
               transition: 'all 0.2s ease',
             }}
           >

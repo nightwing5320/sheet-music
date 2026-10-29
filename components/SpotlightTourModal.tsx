@@ -43,19 +43,21 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
         setTimeout(() => {
           const rect = el.getBoundingClientRect()
           setTargetRect(rect)
-        }, 100)
+        }, 300)
       } else {
         setTargetRect(null)
       }
     }
 
+    const timer = setTimeout(updateRect,50)
+
     updateRect()
     window.addEventListener('resize', updateRect)
-    window.addEventListener('scroll', updateRect)
+    window.addEventListener('scroll', updateRect, { capture: true})
 
     return () => {
       window.removeEventListener('resize', updateRect)
-      window.removeEventListener('scroll', updateRect)
+      window.removeEventListener('scroll', updateRect, { capture: true})
     }
   }, [isOpen, currentStepIndex, step])
 

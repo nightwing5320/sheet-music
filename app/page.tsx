@@ -114,13 +114,13 @@ export default function Home() {
       position: 'top'
     },
     {
-      targetSelector: '#tour-edit-btn',
+      targetSelector: '.tour-edit-btn',
       title: '編輯樂譜資訊',
       description: '修正歌曲標題、調性及速度（快歌/慢歌）',
       position: 'top'
     },
     {
-      targetSelector: '#tour-delete-btn',
+      targetSelector: '.tour-delete-btn',
       title: '刪除樂譜',
       description: '從樂譜庫中永久移除該首歌曲',
       position: 'top'
