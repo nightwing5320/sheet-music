@@ -26,7 +26,7 @@ export function SheetAnnotator({
   isEditing,
   children,
 }: SheetAnnotatorProps) {
-  // 📌 1. 可拖曳工具列的座標狀態 (預設為 null，掛載後算出畫面中央)
+  // 📌 1. 可拖曳工具列的位置狀態
   const [toolbarPos, setToolbarPos] = useState<{ x: number; y: number } | null>(null)
   const isDraggingRef = useRef(false)
   const dragStartRef = useRef({ x: 0, y: 0, initialX: 0, initialY: 0 })
@@ -38,19 +38,13 @@ export function SheetAnnotator({
   const [strokeWidth, setStrokeWidth] = useState(4)
   const svgRef = useRef<SVGSVGElement | null>(null)
 
-  // 確保 Client 端掛載後才渲染 Portal
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // 📌 3. 拖曳控制邏輯 (Touch & Mouse)
-  const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
-    e.stopPropagation()
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-
-    // 取得目前位置（若尚未移動過，則以畫面中央偏上方做起點）
+  // 📌 3. 滑鼠 / 觸控 拖曳開始
+  const handleStartDrag = (clientX: number, clientY: number) => {
     const currentX = toolbarPos ? toolbarPos.x : (window.innerWidth / 2 - 160)
     const currentY = toolbarPos ? toolbarPos.y : 70
 
@@ -63,28 +57,62 @@ export function SheetAnnotator({
     isDraggingRef.current = true
   }
 
-  const handleDragMove = (e: React.TouchEvent | React.MouseEvent) => {
+  // 📌 4. 移動計算
+  const handleMoveDrag = (clientX: number, clientY: number) => {
     if (!isDraggingRef.current) return
-    e.stopPropagation()
-
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
 
     const deltaX = clientX - dragStartRef.current.x
     const deltaY = clientY - dragStartRef.current.y
 
-    // 安全邊界限制 (防止工具列被拖出螢幕外)
     const newX = Math.min(Math.max(10, dragStartRef.current.initialX + deltaX), window.innerWidth - 220)
     const newY = Math.min(Math.max(10, dragStartRef.current.initialY + deltaY), window.innerHeight - 60)
 
     setToolbarPos({ x: newX, y: newY })
   }
 
-  const handleDragEnd = () => {
+  // 📌 5. 拖曳結束
+  const handleEndDrag = () => {
     isDraggingRef.current = false
   }
 
-  // 📌 4. 觸控筆 / 繪圖計算
+  // 🖥️ 電腦版：綁定 全局 window 滑鼠事件 (徹底解決「黏在滑鼠上」的問題)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    handleStartDrag(e.clientX, e.clientY)
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      handleMoveDrag(moveEvent.clientX, moveEvent.clientY)
+    }
+
+    const onMouseUp = () => {
+      handleEndDrag()
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+  }
+
+  // 📱 手機版：觸控事件
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation()
+    const touch = e.touches[0]
+    handleStartDrag(touch.clientX, touch.clientY)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDraggingRef.current) return
+    e.stopPropagation()
+    const touch = e.touches[0]
+    handleMoveDrag(touch.clientX, touch.clientY)
+  }
+
+  const handleTouchEnd = () => {
+    handleEndDrag()
+  }
+
+  // 📌 塗鴉繪圖事件
   const getCoordinates = (e: React.PointerEvent) => {
     if (!svgRef.current) return null
     const rect = svgRef.current.getBoundingClientRect()
@@ -139,15 +167,13 @@ export function SheetAnnotator({
     if (confirm('確定要清空當前頁面的筆記嗎？')) onChangePaths([])
   }
 
-  // 📌 5. 整合「可拖曳」與 Portal 傳送的塗鴉工具列
+  // 📌 6. 整合 Portal 工具列
   const toolbarContent = isEditing ? (
     <div
-      onTouchStart={handleDragStart}
-      onTouchMove={handleDragMove}
-      onTouchEnd={handleDragEnd}
-      onMouseDown={handleDragStart}
-      onMouseMove={handleDragMove}
-      onMouseUp={handleDragEnd}
+      onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       style={{
         position: 'fixed',
         left: toolbarPos ? `${toolbarPos.x}px` : '50%',
@@ -166,7 +192,7 @@ export function SheetAnnotator({
         color: 'white',
         cursor: 'grab',
         userSelect: 'none',
-        touchAction: 'none', /* 防止瀏覽器頁面拉動，確保拖曳流暢 */
+        touchAction: 'none',
         boxSizing: 'border-box',
       }}
     >
@@ -175,7 +201,7 @@ export function SheetAnnotator({
         <GripVertical size={16} />
       </div>
 
-      {/* 內部工具項目 (按紐點擊不傳遞至外層拖曳) */}
+      {/* 內部工具項目 (阻止點擊冒泡觸發拖曳) */}
       <div 
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
@@ -277,10 +303,8 @@ export function SheetAnnotator({
 
   return (
     <>
-      {/* 📌 使用 Portal 將可拖曳工具列掛載至 document.body，避免受 Modal 的 transform 影響 */}
       {mounted && toolbarContent && createPortal(toolbarContent, document.body)}
 
-      {/* 樂譜與 SVG 塗鴉畫布容器 */}
       <div 
         style={{ 
           position: 'relative', 
