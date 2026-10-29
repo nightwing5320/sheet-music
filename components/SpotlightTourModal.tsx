@@ -43,7 +43,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
         setTimeout(() => {
           const rect = el.getBoundingClientRect()
           setTargetRect(rect)
-        }, 300)
+        }, 150)
       } else {
         setTargetRect(null)
       }
