@@ -104,7 +104,7 @@ export default function Home() {
     {
       targetSelector: '#tour-theme-toggle',
       title: '切換深淺色模式',
-      description: '依個人喜好隨時切換深/淺色模式',
+      description: '依個人喜好隨時切換不同主題',
       position: 'bottom'
     },
     {
