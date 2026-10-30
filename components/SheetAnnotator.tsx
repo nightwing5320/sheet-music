@@ -26,12 +26,12 @@ export function SheetAnnotator({
   isEditing,
   children,
 }: SheetAnnotatorProps) {
-  // 📌 1. 可拖曳工具列的位置狀態
+  // 可拖曳工具列的位置狀態
   const [toolbarPos, setToolbarPos] = useState<{ x: number; y: number } | null>(null)
   const isDraggingRef = useRef(false)
   const dragStartRef = useRef({ x: 0, y: 0, initialX: 0, initialY: 0 })
 
-  // 📌 2. 塗鴉繪圖狀態
+  // 塗鴉繪圖狀態
   const [isDrawing, setIsDrawing] = useState(false)
   const [currentPath, setCurrentPath] = useState('')
   const [color, setColor] = useState('#ef4444')
@@ -43,7 +43,7 @@ export function SheetAnnotator({
     setMounted(true)
   }, [])
 
-  // 📌 3. 滑鼠 / 觸控 拖曳開始
+  // 滑鼠 / 觸控 拖曳開始
   const handleStartDrag = (clientX: number, clientY: number) => {
     const currentX = toolbarPos ? toolbarPos.x : (window.innerWidth / 2 - 160)
     const currentY = toolbarPos ? toolbarPos.y : 70
@@ -57,7 +57,7 @@ export function SheetAnnotator({
     isDraggingRef.current = true
   }
 
-  // 📌 4. 移動計算
+  // 移動計算
   const handleMoveDrag = (clientX: number, clientY: number) => {
     if (!isDraggingRef.current) return
 
@@ -70,12 +70,12 @@ export function SheetAnnotator({
     setToolbarPos({ x: newX, y: newY })
   }
 
-  // 📌 5. 拖曳結束
+  // 拖曳結束
   const handleEndDrag = () => {
     isDraggingRef.current = false
   }
 
-  // 🖥️ 電腦版：綁定 全局 window 滑鼠事件 (徹底解決「黏在滑鼠上」的問題)
+  // 電腦版：綁定全局 window 滑鼠事件
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation()
     handleStartDrag(e.clientX, e.clientY)
@@ -94,7 +94,7 @@ export function SheetAnnotator({
     window.addEventListener('mouseup', onMouseUp)
   }
 
-  // 📱 手機版：觸控事件
+  // 手機版：觸控事件
   const handleTouchStart = (e: React.TouchEvent) => {
     e.stopPropagation()
     const touch = e.touches[0]
@@ -112,7 +112,7 @@ export function SheetAnnotator({
     handleEndDrag()
   }
 
-  // 📌 塗鴉繪圖事件
+  // 塗鴉繪圖事件
   const getCoordinates = (e: React.PointerEvent) => {
     if (!svgRef.current) return null
     const rect = svgRef.current.getBoundingClientRect()
@@ -167,7 +167,7 @@ export function SheetAnnotator({
     if (confirm('確定要清空當前頁面的筆記嗎？')) onChangePaths([])
   }
 
-  // 📌 6. 整合 Portal 工具列
+  // 整合 Portal 工具列
   const toolbarContent = isEditing ? (
     <div
       onMouseDown={handleMouseDown}
@@ -201,7 +201,7 @@ export function SheetAnnotator({
         <GripVertical size={16} />
       </div>
 
-      {/* 內部工具項目 (阻止點擊冒泡觸發拖曳) */}
+      {/* 內部工具項目 */}
       <div 
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
