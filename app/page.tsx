@@ -42,9 +42,9 @@ const TOUR_STEPS: TourStep[] = [
     position: 'bottom'
   },
   {
-    targetSelector: '#tour-profile-btn',
-    title: '個人設定',
-    description: '可在這裡修改使用者名稱與密碼',
+    targetSelector: '#tour-account-btn',
+    title: '帳號選單',
+    description: '點擊可進入個人設定（修改名稱與密碼）、管理員後台與登出',
     position: 'bottom'
   },
   {

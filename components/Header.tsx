@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Settings, ListMusic, Plus, LogOut, Piano, Rocket, ShieldCheck, HelpCircle, Users } from 'lucide-react'
+import { AccountMenu } from '@/components/AccountMenu'
+import { ListMusic, Plus, Piano, Rocket, HelpCircle, Users } from 'lucide-react'
 
 // 將基礎樣式放在 Component 外面
 const baseButtonClass =
@@ -13,10 +14,6 @@ const secondaryColorClass = `bg-(--card-bg) text-(--text-primary) border border-
 const secondaryButtonClass = `${baseButtonClass} px-4 ${secondaryColorClass}`
 
 const primaryButtonClass = `${baseButtonClass} px-4 bg-(--text-primary) text-(--background) border-none shadow-[0_2px_6px_rgba(0,0,0,0.1)] hover:opacity-90 hover:shadow-[0_4px_14px_rgba(0,0,0,0.2)]`
-
-const adminButtonClass = `${baseButtonClass} px-4 text-[#2563eb] border border-[rgba(37,99,235,0.3)] bg-[rgba(37,99,235,0.05)] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:bg-[rgba(37,99,235,0.15)] hover:border-[rgba(37,99,235,0.5)] hover:shadow-[0_4px_12px_rgba(37,99,235,0.15)]`
-
-const dangerButtonClass = `${baseButtonClass} px-4 border border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.08)] text-[#ef4444] hover:bg-[#ef4444] hover:text-white hover:border-[#ef4444] hover:shadow-[0_4px_12px_rgba(239,68,68,0.3)]`
 
 interface HeaderProps {
   userDisplayName: string
@@ -51,35 +48,12 @@ export function Header({
         </p>
       </div>
 
-      {/* 右側按鈕區塊（grow 撐滿整列，讓登出按鈕可靠右） */}
+      {/* 按鈕區塊：左側為主要功能，右側為說明、主題與帳號選單 */}
       <div className="flex grow gap-2 items-center flex-wrap">
-        {/* 導覽按鈕 */}
-        <button
-          id="tour-help-btn"
-          onClick={onOpenTour}
-          title="功能說明導覽"
-          className={`${baseButtonClass} ${secondaryColorClass} w-[42px]`}
-        >
-          <HelpCircle size={18} />
-        </button>
-
-        {/* 明暗切換元件 */}
-        <div id="tour-theme-toggle">
-          <ThemeToggle />
-        </div>
-
-        {/* 管理者審核入口 (僅在 is_admin 為 true 時顯示) */}
-        {is_admin && (
-          <Link href="/admin" className={adminButtonClass}>
-            <ShieldCheck size={18} />
-            <span>管理員</span>
-          </Link>
-        )}
-
-        {/* 個人設定 */}
-        <Link id="tour-profile-btn" href="/profile" className={secondaryButtonClass}>
-          <Settings size={18} />
-          <span>個人設定</span>
+        {/* 上傳樂譜 */}
+        <Link id="tour-upload-btn" href="/upload" className={primaryButtonClass}>
+          <Plus size={18} />
+          <span>上傳樂譜</span>
         </Link>
 
         {/* 個人歌單 */}
@@ -94,17 +68,23 @@ export function Header({
           <span>團隊歌單</span>
         </Link>
 
-        {/* 上傳樂譜 */}
-        <Link id="tour-upload-btn" href="/upload" className={primaryButtonClass}>
-          <Plus size={18} />
-          <span>上傳樂譜</span>
-        </Link>
+        {/* 右側：導覽、主題、帳號選單 */}
+        <div className="flex gap-2 items-center ml-auto">
+          <button
+            id="tour-help-btn"
+            onClick={onOpenTour}
+            title="功能說明導覽"
+            className={`${baseButtonClass} ${secondaryColorClass} w-[42px]`}
+          >
+            <HelpCircle size={18} />
+          </button>
 
-        {/* 登出按鈕：固定在按鈕列最右側 */}
-        <button onClick={onLogout} className={`${dangerButtonClass} ml-auto`}>
-          <LogOut size={18} />
-          <span>登出</span>
-        </button>
+          <div id="tour-theme-toggle">
+            <ThemeToggle />
+          </div>
+
+          <AccountMenu buttonClassName={secondaryButtonClass} isAdmin={is_admin} onLogout={onLogout} />
+        </div>
       </div>
     </header>
   )
