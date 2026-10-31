@@ -238,7 +238,7 @@ export default function AdminPage() {
 
   if (!isAdmin) {
     return (
-      <main className="max-w-[600px] mx-auto my-15 p-6 text-center">
+      <main className="w-full max-w-[600px] mx-auto my-15 p-6 text-center">
         <h2 className="text-[20px] font-extrabold text-[#ef4444]">⚠️ 權限不足</h2>
         <p className="text-(--text-secondary) mt-3 mx-0 mb-6">
           當前帳號（{currentUser?.email}）非系統管理者，無法存取管理後台。
@@ -251,7 +251,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="max-w-[850px] mx-auto my-10 p-6 text-(--text-primary)">
+    <main className="w-full max-w-[850px] mx-auto my-10 p-6 text-(--text-primary)">
       {/* 頂部導覽 */}
       <div className="flex justify-between items-center mb-6">
         {/* 返回樂譜庫按鈕 */}

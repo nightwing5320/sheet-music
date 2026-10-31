@@ -2,7 +2,7 @@
 // 表單頁面（登入、個人設定、上傳、編輯、管理後台）共用的 Tailwind class
 
 // 單欄表單頁面的外框
-export const formPageClass = 'max-w-[520px] mx-auto my-10 p-6 text-(--text-primary)'
+export const formPageClass = 'w-full max-w-[520px] mx-auto my-10 p-6 text-(--text-primary)'
 
 // 「返回樂譜庫」連結（Base 不含外距，可放在同一列的其他按鈕旁）
 export const backLinkBaseClass =
