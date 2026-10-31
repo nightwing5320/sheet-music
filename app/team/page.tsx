@@ -26,13 +26,11 @@ import {
 import { ArrowLeft, Users, Plus, CalendarDays, Music, ChevronRight } from 'lucide-react'
 
 // 單一歌單卡片
-function SetlistRow({ setlist, isPast }: { setlist: TeamSetlist; isPast?: boolean }) {
+function SetlistRow({ setlist }: { setlist: TeamSetlist }) {
   return (
     <Link
       href={`/team/${setlist.id}`}
-      className={`flex items-center justify-between gap-3 px-4 py-3.5 rounded-[12px] bg-(--card-bg) border border-(--border-color) no-underline text-(--text-primary) transition-all duration-200 hover:border-(--text-secondary) hover:-translate-y-px ${
-        isPast ? 'opacity-70' : ''
-      }`}
+      className={`flex items-center justify-between gap-3 px-4 py-3.5 rounded-[12px] bg-(--card-bg) border border-(--border-color) no-underline text-(--text-primary) transition-all duration-200 hover:border-(--text-secondary) hover:-translate-y-px`}
     >
       <div className="min-w-0">
         <div className="text-[16px] font-bold truncate">{setlist.title}</div>
@@ -66,6 +64,13 @@ export default function TeamSetlistsPage() {
   useEffect(() => {
     const fetchSetlists = async () => {
       try {
+        // 聚會日期已過的歌單自動刪除（當天仍保留；未設定日期的不會刪）
+        const { error: cleanupError } = await supabase
+          .from('team_setlists')
+          .delete()
+          .lt('service_date', todayString())
+        if (cleanupError) console.error('Failed to delete past team setlists:', cleanupError)
+
         const { data, error } = await supabase
           .from('team_setlists')
           .select('*')
@@ -106,10 +111,9 @@ export default function TeamSetlistsPage() {
     }
   }
 
-  // 即將到來（含今天與未設定日期）依日期由近到遠；過去的由新到舊
+  // 過去的歌單已在載入時刪除，若刪除失敗也不顯示
   const today = todayString()
   const upcoming = setlists.filter((s) => !s.service_date || s.service_date >= today)
-  const past = setlists.filter((s) => s.service_date && s.service_date < today).reverse()
 
   if (loading) {
     return <div className={loadingTextClass}>載入團隊歌單中...</div>
@@ -166,27 +170,15 @@ export default function TeamSetlistsPage() {
       {/* 即將到來 */}
       <h2 className="text-[18px] font-bold mt-0 mb-3">即將到來</h2>
       {upcoming.length === 0 ? (
-        <div className="text-center py-8 mb-8 border border-dashed border-(--border-color) rounded-[12px] text-(--text-secondary)">
+        <div className="text-center py-8 border border-dashed border-(--border-color) rounded-[12px] text-(--text-secondary)">
           目前沒有即將到來的團隊歌單
         </div>
       ) : (
-        <div className="flex flex-col gap-2.5 mb-8">
+        <div className="flex flex-col gap-2.5">
           {upcoming.map((s) => (
             <SetlistRow key={s.id} setlist={s} />
           ))}
         </div>
-      )}
-
-      {/* 過去的歌單 */}
-      {past.length > 0 && (
-        <>
-          <h2 className="text-[18px] font-bold mt-0 mb-3 text-(--text-secondary)">過去的歌單</h2>
-          <div className="flex flex-col gap-2.5">
-            {past.map((s) => (
-              <SetlistRow key={s.id} setlist={s} isPast />
-            ))}
-          </div>
-        </>
       )}
     </main>
   )

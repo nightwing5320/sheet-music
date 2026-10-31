@@ -38,13 +38,13 @@ const TOUR_STEPS: TourStep[] = [
   {
     targetSelector: '#tour-team-btn',
     title: '團隊歌單',
-    description: '與整個團隊共用的聚會歌單，大家都能查看、加入歌曲、調整順序，並直接播放整份歌單',
+    description: '與整個團隊共用的聚會歌單，大家都能查看、加入歌曲、調整順序，並直接瀏覽整份歌單',
     position: 'bottom'
   },
   {
     targetSelector: '#tour-account-btn',
     title: '帳號選單',
-    description: '點擊可進入個人設定（修改名稱與密碼）、管理員後台與登出',
+    description: '點擊可進入個人設定（修改名稱與密碼）及登出',
     position: 'bottom'
   },
   {
