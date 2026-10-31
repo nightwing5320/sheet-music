@@ -28,8 +28,8 @@ export const dynamic = 'force-dynamic'
 const TOUR_STEPS: TourStep[] = [
   {
     targetSelector: '#tour-setlist-btn',
-    title: '當日敬拜歌單',
-    description: '點擊此處可開啟、刪除或編輯今天的歌單',
+    title: '個人歌單',
+    description: '點擊此處可開啟、刪除或編輯你的個人歌單',
     position: 'bottom'
   },
   {
@@ -53,7 +53,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     targetSelector: '.tour-add-setlist-btn',
     title: '加入歌單',
-    description: '點擊此按鈕可將樂譜加入今天的歌單',
+    description: '點擊此按鈕可將樂譜加入個人歌單',
     position: 'top'
   },
   {

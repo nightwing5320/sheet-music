@@ -7,7 +7,7 @@ import { Sheet } from '@/types'
 
 const STORAGE_KEY = 'worship_setlist'
 
-// 當日敬拜歌單：本機暫存 + 雲端（profiles.setlist）跨裝置同步
+// 個人歌單：本機暫存 + 雲端（profiles.setlist）跨裝置同步
 export function useSetlist(supabase: SupabaseClient) {
   const [setlist, setSetlist] = useState<Sheet[]>([])
 
@@ -101,7 +101,7 @@ export function useSetlist(supabase: SupabaseClient) {
 
   const clearSetlist = () => {
     if (setlist.length === 0) return
-    if (window.confirm('確定要清除今天的敬拜歌單嗎？')) setSetlist([])
+    if (window.confirm('確定要清除個人歌單嗎？')) setSetlist([])
   }
 
   return { setlist, isInSetlist, addToSetlist, removeFromSetlist, moveSetlistTrack, clearSetlist }

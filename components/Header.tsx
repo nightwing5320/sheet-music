@@ -82,10 +82,10 @@ export function Header({
           <span>個人設定</span>
         </Link>
 
-        {/* 當日歌單 */}
+        {/* 個人歌單 */}
         <button id="tour-setlist-btn" onClick={onToggleSetlist} className={secondaryButtonClass}>
           <ListMusic size={18} />
-          <span>當日歌單 ({setlistCount})</span>
+          <span>個人歌單 ({setlistCount})</span>
         </button>
 
         {/* 團隊共用歌單 */}
