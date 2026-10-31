@@ -3,9 +3,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { Sheet } from '@/types'
-import type { PathData } from '@/components/SheetAnnotator'
-
-const ANNOTATIONS_KEY = 'worship_sheet_annotations'
+import { useAnnotations } from '@/hooks/useAnnotations'
 
 const getPages = (sheet: Sheet) =>
   (sheet.image_urls && sheet.image_urls.length > 0) ? sheet.image_urls : [sheet.file_url]
@@ -18,24 +16,8 @@ export function useSheetViewer(setlist: Sheet[]) {
   const [currentSetlistIndex, setCurrentSetlistIndex] = useState<number | null>(null)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
 
-  // 筆記資料 State（只在檢視器開啟後使用，不影響首次渲染，可直接從 localStorage 初始化）
-  const [annotations, setAnnotations] = useState<Record<string, PathData[]>>(() => {
-    if (typeof window === 'undefined') return {}
-    try {
-      return JSON.parse(localStorage.getItem(ANNOTATIONS_KEY) || '{}')
-    } catch (e) {
-      console.error('Failed to load annotations', e)
-      return {}
-    }
-  })
-
-  const updateAnnotations = (annotationKey: string, newPaths: PathData[]) => {
-    setAnnotations((prev) => {
-      const updated = { ...prev, [annotationKey]: newPaths }
-      localStorage.setItem(ANNOTATIONS_KEY, JSON.stringify(updated))
-      return updated
-    })
-  }
+  // 筆記（雲端跨裝置同步）
+  const { annotations, updateAnnotations } = useAnnotations(selectedSheet?.id ?? null)
 
   const openSheet = (sheet: Sheet, setlistIdx: number | null = null) => {
     setSelectedSheet(sheet)
