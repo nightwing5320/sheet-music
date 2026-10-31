@@ -16,6 +16,7 @@ import {
   submitButtonClass,
 } from '@/utils/ui'
 import { isPdfFile, pdfToImages } from '@/utils/pdfToImages'
+import { compressImage } from '@/utils/compressImage'
 import { 
   ArrowLeft, 
   PlusCircle, 
@@ -35,17 +36,17 @@ export default function UploadPage() {
   const [files, setFiles] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
-  // PDF 轉換進度，例如「轉換 PDF 中 (2/5)…」；null 表示未在轉換
+  // PDF 轉換或圖片壓縮進度，例如「轉換 PDF 中 (2/5)…」；null 表示未在處理
   const [convertingText, setConvertingText] = useState<string | null>(null)
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || [])
     if (selectedFiles.length === 0) return
 
-    // 依選取順序展開：PDF 拆成每頁圖片，圖片維持原樣
+    // 依選取順序展開：PDF 拆成每頁圖片，圖片先縮小再上傳
     const pages: File[] = []
     try {
-      for (const file of selectedFiles) {
+      for (const [index, file] of selectedFiles.entries()) {
         if (isPdfFile(file)) {
           setConvertingText('轉換 PDF 中...')
           const images = await pdfToImages(file, (page, total) => setConvertingText(`轉換 PDF 中 (${page}/${total})...`))
@@ -54,7 +55,8 @@ export default function UploadPage() {
           // 尚未填寫名稱時，以 PDF 檔名作為預設樂譜名稱
           setTitle((prev) => prev || file.name.replace(/\.pdf$/i, ''))
         } else {
-          pages.push(file)
+          setConvertingText(`處理圖片中 (${index + 1}/${selectedFiles.length})...`)
+          pages.push(await compressImage(file))
         }
       }
     } catch (err) {
