@@ -15,12 +15,14 @@ import {
   selectClass,
   submitButtonClass,
 } from '@/utils/ui'
+import { isPdfFile, pdfToImages } from '@/utils/pdfToImages'
 import { 
   ArrowLeft, 
   PlusCircle, 
   UploadCloud, 
   Layers, 
-  Upload 
+  Upload,
+  Loader2
 } from 'lucide-react'
 
 export default function UploadPage() {
@@ -33,19 +35,46 @@ export default function UploadPage() {
   const [files, setFiles] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
+  // PDF 轉換進度，例如「轉換 PDF 中 (2/5)…」；null 表示未在轉換
+  const [convertingText, setConvertingText] = useState<string | null>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || [])
-    setFiles(selectedFiles)
-    
-    const urls = selectedFiles.map(file => URL.createObjectURL(file))
-    setPreviewUrls(urls)
+    if (selectedFiles.length === 0) return
+
+    // 依選取順序展開：PDF 拆成每頁圖片，圖片維持原樣
+    const pages: File[] = []
+    try {
+      for (const file of selectedFiles) {
+        if (isPdfFile(file)) {
+          setConvertingText('轉換 PDF 中...')
+          const images = await pdfToImages(file, (page, total) => setConvertingText(`轉換 PDF 中 (${page}/${total})...`))
+          pages.push(...images)
+
+          // 尚未填寫名稱時，以 PDF 檔名作為預設樂譜名稱
+          setTitle((prev) => prev || file.name.replace(/\.pdf$/i, ''))
+        } else {
+          pages.push(file)
+        }
+      }
+    } catch (err) {
+      console.error('PDF conversion failed:', err)
+      const message = (err as Error).name === 'PasswordException' ? '此 PDF 有密碼保護，無法轉換' : (err as Error).message
+      toast.error('PDF 轉換失敗：' + message)
+      return
+    } finally {
+      setConvertingText(null)
+    }
+
+    previewUrls.forEach((url) => URL.revokeObjectURL(url))
+    setFiles(pages)
+    setPreviewUrls(pages.map((file) => URL.createObjectURL(file)))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (files.length === 0 || !title) {
-      toast.info('請填寫樂譜名稱並至少選擇一張樂譜圖片！')
+      toast.info('請填寫樂譜名稱並至少選擇一張樂譜圖片或 PDF！')
       return
     }
 
@@ -157,26 +186,33 @@ export default function UploadPage() {
         {/* 上傳區域 */}
         <div>
           <label className={labelClass}>
-            樂譜圖片 *
+            樂譜圖片 / PDF *
           </label>
           <label
             htmlFor="file-upload"
-            className="flex flex-col items-center justify-center px-4 py-8 border-2 border-dashed border-(--border-color) rounded-[16px] bg-(--card-bg) cursor-pointer text-center transition-all duration-200 box-border hover:border-[#2563eb] hover:bg-[rgba(37,99,235,0.03)]"
+            className={`flex flex-col items-center justify-center px-4 py-8 border-2 border-dashed border-(--border-color) rounded-[16px] bg-(--card-bg) text-center transition-all duration-200 box-border ${
+              convertingText ? 'cursor-wait opacity-70' : 'cursor-pointer hover:border-[#2563eb] hover:bg-[rgba(37,99,235,0.03)]'
+            }`}
           >
-            <UploadCloud size={38} className="text-(--text-secondary) mb-2.5" />
+            {convertingText ? (
+              <Loader2 size={38} className="text-[#2563eb] mb-2.5 animate-spin" />
+            ) : (
+              <UploadCloud size={38} className="text-(--text-secondary) mb-2.5" />
+            )}
             <span className="text-[15px] font-semibold text-[#2563eb] mb-1">
-              點擊選擇樂譜圖片
+              {convertingText ?? '點擊選擇樂譜圖片或 PDF'}
             </span>
             <span className="text-[12px] text-(--text-secondary)">
-              支援多頁上傳（可在相簿或檔案中複選多張圖）
+              支援多頁上傳：可複選多張圖片，PDF 會自動拆成每一頁
             </span>
             <input
               id="file-upload"
               type="file"
-              accept="image/*"
+              accept="image/*,application/pdf,.pdf"
               multiple
               onChange={handleFileChange}
               required={files.length === 0}
+              disabled={!!convertingText}
               className="hidden"
             />
           </label>
@@ -207,7 +243,7 @@ export default function UploadPage() {
         {/* 提交按鈕 */}
         <button
           type="submit"
-          disabled={uploading}
+          disabled={uploading || !!convertingText}
           className={`${submitButtonClass} mt-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.08)]`}
         >
           <Upload size={18} />
