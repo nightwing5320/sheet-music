@@ -141,16 +141,9 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
       },
       arrow: {
-        position: 'absolute',
-        width: '12px',
-        height: '12px',
-        backgroundColor: 'rgba(15, 23, 42, 0.95)',
-        borderLeft: '1px solid rgba(255, 255, 255, 0.18)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.18)',
         top: arrowTop,
         left: arrowLeft,
-        transform: arrowTransform,
-        zIndex: 1
+        transform: arrowTransform
       }
     }
   }
@@ -158,85 +151,67 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
   const { tooltip: tooltipStyle, arrow: arrowStyle } = getTooltipStyle()
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 99999, pointerEvents: 'auto' }}>
-      
-      {/* 📌 1. 光圈遮罩 (Spotlight Hole Effect) */}
+    <div className="fixed inset-0 z-[99999] pointer-events-auto">
+      {/* 📌 1. 光圈遮罩 (Spotlight Hole Effect)：位置依目標元素計算，需保留 inline style */}
       {targetRect ? (
         <div
+          className="fixed shadow-[0_0_0_9999px_rgba(15,23,42,0.75)] rounded-[12px] transition-all duration-300 ease-out pointer-events-none border-2 border-[#3b82f6]"
           style={{
-            position: 'fixed',
-            boxShadow: `0 0 0 9999px rgba(15, 23, 42, 0.75)`,
-            borderRadius: '12px',
-            top: `${targetRect.top - 6}px`,      /* 📌 修正：精準扣除 padding 偏移 */
-            left: `${targetRect.left - 6}px`,    /* 📌 修正：精準扣除 padding 偏移 */
+            top: `${targetRect.top - 6}px`,
+            left: `${targetRect.left - 6}px`,
             width: `${targetRect.width + 12}px`,
-            height: `${targetRect.height + 12}px`,
-            transition: 'all 0.3s ease-out',
-            pointerEvents: 'none',
-            border: '2px solid #3b82f6'
+            height: `${targetRect.height + 12}px`
           }}
         />
       ) : (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)' }} />
+        <div className="fixed inset-0 bg-[rgba(15,23,42,0.75)]" />
       )}
 
       {/* 📌 2. 說明氣泡框與指向箭頭 */}
-      <div 
-        style={{
-          ...tooltipStyle,
-          backgroundColor: 'rgba(15, 23, 42, 0.95)',
-          color: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
-          border: '1px solid rgba(255, 255, 255, 0.18)',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(16px)',
-          zIndex: 100000
-        }}
+      <div
+        className="bg-[rgba(15,23,42,0.95)] text-white rounded-[16px] p-5 border border-[rgba(255,255,255,0.18)] shadow-[0_20px_40px_rgba(0,0,0,0.5)] backdrop-blur-[16px] z-[100000]"
+        style={tooltipStyle}
       >
         {/* 小箭頭 */}
-        <div style={arrowStyle} />
+        {targetRect && (
+          <div
+            className="absolute w-3 h-3 bg-[rgba(15,23,42,0.95)] border-l border-t border-[rgba(255,255,255,0.18)] z-[1]"
+            style={arrowStyle}
+          />
+        )}
 
         {/* 標題與關閉按鈕 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Sparkles size={16} style={{ color: '#3b82f6' }} />
-            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#ffffff' }}>
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center gap-1.5">
+            <Sparkles size={16} className="text-[#3b82f6]" />
+            <h4 className="m-0 text-[16px] font-bold text-white">
               {step.title}
             </h4>
           </div>
           <button
             onClick={onClose}
-            style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', padding: '2px' }}
+            className="bg-transparent border-none text-[rgba(255,255,255,0.6)] cursor-pointer p-0.5"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* 說明文字 */}
-        <p style={{ margin: '0 0 16px 0', fontSize: '13.5px', color: 'rgba(255, 255, 255, 0.8)', lineHeight: '1.5' }}>
+        <p className="mt-0 mx-0 mb-4 text-[13.5px] text-[rgba(255,255,255,0.8)] leading-[1.5]">
           {step.description}
         </p>
 
         {/* 底部指示器與 Next 按鈕 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: '600' }}>
+        <div className="flex justify-between items-center">
+          <span className="text-[12px] text-[rgba(255,255,255,0.5)] font-semibold">
             步驟 {currentStepIndex + 1} / {steps.length}
           </span>
 
-          <div style={{ display: 'flex', gap: '6px' }}>
+          <div className="flex gap-1.5">
             {currentStepIndex > 0 && (
               <button
                 onClick={handlePrev}
-                style={{
-                  padding: '6px 10px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  backgroundColor: 'transparent',
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  fontSize: '12.5px'
-                }}
+                className="px-2.5 py-1.5 rounded-[8px] border border-[rgba(255,255,255,0.2)] bg-transparent text-white cursor-pointer text-[12.5px]"
               >
                 上一步
               </button>
@@ -244,19 +219,7 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
 
             <button
               onClick={handleNext}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '6px 10px',
-                borderRadius: '8px',
-                border: 'none',
-                backgroundColor: '#3b82f6',
-                color: '#ffffff',
-                fontWeight: '700',
-                fontSize: '12.5px',
-                cursor: 'pointer'
-              }}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[8px] border-none bg-[#3b82f6] text-white font-bold text-[12.5px] cursor-pointer"
             >
               <span>{currentStepIndex === steps.length - 1 ? '完成導覽' : '下一步'}</span>
               {currentStepIndex === steps.length - 1 ? <Check size={14} /> : <ChevronRight size={14} />}

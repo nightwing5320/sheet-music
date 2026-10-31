@@ -15,6 +15,11 @@ import {
   Piano,
   ArrowLeft
 } from 'lucide-react';
+import { inputClass, submitButtonClass } from '@/utils/ui';
+
+// 登入表單的標籤與輸入框
+const LOGIN_LABEL_CLASS = 'flex items-center gap-1.5 text-[13.5px] font-semibold text-(--text-primary)';
+const LOGIN_INPUT_CLASS = `${inputClass} text-[15px] outline-none transition-all duration-200`;
 
 export default function LoginPage() {
   // 模式 State：'login' | 'signup' | 'forgot'
@@ -113,65 +118,22 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'var(--background, #0f172a)',
-      padding: '20px',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '420px',
-        backgroundColor: 'var(--card-bg, #ffffff)',
-        border: '1px solid var(--border-color, #e2e8f0)',
-        borderRadius: '16px',
-        padding: '36px 28px',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        boxSizing: 'border-box'
-      }}>
+    <div className="min-h-screen flex items-center justify-center bg-(--background) p-5 [font-family:system-ui,-apple-system,sans-serif]">
+      <div className="w-full max-w-[420px] bg-(--card-bg) border border-(--border-color) rounded-[16px] px-7 py-9 shadow-[0_10px_30px_rgba(0,0,0,0.08)] flex flex-col items-center box-border">
         {/* LOGO 圖示 */}
-        <div style={{
-          width: '64px',
-          height: '64px',
-          borderRadius: '16px',
-          backgroundColor: 'var(--card-bg)',
-          border: '1px solid var(--border-color, #e2e8f0)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: '20px'
-        }}>
+        <div className="w-16 h-16 rounded-[16px] bg-(--card-bg) border border-(--border-color) flex items-center justify-center mb-5">
           {mode === 'forgot' ? (
-            <KeyRound size={32} style={{ color: 'var(--text-primary)' }} />
+            <KeyRound size={32} className="text-(--text-primary)" />
           ) : (
-            <Piano size={32} style={{ color: 'var(--text-primary)' }} />
+            <Piano size={32} className="text-(--text-primary)" />
           )}
         </div>
 
         {/* 標題與副標題 */}
-        <h1 style={{
-          fontSize: '22px',
-          fontWeight: '800',
-          color: 'var(--text-primary, #0f172a)',
-          margin: '0 0 6px 0',
-          textAlign: 'center',
-          letterSpacing: '-0.3px'
-        }}>
+        <h1 className="text-[22px] font-extrabold text-(--text-primary) mt-0 mx-0 mb-1.5 text-center tracking-[-0.3px]">
           {mode === 'forgot' ? '重設密碼' : '樂譜庫 Sheet Music Library'}
         </h1>
-        <p style={{
-          fontSize: '14px',
-          color: 'var(--text-secondary, #64748b)',
-          margin: '0 0 24px 0',
-          textAlign: 'center',
-          fontWeight: '500'
-        }}>
+        <p className="text-[14px] text-(--text-secondary) mt-0 mx-0 mb-6 text-center font-medium">
           {mode === 'forgot' 
             ? '請輸入註冊時的 Email，我們將寄送重設連結給您' 
             : mode === 'signup' 
@@ -181,44 +143,29 @@ export default function LoginPage() {
 
         {/* 提示訊息 */}
         {message && (
-          <div style={{
-            width: '100%',
-            marginBottom: '20px',
-            padding: '12px 14px',
-            borderRadius: '10px',
-            backgroundColor: message.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-            border: `1px solid ${message.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
-            color: message.type === 'error' ? '#ef4444' : '#10b981',
-            fontSize: '13.5px',
-            boxSizing: 'border-box',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
+          <div
+            className={`w-full mb-5 px-3.5 py-3 rounded-[10px] text-[13.5px] box-border flex items-center gap-2 border ${
+              message.type === 'error'
+                ? 'bg-[rgba(239,68,68,0.1)] border-[rgba(239,68,68,0.2)] text-[#ef4444]'
+                : 'bg-[rgba(16,185,129,0.1)] border-[rgba(16,185,129,0.2)] text-[#10b981]'
+            }`}
+          >
             {message.type === 'error' ? (
-              <AlertCircle size={18} style={{ flexShrink: 0 }} />
+              <AlertCircle size={18} className="shrink-0" />
             ) : (
-              <CheckCircle2 size={18} style={{ flexShrink: 0 }} />
+              <CheckCircle2 size={18} className="shrink-0" />
             )}
             <span>{message.text}</span>
           </div>
         )}
 
         {/* 表單內容 */}
-        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+        <form onSubmit={handleSubmit} className="w-full">
           {/* 顯示名稱輸入框（僅註冊時顯示） */}
           {mode === 'signup' && (
-            <div style={{ marginBottom: '18px' }}>
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                marginBottom: '6px',
-                fontSize: '13.5px',
-                fontWeight: '600',
-                color: 'var(--text-primary, #0f172a)'
-              }}>
-                <User size={15} style={{ color: 'var(--text-secondary, #64748b)' }} />
+            <div className="mb-[18px]">
+              <label className={`${LOGIN_LABEL_CLASS} mb-1.5`}>
+                <User size={15} className="text-(--text-secondary)" />
                 <span>顯示名稱 / 姓名 *</span>
               </label>
               <input
@@ -227,34 +174,15 @@ export default function LoginPage() {
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="例如：大衛"
                 required={mode === 'signup'}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  fontSize: '15px',
-                  borderRadius: '8px',
-                  border: '1px solid var(--border-color, #cbd5e1)',
-                  backgroundColor: 'var(--card-bg, #ffffff)',
-                  color: 'var(--text-primary, #0f172a)',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'all 0.2s ease'
-                }}
+                className={LOGIN_INPUT_CLASS}
               />
             </div>
           )}
 
           {/* Email 輸入框 */}
-          <div style={{ marginBottom: '18px' }}>
-            <label style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              marginBottom: '6px',
-              fontSize: '13.5px',
-              fontWeight: '600',
-              color: 'var(--text-primary, #0f172a)'
-            }}>
-              <Mail size={15} style={{ color: 'var(--text-secondary, #64748b)' }} />
+          <div className="mb-[18px]">
+            <label className={`${LOGIN_LABEL_CLASS} mb-1.5`}>
+              <Mail size={15} className="text-(--text-secondary)" />
               <span>Email</span>
             </label>
             <input
@@ -263,34 +191,16 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="David@example.com"
               required
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                fontSize: '15px',
-                borderRadius: '8px',
-                border: '1px solid var(--border-color, #cbd5e1)',
-                backgroundColor: 'var(--card-bg, #ffffff)',
-                color: 'var(--text-primary, #0f172a)',
-                outline: 'none',
-                boxSizing: 'border-box',
-                transition: 'all 0.2s ease'
-              }}
+              className={LOGIN_INPUT_CLASS}
             />
           </div>
 
           {/* 密碼輸入框 (非忘記密碼模式才顯示) */}
           {mode !== 'forgot' && (
-            <div style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <label style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '13.5px',
-                  fontWeight: '600',
-                  color: 'var(--text-primary, #0f172a)'
-                }}>
-                  <Lock size={15} style={{ color: 'var(--text-secondary, #64748b)' }} />
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-1.5">
+                <label className={LOGIN_LABEL_CLASS}>
+                  <Lock size={15} className="text-(--text-secondary)" />
                   <span>密碼</span>
                 </label>
 
@@ -302,15 +212,7 @@ export default function LoginPage() {
                       setMode('forgot');
                       setMessage(null);
                     }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#2563eb',
-                      fontSize: '12.5px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      padding: 0
-                    }}
+                    className="bg-transparent border-none text-[#2563eb] text-[12.5px] font-semibold cursor-pointer p-0"
                   >
                     忘記密碼？
                   </button>
@@ -324,18 +226,7 @@ export default function LoginPage() {
                 placeholder="••••••"
                 required
                 minLength={6}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  fontSize: '15px',
-                  borderRadius: '8px',
-                  border: '1px solid var(--border-color, #cbd5e1)',
-                  backgroundColor: 'var(--card-bg, #ffffff)',
-                  color: 'var(--text-primary, #0f172a)',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'all 0.2s ease'
-                }}
+                className={LOGIN_INPUT_CLASS}
               />
             </div>
           )}
@@ -344,23 +235,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            style={{
-              width: '100%',
-              height: '42px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              borderRadius: '10px',
-              backgroundColor: loading ? 'var(--text-secondary, #94a3b8)' : 'var(--text-primary, #1e293b)',
-              color: 'var(--background, #ffffff)',
-              fontWeight: '600',
-              fontSize: '15px',
-              border: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-              transition: 'all 0.2s ease'
-            }}
+            className={`${submitButtonClass} w-full shadow-[0_2px_8px_rgba(0,0,0,0.08)]`}
           >
             {loading ? (
               <span>處理中...</span>
@@ -384,7 +259,7 @@ export default function LoginPage() {
         </form>
 
         {/* 切換模式按鈕區塊 */}
-        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <div className="mt-5 text-center">
           {mode === 'forgot' ? (
             <button
               type="button"
@@ -392,19 +267,7 @@ export default function LoginPage() {
                 setMode('login');
                 setMessage(null);
               }}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-secondary, #64748b)',
-                fontSize: '13.5px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                padding: '4px 8px',
-                transition: 'all 0.2s ease'
-              }}
+              className="inline-flex items-center gap-1.5 bg-transparent border-none text-(--text-secondary) text-[13.5px] font-semibold cursor-pointer px-2 py-1 transition-all duration-200"
             >
               <ArrowLeft size={15} />
               <span>返回登入頁面</span>
@@ -416,23 +279,12 @@ export default function LoginPage() {
                 setMode(mode === 'signup' ? 'login' : 'signup');
                 setMessage(null);
               }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-secondary, #64748b)',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                padding: '4px 8px',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#2563eb'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary, #64748b)'}
+              className="bg-transparent border-none text-(--text-secondary) text-[14px] font-medium cursor-pointer px-2 py-1 transition-all duration-200 hover:text-[#2563eb]"
             >
               {mode === 'signup' ? (
-                <>已有帳號？ <span style={{ fontWeight: '700', textDecoration: 'underline' }}>立即登入</span></>
+                <>已有帳號？ <span className="font-bold underline">立即登入</span></>
               ) : (
-                <>還沒有帳號？ <span style={{ fontWeight: '700', textDecoration: 'underline' }}>立即註冊</span></>
+                <>還沒有帳號？ <span className="font-bold underline">立即註冊</span></>
               )}
             </button>
           )}

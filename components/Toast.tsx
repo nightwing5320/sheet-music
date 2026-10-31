@@ -51,19 +51,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       <div
         aria-live="polite"
-        style={{
-          position: 'fixed',
-          top: '16px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 10000,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-          width: 'calc(100% - 32px)',
-          maxWidth: '420px',
-          pointerEvents: 'none'
-        }}
+        className="fixed top-4 left-1/2 -translate-x-1/2 z-[10000] flex flex-col gap-2 w-[calc(100%-32px)] max-w-[420px] pointer-events-none"
       >
         {toasts.map((toast) => {
           const { color, Icon } = TOAST_STYLES[toast.type]
@@ -71,37 +59,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <div
               key={toast.id}
               role={toast.type === 'error' ? 'alert' : 'status'}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '12px 14px',
-                borderRadius: '12px',
-                backgroundColor: 'var(--card-bg, #ffffff)',
-                border: '1px solid var(--border-color, #e2e8f0)',
-                borderLeft: `4px solid ${color}`,
-                color: 'var(--text-primary, #1e293b)',
-                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
-                fontSize: '14px',
-                fontWeight: '600',
-                pointerEvents: 'auto',
-                animation: 'toast-in 0.2s ease-out'
-              }}
+              className="flex items-center gap-2.5 px-3.5 py-3 rounded-[12px] bg-(--card-bg) border border-(--border-color) border-l-4 text-(--text-primary) shadow-[0_8px_24px_rgba(0,0,0,0.12)] text-[14px] font-semibold pointer-events-auto animate-[toast-in_0.2s_ease-out]"
+              style={{ borderLeftColor: color }}
             >
-              <Icon size={18} style={{ color, flexShrink: 0 }} />
-              <span style={{ flex: 1, wordBreak: 'break-word' }}>{toast.message}</span>
+              <Icon size={18} className="shrink-0" style={{ color }} />
+              <span className="flex-1 break-words">{toast.message}</span>
               <button
                 type="button"
                 onClick={() => dismiss(toast.id)}
                 aria-label="關閉提示"
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '2px',
-                  display: 'inline-flex',
-                  color: 'var(--text-secondary, #64748b)'
-                }}
+                className="bg-transparent border-none cursor-pointer p-0.5 inline-flex text-(--text-secondary)"
               >
                 <X size={16} />
               </button>

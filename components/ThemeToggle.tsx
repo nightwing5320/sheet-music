@@ -20,78 +20,32 @@ export function ThemeToggle() {
   const mounted = useHydrated()
 
   if (!mounted) {
-    return <div style={{ height: '42px', width: '130px' }} />
+    return <div className="h-[42px] w-[130px]" />
   }
 
   const currentTheme = theme || resolvedTheme || 'light'
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        display: 'inline-flex',
-        alignItems: 'center',
-        height: '42px',
-        borderRadius: '10px',
-        backgroundColor: 'var(--card-bg)',
-        border: '1px solid var(--border-color)',
-        padding: '0 8px 0 12px',
-        gap: '6px',
-        boxSizing: 'border-box',
-        transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
-      }}
-      onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-        e.currentTarget.style.borderColor = 'var(--text-secondary)'
-        e.currentTarget.style.transform = 'translateY(-1px)'
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)'
-      }}
-      onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-        e.currentTarget.style.borderColor = 'var(--border-color)'
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)'
-      }}
-    >
+    <div className="relative inline-flex items-center h-[42px] rounded-[10px] bg-(--card-bg) border border-(--border-color) pl-3 pr-2 gap-1.5 box-border transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:border-(--text-secondary) hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
       {/* 調色盤圖示 */}
-      <Palette size={16} style={{ color: 'var(--primary-color, var(--text-primary))', flexShrink: 0 }} />
+      <Palette size={16} className="text-[var(--primary-color,var(--text-primary))] shrink-0" />
 
       {/* 下拉選單 Select */}
       <select
         value={currentTheme}
         onChange={(e) => setTheme(e.target.value)}
-        style={{
-          border: 'none',
-          backgroundColor: 'transparent !important',
-          color: 'var(--text-primary) !important',
-          fontSize: '14px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          outline: 'none',
-          paddingRight: '4px',
-          fontFamily: 'inherit',
-          WebkitAppearance: 'none',
-          MozAppearance: 'none',
-          appearance: 'none',
-        }}
+        className="border-none bg-transparent text-(--text-primary) text-[14px] font-semibold cursor-pointer outline-none pr-1 [font-family:inherit] appearance-none"
         title="選擇網站主題"
       >
         {THEME_OPTIONS.map((opt) => (
-          <option
-            key={opt.id}
-            value={opt.id}
-            style={{
-              backgroundColor: 'var(--card-bg)',
-              color: 'var(--text-primary)',
-              padding: '8px',
-            }}
-          >
+          <option key={opt.id} value={opt.id} className="bg-(--card-bg) text-(--text-primary) p-2">
             {opt.label}
           </option>
         ))}
       </select>
 
       {/* 小箭頭指引 */}
-      <span style={{ fontSize: '10px', color: 'var(--text-secondary)', pointerEvents: 'none', marginLeft: '-2px' }}>
+      <span className="text-[10px] text-(--text-secondary) pointer-events-none -ml-0.5">
         ▼
       </span>
     </div>

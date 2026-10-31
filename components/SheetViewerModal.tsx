@@ -29,6 +29,10 @@ interface SheetViewerModalProps {
   onTouchEnd: (e: React.TouchEvent) => void
 }
 
+// 底部上一首 / 下一首按鈕（停用時透明淡化）
+const NAV_BUTTON_CLASS =
+  'inline-flex items-center gap-1 h-[34px] px-3 rounded-[18px] bg-[rgba(255,255,255,0.15)] text-white border-none cursor-pointer font-semibold text-[12.5px] disabled:bg-transparent disabled:text-[rgba(255,255,255,0.3)] disabled:cursor-not-allowed'
+
 export function SheetViewerModal({
   selectedSheet,
   activeSheetImages,
@@ -229,88 +233,32 @@ export function SheetViewerModal({
   }
 
   return (
-    <div 
+    <div
       onClick={onClose}
       onTouchStart={handleContainerTouchStart}
       onTouchMove={handleContainerTouchMove}
       onTouchEnd={handleContainerTouchEnd}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(15, 23, 42, 0.88)',
-        backdropFilter: 'blur(12px)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 9999,
-        touchAction: 'none',
-        overscrollBehavior: 'none',
-        overflow: 'hidden',
-        boxSizing: 'border-box'
-      }}
+      className="fixed inset-0 w-full h-full bg-[rgba(15,23,42,0.88)] backdrop-blur-[12px] flex flex-col items-center justify-center z-[9999] touch-none overscroll-none overflow-hidden box-border"
     >
       {/* 頂部懸浮手勢操作說明條 (提示膠囊) */}
       {showGestureHint && !isEditing && (
-        <div 
+        <div
           onClick={(e) => e.stopPropagation()}
-          style={{
-            position: 'fixed',
-            top: '16px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            backgroundColor: 'rgba(30, 41, 59, 0.92)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            color: '#ffffff',
-            padding: '8px 14px',
-            borderRadius: '20px',
-            fontSize: '12px',
-            fontWeight: '500',
-            zIndex: 10003,
-            backdropFilter: 'blur(12px)',
-            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.35)',
-            width: 'max-content',
-            whiteSpace: 'normal',
-            textAlign: 'center',
-            lineHeight: '1.4',
-            maxWidth: 'calc(100vw - 32px)',
-            boxSizing: 'border-box'
-          }}
+          className="fixed top-4 left-1/2 -translate-x-1/2 flex items-center gap-2.5 bg-[rgba(30,41,59,0.92)] border border-[rgba(255,255,255,0.2)] text-white px-3.5 py-2 rounded-[20px] text-[12px] font-medium z-[10003] backdrop-blur-[12px] shadow-[0_8px_20px_rgba(0,0,0,0.35)] w-max whitespace-normal text-center leading-[1.4] max-w-[calc(100vw-32px)] box-border"
         >
-          <Info size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />
+          <Info size={14} className="text-[#3b82f6] shrink-0" />
           <span>雙指縮放 ｜ 單指移動 ｜ 點按“筆記”可用觸控筆在譜上劃記</span>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '6px', borderLeft: '1px solid rgba(255,255,255,0.2)', paddingLeft: '8px' }}>
+          <div className="flex items-center gap-2 ml-1.5 border-l border-[rgba(255,255,255,0.2)] pl-2">
             <button
               onClick={() => handleDismissHint(true)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#38bdf8',
-                cursor: 'pointer',
-                fontSize: '11.5px',
-                fontWeight: '600',
-                padding: '2px 4px'
-              }}
+              className="bg-transparent border-none text-[#38bdf8] cursor-pointer text-[11.5px] font-semibold px-1 py-0.5"
             >
               不再顯示
             </button>
             <button
               onClick={() => handleDismissHint(false)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'rgba(255,255,255,0.6)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '2px'
-              }}
+              className="bg-transparent border-none text-[rgba(255,255,255,0.6)] cursor-pointer flex items-center p-0.5"
             >
               <X size={14} />
             </button>
@@ -319,27 +267,12 @@ export function SheetViewerModal({
       )}
 
       {/* 頂部右上角：塗鴉與關閉按鈕 */}
-      <div style={{ position: 'fixed', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 10001 }}>
+      <div className="fixed top-4 right-4 flex gap-2 z-[10001]">
         {scale > 1 && (
           <button
             onClick={handleResetZoom}
             onTouchStart={handleResetZoom}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              height: '38px',
-              padding: '0 12px',
-              borderRadius: '10px',
-              backgroundColor: 'rgba(239, 68, 68, 0.9)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              color: '#ffffff',
-              fontWeight: '700',
-              cursor: 'pointer',
-              fontSize: '13px',
-              backdropFilter: 'blur(8px)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            }}
+            className="inline-flex items-center gap-1.5 h-[38px] px-3 rounded-[10px] bg-[rgba(239,68,68,0.9)] border border-[rgba(255,255,255,0.2)] text-white font-bold cursor-pointer text-[13px] backdrop-blur-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
           >
             <RotateCcw size={15} />
             <span>{Math.round(scale * 100)}% (重置)</span>
@@ -352,22 +285,9 @@ export function SheetViewerModal({
             setIsEditing(!isEditing)
             if (!isEditing) handleResetZoom()
           }}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            height: '38px',
-            padding: '0 14px',
-            borderRadius: '10px',
-            backgroundColor: isEditing ? '#059669' : 'rgba(15, 23, 42, 0.85)',
-            border: '1px solid rgba(255, 255, 255, 0.18)',
-            color: '#ffffff',
-            fontWeight: '600',
-            cursor: 'pointer',
-            fontSize: '13px',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          }}
+          className={`inline-flex items-center gap-1.5 h-[38px] px-3.5 rounded-[10px] border border-[rgba(255,255,255,0.18)] text-white font-semibold cursor-pointer text-[13px] backdrop-blur-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.3)] ${
+            isEditing ? 'bg-[#059669]' : 'bg-[rgba(15,23,42,0.85)]'
+          }`}
         >
           {isEditing ? (
             <>
@@ -382,23 +302,12 @@ export function SheetViewerModal({
           )}
         </button>
 
-        <button 
+        <button
           onClick={(e) => {
             e.stopPropagation()
             onClose()
           }}
-          style={{ 
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '38px',
-            height: '38px',
-            borderRadius: '10px',
-            backgroundColor: 'rgba(15, 23, 42, 0.85)',
-            border: '1px solid rgba(255, 255, 255, 0.18)',
-            color: '#ffffff', 
-            cursor: 'pointer',
-          }}
+          className="inline-flex items-center justify-center w-[38px] h-[38px] rounded-[10px] bg-[rgba(15,23,42,0.85)] border border-[rgba(255,255,255,0.18)] text-white cursor-pointer"
         >
           <X size={18} />
         </button>
@@ -406,47 +315,20 @@ export function SheetViewerModal({
 
       {/* 頂部左上角歌單標籤 */}
       {!isEditing && currentSetlistIndex !== null && setlist[currentSetlistIndex] && (
-        <div style={{
-          position: 'fixed',
-          top: '16px',
-          left: '16px',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          backgroundColor: 'rgba(15, 23, 42, 0.85)',
-          border: '1px solid rgba(255, 255, 255, 0.18)',
-          color: '#ffffff',
-          padding: '8px 14px',
-          borderRadius: '20px',
-          fontWeight: '600',
-          fontSize: '12.5px',
-          zIndex: 10001,
-          maxWidth: 'calc(100vw - 220px)',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
-        }}>
-          <ListMusic size={15} style={{ flexShrink: 0 }} />
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div className="fixed top-4 left-4 inline-flex items-center gap-2 bg-[rgba(15,23,42,0.85)] border border-[rgba(255,255,255,0.18)] text-white px-3.5 py-2 rounded-[20px] font-semibold text-[12.5px] z-[10001] max-w-[calc(100vw-220px)] overflow-hidden text-ellipsis whitespace-nowrap">
+          <ListMusic size={15} className="shrink-0" />
+          <span className="overflow-hidden text-ellipsis whitespace-nowrap">
             歌單 ({currentSetlistIndex + 1}/{setlist.length})：{setlist[currentSetlistIndex].title}
           </span>
         </div>
       )}
 
-      {/* 樂譜 Transform 容器 */}
-      <div 
+      {/* 樂譜 Transform 容器（縮放 / 平移為即時計算值，需保留 inline style） */}
+      <div
         ref={containerRef}
-        style={{ 
-          width: '100%', 
-          maxWidth: '100%',
-          height: '100%', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          padding: '70px 12px 70px 12px',
-          boxSizing: 'border-box',
+        className="w-full max-w-full h-full flex items-center justify-center px-3 py-[70px] box-border origin-center"
+        style={{
           transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-          transformOrigin: 'center center',
           transition: isGesturing ? 'none' : 'transform 0.15s ease-out'
         }}
         onClick={(e) => e.stopPropagation()}
@@ -457,62 +339,37 @@ export function SheetViewerModal({
           onChangePaths={handlePathsChange}
           isEditing={isEditing}
         >
-          <img 
-            src={activeSheetImages[currentImageIndex]} 
-            alt="樂譜內容" 
-            style={{
-              width: 'auto',
-              height: 'auto',
-              maxWidth: '100%', 
-              maxHeight: 'calc(100dvh - 140px)', 
-              objectFit: 'contain', 
-              borderRadius: '8px',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
-              userSelect: 'none',
-              WebkitUserSelect: 'none',
-              pointerEvents: 'none',
-              display: 'block',
-              margin: '0 auto'
-            }} 
+          <img
+            src={activeSheetImages[currentImageIndex]}
+            alt="樂譜內容"
+            className="w-auto h-auto max-w-full max-h-[calc(100dvh-140px)] object-contain rounded-[8px] shadow-[0_20px_40px_rgba(0,0,0,0.6)] select-none pointer-events-none block mx-auto"
           />
         </SheetAnnotator>
       </div>
 
       {/* 底部導覽膠囊 */}
       {!isEditing && (
-        <div 
-          style={{ 
-            position: 'fixed',
-            bottom: '16px',
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            gap: '8px', 
-            color: '#ffffff',
-            backgroundColor: 'rgba(15, 23, 42, 0.85)',
-            padding: '6px 12px',
-            borderRadius: '30px',
-            border: '1px solid rgba(255, 255, 255, 0.18)',
-            zIndex: 10001
-          }}
+        <div
+          className="fixed bottom-4 inline-flex items-center gap-2 text-white bg-[rgba(15,23,42,0.85)] px-3 py-1.5 rounded-[30px] border border-[rgba(255,255,255,0.18)] z-[10001]"
           onClick={(e) => e.stopPropagation()}
         >
-          <button 
+          <button
             onClick={() => { handleResetZoom(); onPrev() }}
             disabled={isPrevDisabled}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '34px', padding: '0 12px', borderRadius: '18px', backgroundColor: isPrevDisabled ? 'transparent' : 'rgba(255, 255, 255, 0.15)', color: isPrevDisabled ? 'rgba(255, 255, 255, 0.3)' : '#ffffff', border: 'none', cursor: isPrevDisabled ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '12.5px' }}
+            className={NAV_BUTTON_CLASS}
           >
             <ChevronLeft size={16} />
             <span>上一首</span>
           </button>
 
-          <span style={{ fontSize: '12.5px', fontWeight: '600', color: 'rgba(255, 255, 255, 0.7)', padding: '0 4px' }}>
+          <span className="text-[12.5px] font-semibold text-[rgba(255,255,255,0.7)] px-1">
             {currentImageIndex + 1} / {activeSheetImages.length} 頁
           </span>
 
-          <button 
+          <button
             onClick={() => { handleResetZoom(); onNext() }}
             disabled={isNextDisabled}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '34px', padding: '0 12px', borderRadius: '18px', backgroundColor: isNextDisabled ? 'transparent' : 'rgba(255, 255, 255, 0.15)', color: isNextDisabled ? 'rgba(255, 255, 255, 0.3)' : '#ffffff', border: 'none', cursor: isNextDisabled ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '12.5px' }}
+            className={NAV_BUTTON_CLASS}
           >
             <span>下一首</span>
             <ChevronRight size={16} />

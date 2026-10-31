@@ -5,6 +5,17 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { useToast } from '@/components/Toast'
+import {
+  formPageClass,
+  backLinkClass,
+  pageTitleRowClass,
+  pageTitleClass,
+  labelClass,
+  inputClass,
+  selectClass,
+  submitButtonClass,
+  loadingTextClass,
+} from '@/utils/ui'
 import { ArrowLeft, Save, FileText } from 'lucide-react'
 
 export default function EditPage({ params }: { params: Promise<{ id: string }> }) {
@@ -74,70 +85,33 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
   }
 
   if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary, #64748b)' }}>
-        載入中...
-      </div>
-    )
+    return <div className={loadingTextClass}>載入中...</div>
   }
 
   return (
-    <main style={{ maxWidth: '520px', margin: '40px auto', padding: '24px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      
-      {/* 返回樂譜庫 (Ghost 風格 Hover 效果) */}
-      <Link 
-        href="/" 
-        style={{ 
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '6px',
-          color: 'var(--text-secondary, #64748b)', 
-          textDecoration: 'none', 
-          fontSize: '14px', 
-          fontWeight: '500', 
-          padding: '6px 12px',
-          borderRadius: '8px',
-          border: '1px solid var(--border-color, #e2e8f0)',
-          marginBottom: '24px',
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.color = '#2563eb'
-          e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.3)'
-          e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.color = 'var(--text-secondary, #64748b)'
-          e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
-          e.currentTarget.style.backgroundColor = 'transparent'
-        }}
-      >
+    <main className={formPageClass}>
+      {/* 返回樂譜庫 */}
+      <Link href="/" className={backLinkClass}>
         <ArrowLeft size={16} />
         <span>返回樂譜庫</span>
       </Link>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
-        <FileText size={24} style={{ color: 'var(--text-primary, #0f172a)' }} />
-        <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: 'var(--text-primary, #0f172a)' }}>
+      <div className={pageTitleRowClass}>
+        <FileText size={24} className="text-(--text-primary)" />
+        <h1 className={pageTitleClass}>
           編輯樂譜資訊
         </h1>
       </div>
 
-      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <form onSubmit={handleSave} className="flex flex-col gap-5">
         {fileUrl && (
-          <div style={{ 
-            borderRadius: '12px', 
-            overflow: 'hidden', 
-            border: '1px solid var(--border-color, #e2e8f0)', 
-            backgroundColor: 'var(--bg-secondary, #f8fafc)',
-            padding: '12px'
-          }}>
-            <img src={fileUrl} alt="樂譜圖檔" style={{ width: '100%', maxHeight: '200px', objectFit: 'contain', borderRadius: '6px' }} />
+          <div className="rounded-[12px] overflow-hidden border border-(--border-color) bg-[#f8fafc] p-3">
+            <img src={fileUrl} alt="樂譜圖檔" className="w-full max-h-[200px] object-contain rounded-[6px]" />
           </div>
         )}
 
         <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: 'var(--text-primary, #0f172a)' }}>
+          <label className={labelClass}>
             樂譜名稱 *
           </label>
           <input
@@ -145,59 +119,31 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            style={{ 
-              width: '100%', 
-              padding: '10px 12px', 
-              borderRadius: '8px', 
-              border: '1px solid var(--border-color, #cbd5e1)', 
-              fontSize: '15px', 
-              boxSizing: 'border-box',
-              backgroundColor: 'var(--card-bg, #ffffff)',
-              color: 'var(--text-primary, #0f172a)',
-            }}
+            className={`${inputClass} text-[15px]`}
           />
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: 'var(--text-primary, #0f172a)' }}>
+          <label className={labelClass}>
             調性（Key）
           </label>
           <input
             type="text"
             value={artist}
             onChange={(e) => setArtist(e.target.value)}
-            style={{ 
-              width: '100%', 
-              padding: '10px 12px', 
-              borderRadius: '8px', 
-              border: '1px solid var(--border-color, #cbd5e1)', 
-              fontSize: '15px', 
-              boxSizing: 'border-box',
-              backgroundColor: 'var(--card-bg, #ffffff)',
-              color: 'var(--text-primary, #0f172a)',
-            }}
+            className={`${inputClass} text-[15px]`}
           />
         </div>
 
         {/* 速度分類選單 */}
         <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: 'var(--text-primary, #0f172a)' }}>
+          <label className={labelClass}>
             速度分類
           </label>
           <select
             value={tempo}
             onChange={(e) => setTempo(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              borderRadius: '8px',
-              border: '1px solid var(--border-color, #cbd5e1)',
-              fontSize: '15px',
-              boxSizing: 'border-box',
-              backgroundColor: 'var(--card-bg, #ffffff)',
-              color: 'var(--text-primary, #0f172a)',
-              cursor: 'pointer'
-            }}
+            className={`${selectClass} text-[15px]`}
           >
             <option value="">未分類</option>
             <option value="fast">快歌</option>
@@ -209,23 +155,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
         <button
           type="submit"
           disabled={saving}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            backgroundColor: saving ? 'var(--text-secondary, #94a3b8)' : 'var(--text-primary, #1e293b)',
-            color: 'var(--background, #ffffff)',
-            height: '42px',
-            borderRadius: '10px',
-            border: 'none',
-            cursor: saving ? 'not-allowed' : 'pointer',
-            fontSize: '15px',
-            fontWeight: '600',
-            marginTop: '10px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-            transition: 'all 0.2s ease',
-          }}
+          className={`${submitButtonClass} mt-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.1)]`}
         >
           <Save size={18} />
           <span>{saving ? '儲存中...' : '儲存變更'}</span>
