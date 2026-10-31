@@ -89,7 +89,7 @@ export function Header({
         </button>
 
         {/* 團隊共用歌單 */}
-        <Link href="/team" className={secondaryButtonClass}>
+        <Link id="tour-team-btn" href="/team" className={secondaryButtonClass}>
           <Users size={18} />
           <span>團隊歌單</span>
         </Link>

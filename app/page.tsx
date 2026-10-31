@@ -25,11 +25,20 @@ import { Music, Zap, Moon, HelpCircle, Search, X, ChevronLeft, ChevronRight } fr
 
 export const dynamic = 'force-dynamic'
 
+// 導覽內容有新增步驟時更新版本號，讓所有人重新看一次導覽（v2：新增「團隊歌單」）
+const TOUR_SEEN_KEY = 'has_seen_spotlight_tour_v2'
+
 const TOUR_STEPS: TourStep[] = [
   {
     targetSelector: '#tour-setlist-btn',
     title: '個人歌單',
     description: '點擊此處可開啟、刪除或編輯你的個人歌單',
+    position: 'bottom'
+  },
+  {
+    targetSelector: '#tour-team-btn',
+    title: '團隊歌單',
+    description: '與整個團隊共用的聚會歌單，大家都能查看、加入歌曲、調整順序，並直接播放整份歌單',
     position: 'bottom'
   },
   {
@@ -124,7 +133,7 @@ export default function Home() {
 
   // 第一次使用時自動開啟導覽
   useEffect(() => {
-    const hasSeen = localStorage.getItem('has_seen_spotlight_tour')
+    const hasSeen = localStorage.getItem(TOUR_SEEN_KEY)
     if (!hasSeen) {
       const timer = setTimeout(() => setShowTour(true), 500)
       return () => clearTimeout(timer)
@@ -133,7 +142,7 @@ export default function Home() {
 
   const handleCloseTour = () => {
     setShowTour(false)
-    localStorage.setItem('has_seen_spotlight_tour', 'true')
+    localStorage.setItem(TOUR_SEEN_KEY, 'true')
   }
 
   const handleLogout = async () => {
