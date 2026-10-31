@@ -34,6 +34,9 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1)
   const listTopRef = useRef<HTMLDivElement>(null)
 
+  // 雲端歌單載入完成前不回寫，避免頁面初次載入時用空歌單覆蓋雲端資料
+  const setlistLoadedRef = useRef(false)
+
   // 選中的樂譜物件與 Modal 狀態
   const [selectedSheet, setSelectedSheet] = useState<Sheet | null>(null)
   const [activeSheetImages, setActiveSheetImages] = useState<string[]>([])
@@ -173,6 +176,8 @@ export default function Home() {
           setSetlist(profile.setlist)
           localStorage.setItem('worship_setlist', JSON.stringify(profile.setlist))
         }
+
+        setlistLoadedRef.current = true
       }
     } catch (err) {
       console.error('Error fetching user profile:', err)
@@ -180,6 +185,8 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (!setlistLoadedRef.current) return
+
     localStorage.setItem('worship_setlist', JSON.stringify(setlist))
 
     const syncSetlistToCloud = async () => {
