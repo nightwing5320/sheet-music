@@ -43,7 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          themes={["light", "dark", "theme-coffee", "theme-pink", "theme-mint"]}
+          themes={["light", "dark", "theme-coffee", "theme-espresso", "theme-pink", "theme-mint"]}
           enableSystem
         >
           <ToastProvider>{children}</ToastProvider>

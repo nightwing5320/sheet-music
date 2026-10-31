@@ -11,6 +11,7 @@ const THEME_OPTIONS = [
   { id: 'light', label: '淺色' },
   { id: 'dark', label: '深色' },
   { id: 'theme-coffee', label: '米咖' },
+  { id: 'theme-espresso', label: '深咖' },
   { id: 'theme-pink', label: '粉紅' },
   { id: 'theme-mint', label: '薄荷' },
 ]
