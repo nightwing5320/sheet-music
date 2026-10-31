@@ -13,7 +13,6 @@ import { backLinkClass, cardClass, inputClass, labelClass, submitButtonClass, lo
 import {
   ArrowLeft,
   ListMusic,
-  Play,
   Search,
   Plus,
   Trash2,
@@ -203,8 +202,8 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
           </div>
           {songs.length > 0 && (
             <button onClick={() => viewer.openSheet(songs[0], 0)} className={`${submitButtonClass} px-4`}>
-              <Play size={16} />
-              <span>播放歌單</span>
+              <Maximize2 size={16} />
+              <span>放大檢視</span>
             </button>
           )}
         </div>
