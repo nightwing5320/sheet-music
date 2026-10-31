@@ -38,7 +38,8 @@ export default function LoginPage() {
     // 忘記密碼模式
     if (mode === 'forgot') {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/profile`, // 使用者點擊信件連結後跳轉重設密碼的頁面
+        // 信件連結先到 /auth/callback 換取登入 session，再跳轉至 /profile 重設密碼
+        redirectTo: `${window.location.origin}/auth/callback?next=/profile`,
       });
 
       if (error) {

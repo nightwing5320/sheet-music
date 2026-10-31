@@ -36,6 +36,11 @@ export async function updateSession(request: NextRequest) {
   const isLoginPage = pathname.startsWith('/login');
   const isApi = pathname.startsWith('/api/');
 
+  // Email 連結回呼（/auth/callback）需在未登入時也能存取，才能換取 session
+  if (pathname.startsWith('/auth/')) {
+    return supabaseResponse;
+  }
+
   // 轉址時需帶上 supabaseResponse 的 cookie（例如刷新或清除的 session）
   const redirectTo = (path: string) => {
     const url = request.nextUrl.clone();
