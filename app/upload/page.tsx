@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import { useToast } from '@/components/Toast'
 import { 
   ArrowLeft, 
   PlusCircle, 
@@ -14,6 +15,7 @@ import {
 
 export default function UploadPage() {
   const router = useRouter()
+  const toast = useToast()
   const supabase = createClient()
   const [title, setTitle] = useState('')
   const [keyName, setKeyName] = useState('')
@@ -33,7 +35,7 @@ export default function UploadPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (files.length === 0 || !title) {
-      alert('請填寫樂譜名稱並至少選擇一張樂譜圖片！')
+      toast.info('請填寫樂譜名稱並至少選擇一張樂譜圖片！')
       return
     }
 
@@ -72,11 +74,11 @@ export default function UploadPage() {
 
       if (dbError) throw dbError
 
-      alert('樂譜上傳成功！')
+      toast.success('樂譜上傳成功！')
       router.push('/')
       router.refresh()
     } catch (error) {
-      alert('上傳失敗：' + ((error as Error).message || '未知錯誤'))
+      toast.error('上傳失敗：' + ((error as Error).message || '未知錯誤'))
     } finally {
       setUploading(false)
     }

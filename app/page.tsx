@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { useToast } from '@/components/Toast'
 import { Sheet } from '@/types'
 
 // 匯入獨立元件
@@ -49,6 +50,7 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState<boolean>(false)
 
   const router = useRouter()
+  const toast = useToast()
   const supabase = createClient()
 
   // 筆記資料 State（只在檢視器開啟後使用，不影響首次渲染，可直接從 localStorage 初始化）
@@ -263,15 +265,15 @@ export default function Home() {
 
       setSheets((prev) => prev.filter((sheet) => sheet.id !== id))
       setSetlist((prev) => prev.filter((sheet) => sheet.id !== id))
-      alert('刪除成功！')
+      toast.success('刪除成功！')
     } catch (err) {
-      alert('刪除失敗：' + ((err as Error).message || '未知錯誤'))
+      toast.error('刪除失敗：' + ((err as Error).message || '未知錯誤'))
     }
   }
 
   const addToSetlist = (sheet: Sheet) => {
     if (setlist.some((item) => item.id === sheet.id)) {
-      alert('此樂譜已經在歌單中了！')
+      toast.info('此樂譜已經在歌單中了！')
       return
     }
     setSetlist((prev) => [...prev, sheet])

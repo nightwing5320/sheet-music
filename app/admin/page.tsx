@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import { useToast } from '@/components/Toast'
 import type { User as AuthUser } from '@supabase/supabase-js'
 import { 
   ShieldCheck, 
@@ -35,6 +36,7 @@ interface UserProfile {
 
 export default function AdminPage() {
   const router = useRouter()
+  const toast = useToast()
   const supabase = createClient()
 
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null)
@@ -95,11 +97,11 @@ export default function AdminPage() {
       setUsers(result.users || [])
     } catch (err) {
       console.error('Error fetching admin profiles:', err)
-      alert('載入使用者資料失敗：' + (err as Error).message)
+      toast.error('載入使用者資料失敗：' + (err as Error).message)
     } finally {
       setLoading(false)
     }
-  }, [supabase, router])
+  }, [supabase, router, toast])
 
   useEffect(() => {
     // 函式內的 setState 都在 await 之後執行，不是同步呼叫（規則無法辨識 useCallback 內的 async 流程）
@@ -136,7 +138,7 @@ export default function AdminPage() {
 
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_approved: nextStatus } : u))
     } catch (err) {
-      alert('操作失敗：' + (err as Error).message)
+      toast.error('操作失敗：' + (err as Error).message)
     } finally {
       setUpdatingId(null)
     }
@@ -175,9 +177,9 @@ export default function AdminPage() {
       } : u))
 
       setEditingUser(null)
-      alert('更新使用者資料成功！')
+      toast.success('更新使用者資料成功！')
     } catch (err) {
-      alert('更新失敗：' + (err as Error).message)
+      toast.error('更新失敗：' + (err as Error).message)
     } finally {
       setUpdatingId(null)
     }
@@ -203,9 +205,9 @@ export default function AdminPage() {
       if (result.error) throw new Error(result.error)
 
       setUsers(prev => prev.filter(u => u.id !== user.id))
-      alert('成功刪除使用者帳號！')
+      toast.success('成功刪除使用者帳號！')
     } catch (err) {
-      alert('刪除失敗：' + (err as Error).message)
+      toast.error('刪除失敗：' + (err as Error).message)
       refreshUsers()
     } finally {
       setUpdatingId(null)

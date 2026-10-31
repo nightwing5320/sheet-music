@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"; // 📌 1. 匯入 Viewport 型別
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ToastProvider } from "@/components/Toast";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,8 +28,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false, // 阻止手機版網頁因手勢誤觸而被放大錯位
+  // 允許使用者縮放頁面（無障礙）；樂譜檢視器內的手勢由 SheetViewerModal 自行攔截，
+  // 輸入框自動放大問題由 globals.css 的手機版 16px 字級處理
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -45,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           themes={["light", "dark", "theme-coffee", "theme-pink", "theme-mint"]}
           enableSystem
         >
-          {children}
+          <ToastProvider>{children}</ToastProvider>
         </ThemeProvider>
       </body>
     </html>

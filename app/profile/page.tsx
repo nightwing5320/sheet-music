@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import { useToast } from '@/components/Toast'
 import { 
   ArrowLeft, 
   User, 
@@ -15,6 +16,7 @@ import {
 
 export default function ProfilePage() {
   const router = useRouter()
+  const toast = useToast()
   const supabase = createClient()
 
   const [loading, setLoading] = useState(true)
@@ -78,11 +80,11 @@ export default function ProfilePage() {
         data: { display_name: displayName }
       })
 
-      alert('個人資料更新成功！')
+      toast.success('個人資料更新成功！')
       router.refresh()
       router.push('/')      
     } catch (err) {
-      alert('更新失敗：' + (err as Error).message)
+      toast.error('更新失敗：' + (err as Error).message)
     } finally {
       setSavingProfile(false)
     }
@@ -92,7 +94,7 @@ export default function ProfilePage() {
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault()
     if (newPassword !== confirmPassword) {
-      alert('兩次輸入的新密碼不相符！')
+      toast.info('兩次輸入的新密碼不相符！')
       return
     }
 
@@ -105,11 +107,11 @@ export default function ProfilePage() {
 
       if (error) throw error
 
-      alert('密碼修改成功！')
+      toast.success('密碼修改成功！')
       setNewPassword('')
       setConfirmPassword('')
     } catch (err) {
-      alert('密碼修改失敗：' + (err as Error).message)
+      toast.error('密碼修改失敗：' + (err as Error).message)
     } finally {
       setSavingPassword(false)
     }

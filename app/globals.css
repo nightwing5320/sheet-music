@@ -182,3 +182,15 @@ h3 { font-size: 1.35rem; font-weight: 600; }
 button, input, select {
   transition: all 0.2s ease-in-out;
 }
+/* Toast 提示進場動畫 */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* iOS Safari 在輸入框字級小於 16px 時會自動放大頁面，手機版統一為 16px */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}

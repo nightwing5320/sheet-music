@@ -4,12 +4,14 @@ import { useEffect, useState, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import { useToast } from '@/components/Toast'
 import { ArrowLeft, Save, FileText } from 'lucide-react'
 
 export default function EditPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
   const id = resolvedParams.id
   const router = useRouter()
+  const toast = useToast()
   const supabase = createClient()
 
   const [title, setTitle] = useState('')
@@ -36,7 +38,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
           setFileUrl(data.file_url || '')
         }
       } catch (err) {
-        alert('無法載入樂譜資料：' + (err as Error).message)
+        toast.error('無法載入樂譜資料：' + (err as Error).message)
         router.push('/')
       } finally {
         setLoading(false)
@@ -44,7 +46,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
     }
 
     fetchSheetDetails()
-  }, [id, supabase, router])
+  }, [id, supabase, router, toast])
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,11 +63,11 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
 
       if (error) throw error
 
-      alert('更新成功！')
+      toast.success('更新成功！')
       router.push('/')
       router.refresh()
     } catch (err) {
-      alert('儲存失敗：' + (err as Error).message)
+      toast.error('儲存失敗：' + (err as Error).message)
     } finally {
       setSaving(false)
     }
