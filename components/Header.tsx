@@ -51,8 +51,8 @@ export function Header({
         </p>
       </div>
 
-      {/* 右側按鈕區塊 */}
-      <div className="flex gap-2 items-center flex-wrap">
+      {/* 右側按鈕區塊（grow 撐滿整列，讓登出按鈕可靠右） */}
+      <div className="flex grow gap-2 items-center flex-wrap">
         {/* 導覽按鈕 */}
         <button
           id="tour-help-btn"
@@ -100,8 +100,8 @@ export function Header({
           <span>上傳樂譜</span>
         </Link>
 
-        {/* 登出按鈕 */}
-        <button onClick={onLogout} className={dangerButtonClass}>
+        {/* 登出按鈕：固定在按鈕列最右側 */}
+        <button onClick={onLogout} className={`${dangerButtonClass} ml-auto`}>
           <LogOut size={18} />
           <span>登出</span>
         </button>
