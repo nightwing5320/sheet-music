@@ -104,6 +104,8 @@
 }
 
 /* 為所有會變色的元素加入平滑過渡動畫 (0.3秒) */
+/* 全域元素樣式放在 base layer，讓 Tailwind class 可以覆蓋 */
+@layer base {
 body, 
 header, 
 div, 
@@ -119,6 +121,7 @@ select {
               color 0.6s ease, 
               border-color 0.6s ease, 
               box-shadow 0.6s ease;
+}
 }
 
 body {
@@ -176,6 +179,7 @@ html {
 }
 
 /* 放大所有標題層次 */
+@layer base {
 h1 { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.025em; line-height: 1.2; }
 h2 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
 h3 { font-size: 1.35rem; font-weight: 600; }
@@ -183,6 +187,7 @@ h3 { font-size: 1.35rem; font-weight: 600; }
 /* 全域元件細緻微互動與微陰影 */
 button, input, select {
   transition: all 0.2s ease-in-out;
+}
 }
 /* Toast 提示進場動畫 */
 @keyframes toast-in {

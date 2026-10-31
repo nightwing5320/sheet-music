@@ -4,6 +4,10 @@ import { Sheet } from '@/types'
 import Link from 'next/link'
 import { Edit3, Trash2, Plus, Check, ZoomIn } from 'lucide-react'
 
+// 編輯 / 刪除小按鈕共用樣式（hover 顏色各自加上）
+const smallActionClass =
+  'inline-flex items-center gap-1.5 h-[34px] px-3 rounded-[8px] text-[13px] font-medium text-(--text-secondary) bg-transparent border border-(--border-color) no-underline leading-none box-border cursor-pointer transition-all duration-200'
+
 interface SheetCardProps {
   sheet: Sheet
   isInSetlist: boolean
@@ -25,42 +29,20 @@ export function SheetCard({
 
   return (
     <div
-      id={isFirst ? 'tour-first-sheet' : undefined} 
-      style={{
-        borderRadius: '16px',
-        overflow: 'hidden',
-        backgroundColor: 'var(--card-bg, #ffffff)', 
-        border: '1px solid var(--border-color, #e2e8f0)',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'all 0.2s ease',
-      }}
+      id={isFirst ? 'tour-first-sheet' : undefined}
+      className="rounded-[16px] overflow-hidden bg-(--card-bg) border border-(--border-color) shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex flex-col transition-all duration-200"
     >
-      
       {/* 樂譜預覽圖 */}
-      <div 
+      <div
         onClick={() => onOpenModal(sheet)}
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: '210px',
-          backgroundColor: 'var(--bg-secondary, #f8fafc)',
-          cursor: 'pointer',
-          overflow: 'hidden'
-        }}
+        className="relative w-full h-[210px] bg-[#f8fafc] cursor-pointer overflow-hidden"
       >
-        <img 
-          src={imageUrl} 
-          alt={sheet.title} 
+        <img
+          src={imageUrl}
+          alt={sheet.title}
           loading="lazy"
           decoding="async"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'top',
-          }}
+          className="w-full h-full object-cover object-top"
         />
 
         {/* 放大按鈕 */}
@@ -70,128 +52,45 @@ export function SheetCard({
             onOpenModal(sheet)
           }}
           title="全螢幕放大檢視"
-          style={{
-            position: 'absolute',
-            bottom: '10px',
-            right: '10px',
-            width: '34px',
-            height: '34px',
-            borderRadius: '10px',
-            backgroundColor: 'rgba(0, 0, 0, 0.65)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            backdropFilter: 'blur(6px)',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
-          }}
+          className="absolute bottom-2.5 right-2.5 w-[34px] h-[34px] rounded-[10px] bg-[rgba(0,0,0,0.65)] border border-[rgba(255,255,255,0.3)] text-white flex items-center justify-center cursor-pointer backdrop-blur-[6px] shadow-[0_2px_6px_rgba(0,0,0,0.2)]"
         >
           <ZoomIn size={16} strokeWidth={2.5} />
         </button>
       </div>
 
       {/* 內容區域 */}
-      <div 
-        style={{ 
-          padding: '24px', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '16px',
-          flex: 1,
-          justifyContent: 'space-between',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+      <div className="p-6 flex flex-col gap-4 flex-1 justify-between">
+        <div className="flex justify-between items-start gap-2">
           <div>
             {/* 樂譜標題 */}
-            <h3 style={{ margin: 0, fontSize: '22px', fontWeight: '700', color: 'var(--text-primary, #0f172a)' }}>
+            <h3 className="m-0 text-[22px] font-bold text-(--text-primary)">
               {sheet.title}
             </h3>
             {/* 調性資訊 */}
-            <div style={{ display: 'flex', gap: '16px', marginTop: '6px', alignItems: 'center' }}>
+            <div className="flex gap-4 mt-1.5 items-center">
               {sheet.artist && (
-                <span style={{ fontSize: '14px', padding: '4px 6px', borderRadius: '6px', backgroundColor: 'var(--tag-bg, #f1f5f9)', color: 'var(--text-secondary, #64748b)', fontWeight: '500' }}>
+                <span className="text-[14px] px-1.5 py-1 rounded-[6px] bg-[var(--tag-bg,#f1f5f9)] text-(--text-secondary) font-medium">
                   調性：{sheet.artist}
                 </span>
               )}
             </div>
           </div>
 
-          {/* 編輯與刪除按鈕 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-            {/* 📌 1. 編輯按鈕：改為 className="tour-edit-btn" */}
-            <Link 
-              className="tour-edit-btn"
-              href={`/edit/${sheet.id}`} 
-              style={{ 
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                height: '34px',
-                padding: '0 12px',
-                borderRadius: '8px',
-                fontSize: '13px',
-                fontWeight: '500',
-                color: 'var(--text-secondary, #64748b)',
-                backgroundColor: 'transparent',
-                border: '1px solid var(--border-color, #e2e8f0)',
-                textDecoration: 'none',
-                lineHeight: '1',
-                boxSizing: 'border-box',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#2563eb'                           
-                e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.3)'
-                e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--text-secondary, #64748b)'
-                e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
-                e.currentTarget.style.backgroundColor = 'transparent'
-              }}
+          {/* 編輯與刪除按鈕（tour-* class 供導覽定位使用） */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Link
+              href={`/edit/${sheet.id}`}
+              className={`tour-edit-btn ${smallActionClass} hover:text-[#2563eb] hover:border-[rgba(37,99,235,0.3)] hover:bg-[rgba(37,99,235,0.05)]`}
             >
               <Edit3 size={14} />
               <span>編輯</span>
             </Link>
 
-            {/* 📌 2. 刪除按鈕：改為 className="tour-delete-btn" */}
             {onDeleteSheet && (
               <button
-                className="tour-delete-btn"
                 onClick={() => onDeleteSheet(sheet.id, sheet.title)}
                 title="刪除樂譜"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  height: '34px',
-                  padding: '0 12px',
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  fontWeight: '500',
-                  color: 'var(--text-secondary, #64748b)',
-                  backgroundColor: 'transparent',
-                  border: '1px solid var(--border-color, #e2e8f0)',
-                  textDecoration: 'none',
-                  lineHeight: '1',
-                  boxSizing: 'border-box',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#ef4444'
-                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'
-                  e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'var(--text-secondary, #64748b)'
-                  e.currentTarget.style.borderColor = 'var(--border-color, #e2e8f0)'
-                  e.currentTarget.style.backgroundColor = 'transparent'
-                }}
+                className={`tour-delete-btn ${smallActionClass} hover:text-[#ef4444] hover:border-[rgba(239,68,68,0.3)] hover:bg-[rgba(239,68,68,0.05)]`}
               >
                 <Trash2 size={14} />
                 <span>刪除</span>
@@ -201,37 +100,14 @@ export function SheetCard({
         </div>
 
         {/* 底部功能鍵 */}
-        <div style={{ display: 'flex', gap: '8px', marginTop: 'auto', alignItems: 'center', width: '100%' }}>
-          
-          {/* 📌 3. 加入歌單按鈕：固定為 className="tour-add-setlist-btn" */}
+        <div className="flex gap-2 mt-auto items-center w-full">
           <button
-            className="tour-add-setlist-btn"
             onClick={() => onToggleSetlist(sheet)}
-            style={{
-              width: '100%',
-              flex: 1,
-              height: '42px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              padding: '0 14px',
-              borderRadius: '10px',
-              border: 'none',
-              background: isInSetlist 
-                ? 'var(--active-green-bg, #c9fae3)'
-                : 'var(--text-primary, #1e293b)',
-              color: isInSetlist 
-                ? 'var(--active-green-text, #047857)'
-                : 'var(--background, #ffffff)',
-              fontWeight: '600',
-              fontSize: '15px',
-              cursor: 'pointer',
-              boxShadow: isInSetlist 
-                ? 'none' 
-                : '0 2px 6px rgba(0, 0, 0, 0.08)',
-              transition: 'all 0.2s ease',
-            }}
+            className={`tour-add-setlist-btn w-full flex-1 h-[42px] flex items-center justify-center gap-1.5 px-3.5 rounded-[10px] border-none font-semibold text-[15px] cursor-pointer transition-all duration-200 ${
+              isInSetlist
+                ? 'bg-[#c9fae3] text-[#047857] shadow-none'
+                : 'bg-(--text-primary) text-(--background) shadow-[0_2px_6px_rgba(0,0,0,0.08)]'
+            }`}
           >
             {isInSetlist ? (
               <>
