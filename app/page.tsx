@@ -240,11 +240,38 @@ export default function Home() {
     router.refresh()
   }
 
+  // 從公開網址取出 Storage 路徑，例如 .../object/public/music-sheets/uploads/a.jpg → uploads/a.jpg
+  const getStoragePath = (url: string) => {
+    const marker = '/object/public/music-sheets/'
+    const index = url.indexOf(marker)
+    return index === -1 ? null : decodeURIComponent(url.slice(index + marker.length))
+  }
+
   const handleDelete = async (id: number, title: string) => {
     if (!window.confirm(`確定要刪除樂譜「${title}」嗎？`)) return
     try {
       const { error } = await supabase.from('sheets').delete().eq('id', id)
       if (error) throw error
+
+      // 一併刪除 Storage 中的樂譜圖片（略過仍被其他樂譜使用的檔案）
+      const deletedSheet = sheets.find((sheet) => sheet.id === id)
+      if (deletedSheet) {
+        const usedByOthers = new Set(
+          sheets
+            .filter((sheet) => sheet.id !== id)
+            .flatMap((sheet) => [sheet.file_url, ...(sheet.image_urls ?? [])])
+        )
+        const paths = Array.from(new Set([deletedSheet.file_url, ...(deletedSheet.image_urls ?? [])]))
+          .filter((url) => url && !usedByOthers.has(url))
+          .map(getStoragePath)
+          .filter((path): path is string => !!path)
+
+        if (paths.length > 0) {
+          const { error: storageError } = await supabase.storage.from('music-sheets').remove(paths)
+          if (storageError) console.error('Failed to remove sheet images:', storageError)
+        }
+      }
+
       setSheets((prev) => prev.filter((sheet) => sheet.id !== id))
       setSetlist((prev) => prev.filter((sheet) => sheet.id !== id))
       alert('刪除成功！')
