@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import type { User as AuthUser } from '@supabase/supabase-js'
 import { 
   ShieldCheck, 
   UserCheck, 
@@ -36,7 +37,7 @@ export default function AdminPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
@@ -47,10 +48,6 @@ export default function AdminPage() {
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null)
   const [editDisplayName, setEditDisplayName] = useState('')
   const [editEmail, setEditEmail] = useState('')
-
-  useEffect(() => {
-    checkAdminAndFetchUsers()
-  }, [])
 
   const formatDate = (dateStr?: string | null) => {
   if (!dateStr) return '尚未登入過'
@@ -65,9 +62,8 @@ export default function AdminPage() {
   })
 }
 
-  const checkAdminAndFetchUsers = async () => {
+  const checkAdminAndFetchUsers = useCallback(async () => {
     try {
-      setLoading(true)
       const { data: { session } } = await supabase.auth.getSession()
 
       if (!session) {
@@ -97,12 +93,24 @@ export default function AdminPage() {
       if (result.error) throw new Error(result.error)
 
       setUsers(result.users || [])
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error fetching admin profiles:', err)
-      alert('載入使用者資料失敗：' + err.message)
+      alert('載入使用者資料失敗：' + (err as Error).message)
     } finally {
       setLoading(false)
     }
+  }, [supabase, router])
+
+  useEffect(() => {
+    // 函式內的 setState 都在 await 之後執行，不是同步呼叫（規則無法辨識 useCallback 內的 async 流程）
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    checkAdminAndFetchUsers()
+  }, [checkAdminAndFetchUsers])
+
+  // 手動重新整理（顯示載入中）
+  const refreshUsers = () => {
+    setLoading(true)
+    checkAdminAndFetchUsers()
   }
 
   const handleLogout = async () => {
@@ -127,8 +135,8 @@ export default function AdminPage() {
       if (result.error) throw new Error(result.error)
 
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_approved: nextStatus } : u))
-    } catch (err: any) {
-      alert('操作失敗：' + err.message)
+    } catch (err) {
+      alert('操作失敗：' + (err as Error).message)
     } finally {
       setUpdatingId(null)
     }
@@ -168,8 +176,8 @@ export default function AdminPage() {
 
       setEditingUser(null)
       alert('更新使用者資料成功！')
-    } catch (err: any) {
-      alert('更新失敗：' + err.message)
+    } catch (err) {
+      alert('更新失敗：' + (err as Error).message)
     } finally {
       setUpdatingId(null)
     }
@@ -196,9 +204,9 @@ export default function AdminPage() {
 
       setUsers(prev => prev.filter(u => u.id !== user.id))
       alert('成功刪除使用者帳號！')
-    } catch (err: any) {
-      alert('刪除失敗：' + err.message)
-      checkAdminAndFetchUsers()
+    } catch (err) {
+      alert('刪除失敗：' + (err as Error).message)
+      refreshUsers()
     } finally {
       setUpdatingId(null)
     }
@@ -310,7 +318,7 @@ export default function AdminPage() {
         </div>
 
         <button
-          onClick={checkAdminAndFetchUsers}
+          onClick={refreshUsers}
           title="重新整理"
           style={{
             display: 'inline-flex',
@@ -361,7 +369,7 @@ export default function AdminPage() {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setFilter(tab.id as any)}
+              onClick={() => setFilter(tab.id as typeof filter)}
               style={{
                 padding: '6px 12px',
                 borderRadius: '6px',

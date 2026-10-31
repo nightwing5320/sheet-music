@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useRef, ReactNode, useEffect } from 'react'
+import React, { useState, useRef, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Sheet } from '@/types'
+import { useHydrated } from '@/utils/useHydrated'
 import { Undo2, Trash2, GripVertical } from 'lucide-react'
 
 export interface PathData {
@@ -38,10 +39,7 @@ export function SheetAnnotator({
   const [strokeWidth, setStrokeWidth] = useState(4)
   const svgRef = useRef<SVGSVGElement | null>(null)
 
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const mounted = useHydrated()
 
   // 滑鼠 / 觸控 拖曳開始
   const handleStartDrag = (clientX: number, clientY: number) => {

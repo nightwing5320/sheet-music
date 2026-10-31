@@ -8,7 +8,6 @@ import {
   ArrowLeft, 
   PlusCircle, 
   UploadCloud, 
-  FileImage, 
   Layers, 
   Upload 
 } from 'lucide-react'
@@ -76,8 +75,8 @@ export default function UploadPage() {
       alert('樂譜上傳成功！')
       router.push('/')
       router.refresh()
-    } catch (error: any) {
-      alert('上傳失敗：' + (error.message || '未知錯誤'))
+    } catch (error) {
+      alert('上傳失敗：' + ((error as Error).message || '未知錯誤'))
     } finally {
       setUploading(false)
     }

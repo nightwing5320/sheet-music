@@ -4,7 +4,7 @@ import { useEffect, useState, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
-import { ArrowLeft, Save, Music, Zap, Moon, HelpCircle, FileText } from 'lucide-react'
+import { ArrowLeft, Save, FileText } from 'lucide-react'
 
 export default function EditPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
@@ -20,31 +20,31 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    fetchSheetDetails()
-  }, [id])
+    const fetchSheetDetails = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('sheets')
+          .select('*')
+          .eq('id', id)
+          .single()
 
-  const fetchSheetDetails = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('sheets')
-        .select('*')
-        .eq('id', id)
-        .single()
-
-      if (error) throw error
-      if (data) {
-        setTitle(data.title || '')
-        setArtist(data.artist || '')
-        setTempo(data.tempo || '')
-        setFileUrl(data.file_url || '')
+        if (error) throw error
+        if (data) {
+          setTitle(data.title || '')
+          setArtist(data.artist || '')
+          setTempo(data.tempo || '')
+          setFileUrl(data.file_url || '')
+        }
+      } catch (err) {
+        alert('無法載入樂譜資料：' + (err as Error).message)
+        router.push('/')
+      } finally {
+        setLoading(false)
       }
-    } catch (err: any) {
-      alert('無法載入樂譜資料：' + err.message)
-      router.push('/')
-    } finally {
-      setLoading(false)
     }
-  }
+
+    fetchSheetDetails()
+  }, [id, supabase, router])
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,8 +64,8 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
       alert('更新成功！')
       router.push('/')
       router.refresh()
-    } catch (err: any) {
-      alert('儲存失敗：' + err.message)
+    } catch (err) {
+      alert('儲存失敗：' + (err as Error).message)
     } finally {
       setSaving(false)
     }

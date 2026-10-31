@@ -81,8 +81,8 @@ export async function GET() {
     })
 
     return NextResponse.json({ users: combinedUsers })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }
 }
 
@@ -130,8 +130,8 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json({ success: true, user: data })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }
 }
 
@@ -164,7 +164,7 @@ export async function DELETE(request: Request) {
 
     // 3. 📌 必須明確回傳 JSON 格式
     return NextResponse.json({ success: true, userId })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }
 }

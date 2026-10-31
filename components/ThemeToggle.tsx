@@ -3,8 +3,8 @@
 'use client'
 
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
 import { Palette } from 'lucide-react'
+import { useHydrated } from '@/utils/useHydrated'
 
 // 支援的主題清單
 const THEME_OPTIONS = [
@@ -17,11 +17,7 @@ const THEME_OPTIONS = [
 
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const mounted = useHydrated()
 
   if (!mounted) {
     return <div style={{ height: '42px', width: '130px' }} />

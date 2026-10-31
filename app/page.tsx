@@ -11,6 +11,7 @@ import { SetlistSection } from '@/components/SetlistSection'
 import { SheetCard } from '@/components/SheetCard'
 import { SheetViewerModal } from '@/components/SheetViewerModal'
 import { SpotlightTourModal, TourStep } from '@/components/SpotlightTourModal'
+import type { PathData } from '@/components/SheetAnnotator'
 
 import { Music, Zap, Moon, HelpCircle, Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -50,8 +51,16 @@ export default function Home() {
   const router = useRouter()
   const supabase = createClient()
 
-  // 筆記資料 State
-  const [annotations, setAnnotations] = useState<Record<string, any>>({})
+  // 筆記資料 State（只在檢視器開啟後使用，不影響首次渲染，可直接從 localStorage 初始化）
+  const [annotations, setAnnotations] = useState<Record<string, PathData[]>>(() => {
+    if (typeof window === 'undefined') return {}
+    try {
+      return JSON.parse(localStorage.getItem('worship_sheet_annotations') || '{}')
+    } catch (e) {
+      console.error('Failed to load annotations', e)
+      return {}
+    }
+  })
 
   useEffect(() => {
     const hasSeen = localStorage.getItem('has_seen_spotlight_tour')
@@ -61,23 +70,12 @@ export default function Home() {
     }
   }, [])
 
-  useEffect(() => {
-    const savedAnnotations = localStorage.getItem('worship_sheet_annotations')
-    if (savedAnnotations) {
-      try {
-        setAnnotations(JSON.parse(savedAnnotations))
-      } catch (e) {
-        console.error('Failed to load annotations', e)
-      }
-    }
-  }, [])
-
   const handleCloseTour = () => {
     setShowTour(false)
     localStorage.setItem('has_seen_spotlight_tour', 'true')
   }
 
-  const handleUpdateAnnotations = (annotationKey: string, newPaths: any[]) => {
+  const handleUpdateAnnotations = (annotationKey: string, newPaths: PathData[]) => {
     setAnnotations((prev) => {
       const updated = { ...prev, [annotationKey]: newPaths }
       localStorage.setItem('worship_sheet_annotations', JSON.stringify(updated))
@@ -137,52 +135,71 @@ export default function Home() {
   ]
 
   useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name, is_admin, setlist')
+          .eq('id', user.id)
+          .single()
+
+        if (profile) {
+          if (profile.display_name) {
+            setUserDisplayName(profile.display_name)
+          } else if (user.user_metadata?.display_name) {
+            setUserDisplayName(user.user_metadata.display_name)
+          } else if (user.email) {
+            setUserDisplayName(user.email.split('@')[0])
+          }
+
+          setIsAdmin(!!profile.is_admin)
+
+          if (profile.setlist && Array.isArray(profile.setlist)) {
+            setSetlist(profile.setlist)
+            localStorage.setItem('worship_setlist', JSON.stringify(profile.setlist))
+          }
+
+          setlistLoadedRef.current = true
+        }
+      } catch (err) {
+        console.error('Error fetching user profile:', err)
+      }
+    }
+
+    const fetchSheets = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('sheets')
+          .select('id, title, artist, tempo, file_url, image_urls, created_at')
+          .order('created_at', { ascending: false })
+
+        if (error) console.error('Error fetching sheets:', error)
+        else if (data) setSheets(data as Sheet[])
+      } catch (err) {
+        console.error('Unexpected error:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchUserProfile()
     fetchSheets()
-    
+
+    // 先顯示本機暫存的歌單，雲端資料載入後會覆蓋。
+    // 歌單數量會顯示在 Header，必須在 hydration 後才讀 localStorage，否則伺服器與瀏覽器渲染結果不一致
     const savedSetlist = localStorage.getItem('worship_setlist')
     if (savedSetlist) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSetlist(JSON.parse(savedSetlist))
       } catch (e) {
         console.error('Failed to load local setlist', e)
       }
     }
-  }, [])
-
-  const fetchUserProfile = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('display_name, is_admin, setlist')
-        .eq('id', user.id)
-        .single()
-
-      if (profile) {
-        if (profile.display_name) {
-          setUserDisplayName(profile.display_name)
-        } else if (user.user_metadata?.display_name) {
-          setUserDisplayName(user.user_metadata.display_name)
-        } else if (user.email) {
-          setUserDisplayName(user.email.split('@')[0])
-        }
-
-        setIsAdmin(!!profile.is_admin)
-
-        if (profile.setlist && Array.isArray(profile.setlist)) {
-          setSetlist(profile.setlist)
-          localStorage.setItem('worship_setlist', JSON.stringify(profile.setlist))
-        }
-
-        setlistLoadedRef.current = true
-      }
-    } catch (err) {
-      console.error('Error fetching user profile:', err)
-    }
-  }
+  }, [supabase])
 
   useEffect(() => {
     if (!setlistLoadedRef.current) return
@@ -204,35 +221,7 @@ export default function Home() {
     }
 
     syncSetlistToCloud()
-  }, [setlist])
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (activeSheetImages.length === 0) return
-      if (e.key === 'Escape') closeModal()
-      else if (e.key === 'ArrowRight') goToNextPageOrTrack()
-      else if (e.key === 'ArrowLeft') goToPrevPageOrTrack()
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [activeSheetImages, currentImageIndex, currentSetlistIndex, setlist])
-
-  const fetchSheets = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('sheets')
-        .select('id, title, artist, tempo, file_url, image_urls, created_at')
-        .order('created_at', { ascending: false })
-
-      if (error) console.error('Error fetching sheets:', error)
-      else if (data) setSheets(data as Sheet[])
-    } catch (err) {
-      console.error('Unexpected error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
+  }, [setlist, supabase])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -275,8 +264,8 @@ export default function Home() {
       setSheets((prev) => prev.filter((sheet) => sheet.id !== id))
       setSetlist((prev) => prev.filter((sheet) => sheet.id !== id))
       alert('刪除成功！')
-    } catch (err: any) {
-      alert('刪除失敗：' + (err.message || '未知錯誤'))
+    } catch (err) {
+      alert('刪除失敗：' + ((err as Error).message || '未知錯誤'))
     }
   }
 
@@ -344,6 +333,19 @@ export default function Home() {
       setCurrentSetlistIndex(prevTrackIdx)
     }
   }
+
+  // 鍵盤翻頁（每次 render 重新綁定，確保使用最新的翻頁函式）
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (activeSheetImages.length === 0) return
+      if (e.key === 'Escape') closeModal()
+      else if (e.key === 'ArrowRight') goToNextPageOrTrack()
+      else if (e.key === 'ArrowLeft') goToPrevPageOrTrack()
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  })
 
   const handleTouchStart = (e: React.TouchEvent) => setTouchStartX(e.touches[0].clientX)
   const handleTouchEnd = (e: React.TouchEvent) => {

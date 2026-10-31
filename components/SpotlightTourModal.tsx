@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
-import { X, ChevronRight, ChevronLeft, Check, Sparkles } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { X, ChevronRight, Check, Sparkles } from 'lucide-react'
 
 export interface TourStep {
   targetSelector: string // DOM query selector, e.g. '#header-theme-toggle'
@@ -20,14 +20,17 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
 
-  const step = steps[currentStepIndex]
-
-  useEffect(() => {
+  // 導覽關閉時重置回第一步（在 render 期間依 prop 變化調整 state）
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen)
     if (!isOpen) {
       setCurrentStepIndex(0)
       setTargetRect(null)
     }
-  }, [isOpen])
+  }
+
+  const step = steps[currentStepIndex]
 
   // 定位目標元素的位置
   useEffect(() => {
@@ -104,8 +107,8 @@ export function SpotlightTourModal({ isOpen, steps, onClose }: SpotlightTourModa
     // 預設 Bottom
     let top = targetRect.bottom + margin
     let left = targetRect.left + targetRect.width / 2 - 160 // 氣泡寬度 320px 的一半
-    let arrowTop: any = -8
-    let arrowLeft: any = '50%'
+    let arrowTop: number | string = -8
+    let arrowLeft: number | string = '50%'
     let arrowTransform = 'translateX(-50%) rotate(45deg)'
 
     if (prefPos === 'top') {

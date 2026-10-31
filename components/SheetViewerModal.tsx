@@ -46,7 +46,10 @@ export function SheetViewerModal({
   const [isEditing, setIsEditing] = useState(false)
 
   // 提示條顯示狀態與 localStorage 記憶
-  const [showGestureHint, setShowGestureHint] = useState(false)
+  // 檢視器只在使用者點擊後於瀏覽器端渲染，可直接讀取 localStorage
+  const [showGestureHint, setShowGestureHint] = useState(
+    () => typeof window !== 'undefined' && !localStorage.getItem('hide_sheet_viewer_gesture_hint')
+  )
 
   useEffect(() => {
     // 📌 1. 鎖定全域身頁面滾動與 Overscroll 橡皮筋拉動
@@ -66,13 +69,6 @@ export function SheetViewerModal({
     }
     window.addEventListener('gesturestart', preventSafariGesture, { passive: false })
     window.addEventListener('gesturechange', preventSafariGesture, { passive: false })
-
-    // 檢查使用者是否曾點擊「不再顯示」
-    const hideHint = localStorage.getItem('hide_sheet_viewer_gesture_hint')
-    if (!hideHint) {
-      setShowGestureHint(true)
-    }
-
     return () => {
       document.body.classList.remove('modal-open')
       document.body.style.overflow = originalOverflow
@@ -96,6 +92,7 @@ export function SheetViewerModal({
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const touchStartRef = useRef<{ dist: number; scale: number; x: number; y: number; posX: number; posY: number } | null>(null)
+  const [isGesturing, setIsGesturing] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
 
   if (!activeSheetImages || activeSheetImages.length === 0) return null
@@ -149,7 +146,7 @@ export function SheetViewerModal({
   const handleContainerTouchStart = (e: React.TouchEvent) => {
     const nativeEvent = e.nativeEvent as TouchEvent
     if (nativeEvent.touches.length > 0) {
-      const touch = nativeEvent.touches[0] as any
+      const touch = nativeEvent.touches[0] as Touch & { touchType?: string }
       if (touch.touchType === 'stylus') {
         return
       }
@@ -160,6 +157,7 @@ export function SheetViewerModal({
       if (e.cancelable) e.preventDefault()
 
       const dist = getDistance(e.touches)
+      setIsGesturing(true)
       touchStartRef.current = {
         dist,
         scale,
@@ -171,6 +169,7 @@ export function SheetViewerModal({
     } else if (e.touches.length === 1 && scale > 1) {
       if (e.cancelable) e.preventDefault()
 
+      setIsGesturing(true)
       touchStartRef.current = {
         dist: 0,
         scale,
@@ -187,7 +186,7 @@ export function SheetViewerModal({
   const handleContainerTouchMove = (e: React.TouchEvent) => {
     const nativeEvent = e.nativeEvent as TouchEvent
     if (nativeEvent.touches.length > 0) {
-      const touch = nativeEvent.touches[0] as any
+      const touch = nativeEvent.touches[0] as Touch & { touchType?: string }
       if (touch.touchType === 'stylus') {
         return
       }
@@ -223,6 +222,7 @@ export function SheetViewerModal({
 
   const handleContainerTouchEnd = (e: React.TouchEvent) => {
     touchStartRef.current = null
+    setIsGesturing(false)
     if (!isEditing && scale === 1) {
       onTouchEnd(e)
     }
@@ -447,7 +447,7 @@ export function SheetViewerModal({
           boxSizing: 'border-box',
           transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
           transformOrigin: 'center center',
-          transition: touchStartRef.current ? 'none' : 'transform 0.15s ease-out'
+          transition: isGesturing ? 'none' : 'transform 0.15s ease-out'
         }}
         onClick={(e) => e.stopPropagation()}
       >

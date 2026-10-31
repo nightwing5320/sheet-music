@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { 
-  Music2, 
   Mail, 
   Lock, 
   User, 

@@ -26,35 +26,35 @@ export default function ProfilePage() {
   const [userEmail, setUserEmail] = useState('')
 
   useEffect(() => {
-    fetchProfile()
-  }, [])
+    const fetchProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          router.push('/login')
+          return
+        }
 
-  const fetchProfile = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/login')
-        return
+        setUserEmail(user.email || '')
+
+        // 讀取 profiles 表中的資料
+        const { data } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', user.id)
+          .single()
+
+        if (data) {
+          setDisplayName(data.display_name || user.user_metadata?.display_name || '')
+        }
+      } catch (err) {
+        console.error('Error fetching profile:', err)
+      } finally {
+        setLoading(false)
       }
-
-      setUserEmail(user.email || '')
-
-      // 讀取 profiles 表中的資料
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('display_name')
-        .eq('id', user.id)
-        .single()
-
-      if (data) {
-        setDisplayName(data.display_name || user.user_metadata?.display_name || '')
-      }
-    } catch (err) {
-      console.error('Error fetching profile:', err)
-    } finally {
-      setLoading(false)
     }
-  }
+
+    fetchProfile()
+  }, [supabase, router])
 
   // 1. 修改顯示名稱
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -81,8 +81,8 @@ export default function ProfilePage() {
       alert('個人資料更新成功！')
       router.refresh()
       router.push('/')      
-    } catch (err: any) {
-      alert('更新失敗：' + err.message)
+    } catch (err) {
+      alert('更新失敗：' + (err as Error).message)
     } finally {
       setSavingProfile(false)
     }
@@ -108,8 +108,8 @@ export default function ProfilePage() {
       alert('密碼修改成功！')
       setNewPassword('')
       setConfirmPassword('')
-    } catch (err: any) {
-      alert('密碼修改失敗：' + err.message)
+    } catch (err) {
+      alert('密碼修改失敗：' + (err as Error).message)
     } finally {
       setSavingPassword(false)
     }
