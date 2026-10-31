@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { useToast } from '@/components/Toast'
-import { TeamSetlist } from '@/types'
+import { SheetViewerModal } from '@/components/SheetViewerModal'
+import { useSheetViewer } from '@/hooks/useSheetViewer'
+import { Sheet, TeamSetlist } from '@/types'
 import {
   createTeamSetlist,
   defaultSetlistTitle,
@@ -23,30 +25,45 @@ import {
   submitButtonClass,
   loadingTextClass,
 } from '@/utils/ui'
-import { ArrowLeft, Users, Plus, CalendarDays, Music, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Users, Plus, CalendarDays, Music, ChevronRight, Maximize2 } from 'lucide-react'
 
-// 單一歌單卡片
-function SetlistRow({ setlist }: { setlist: TeamSetlist }) {
+// 單一歌單卡片：點擊進入編輯，右側可直接放大檢視整份歌單
+function SetlistRow({ setlist, onView }: { setlist: TeamSetlist; onView: (setlist: TeamSetlist) => void }) {
   return (
-    <Link
-      href={`/team/${setlist.id}`}
-      className={`flex items-center justify-between gap-3 px-4 py-3.5 rounded-[12px] bg-(--card-bg) border border-(--border-color) no-underline text-(--text-primary) transition-all duration-200 hover:border-(--text-secondary) hover:-translate-y-px`}
-    >
-      <div className="min-w-0">
-        <div className="text-[16px] font-bold truncate">{setlist.title}</div>
-        <div className="flex items-center gap-3 mt-0.5 text-[13px] text-(--text-secondary)">
-          <span className="inline-flex items-center gap-1">
-            <CalendarDays size={14} />
-            {formatServiceDate(setlist.service_date)}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Music size={14} />
-            {setlist.sheet_ids.length} 首
-          </span>
+    <div className="flex items-center gap-2 pr-3 rounded-[12px] bg-(--card-bg) border border-(--border-color) transition-all duration-200 hover:border-(--text-secondary)">
+      <Link
+        href={`/team/${setlist.id}`}
+        className="flex-1 min-w-0 pl-4 pr-1 py-3.5 no-underline text-(--text-primary)"
+      >
+        <div className="min-w-0">
+          <div className="text-[16px] font-bold truncate">{setlist.title}</div>
+          <div className="flex items-center gap-3 mt-0.5 text-[13px] text-(--text-secondary)">
+            <span className="inline-flex items-center gap-1">
+              <CalendarDays size={14} />
+              {formatServiceDate(setlist.service_date)}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Music size={14} />
+              {setlist.sheet_ids.length} 首
+            </span>
+          </div>
         </div>
-      </div>
-      <ChevronRight size={18} className="text-(--text-secondary) shrink-0" />
-    </Link>
+      </Link>
+
+      {setlist.sheet_ids.length > 0 && (
+        <button
+          onClick={() => onView(setlist)}
+          className="inline-flex items-center gap-1 h-[34px] px-2.5 shrink-0 rounded-[8px] border border-(--border-color) bg-transparent text-(--text-secondary) text-[13px] font-medium cursor-pointer transition-all duration-200 hover:text-[#2563eb] hover:border-[rgba(37,99,235,0.3)] hover:bg-[rgba(37,99,235,0.05)]"
+        >
+          <Maximize2 size={14} />
+          <span>放大檢視</span>
+        </button>
+      )}
+
+      <Link href={`/team/${setlist.id}`} tabIndex={-1} aria-hidden className="self-stretch flex items-center pl-1">
+        <ChevronRight size={18} className="text-(--text-secondary)" />
+      </Link>
+    </div>
   )
 }
 
@@ -60,6 +77,9 @@ export default function TeamSetlistsPage() {
   const [serviceDate, setServiceDate] = useState(nextSundayString)
   const [title, setTitle] = useState(() => defaultSetlistTitle(nextSundayString()))
   const [creating, setCreating] = useState(false)
+  const [viewingSongs, setViewingSongs] = useState<Sheet[]>([])
+
+  const viewer = useSheetViewer(viewingSongs)
 
   useEffect(() => {
     const fetchSetlists = async () => {
@@ -109,6 +129,32 @@ export default function TeamSetlistsPage() {
       toast.error('建立失敗：' + (err as Error).message)
       setCreating(false)
     }
+  }
+
+  // 載入該歌單的樂譜後，從第一首開始放大檢視（已被刪除的樂譜自動略過）
+  const handleView = async (setlist: TeamSetlist) => {
+    const { data, error } = await supabase
+      .from('sheets')
+      .select('id, title, artist, tempo, file_url, image_urls, created_at')
+      .in('id', setlist.sheet_ids)
+
+    if (error) {
+      toast.error('載入樂譜失敗：' + error.message)
+      return
+    }
+
+    const sheetsById = new Map(((data ?? []) as Sheet[]).map((sheet) => [sheet.id, sheet]))
+    const songs = setlist.sheet_ids
+      .map((sheetId) => sheetsById.get(sheetId))
+      .filter((sheet): sheet is Sheet => !!sheet)
+
+    if (songs.length === 0) {
+      toast.info('這份歌單的樂譜都已被刪除')
+      return
+    }
+
+    setViewingSongs(songs)
+    viewer.openSheet(songs[0], 0)
   }
 
   // 過去的歌單已在載入時刪除，若刪除失敗也不顯示
@@ -176,9 +222,27 @@ export default function TeamSetlistsPage() {
       ) : (
         <div className="flex flex-col gap-2.5">
           {upcoming.map((s) => (
-            <SetlistRow key={s.id} setlist={s} />
+            <SetlistRow key={s.id} setlist={s} onView={handleView} />
           ))}
         </div>
+      )}
+
+      {/* 樂譜檢視器（依團隊歌單順序翻頁） */}
+      {viewer.activeSheetImages.length > 0 && viewer.selectedSheet && (
+        <SheetViewerModal
+          selectedSheet={viewer.selectedSheet}
+          activeSheetImages={viewer.activeSheetImages}
+          currentImageIndex={viewer.currentImageIndex}
+          currentSetlistIndex={viewer.currentSetlistIndex}
+          setlist={viewingSongs}
+          annotations={viewer.annotations}
+          onUpdateAnnotations={viewer.updateAnnotations}
+          onClose={viewer.closeSheet}
+          onPrev={viewer.goToPrevPageOrTrack}
+          onNext={viewer.goToNextPageOrTrack}
+          onTouchStart={viewer.handleTouchStart}
+          onTouchEnd={viewer.handleTouchEnd}
+        />
       )}
     </main>
   )

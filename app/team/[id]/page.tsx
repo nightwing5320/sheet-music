@@ -20,6 +20,7 @@ import {
   Maximize2,
   ChevronDown,
   CalendarDays,
+  Save,
 } from 'lucide-react'
 
 // 歌曲列右側的小方形按鈕（與個人歌單相同）
@@ -124,6 +125,14 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
     saveSongs(reordered)
   }
 
+  // 變更都會即時儲存；這裡補存尚未失焦的名稱後回到列表
+  const handleSave = async () => {
+    const trimmed = title.trim()
+    if (setlist && trimmed && trimmed !== setlist.title) await saveChanges({ title: trimmed })
+    toast.success('已儲存團隊歌單')
+    router.push('/team')
+  }
+
   const handleDeleteSetlist = async () => {
     if (!setlist || !window.confirm(`確定要刪除團隊歌單「${setlist.title}」嗎？所有人都將看不到這份歌單。`)) return
     const { error } = await supabase.from('team_setlists').delete().eq('id', setlist.id)
@@ -200,12 +209,10 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
             <ListMusic size={22} className="text-(--text-primary)" />
             <h2 className="m-0 text-[20px] font-bold">歌曲 ({songs.length})</h2>
           </div>
-          {songs.length > 0 && (
-            <button onClick={() => viewer.openSheet(songs[0], 0)} className={`${submitButtonClass} px-4`}>
-              <Maximize2 size={16} />
-              <span>放大檢視</span>
-            </button>
-          )}
+          <button onClick={handleSave} className={`${submitButtonClass} px-4`}>
+            <Save size={16} />
+            <span>儲存</span>
+          </button>
         </div>
 
         {songs.length === 0 ? (
