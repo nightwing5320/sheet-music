@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { useToast } from '@/components/Toast'
@@ -17,7 +17,7 @@ import { SpotlightTourModal, TourStep } from '@/components/SpotlightTourModal'
 import { useSheets } from '@/hooks/useSheets'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { useSetlist } from '@/hooks/useSetlist'
-import { useSheetFilters } from '@/hooks/useSheetFilters'
+import { useSheetFilters, TempoTab } from '@/hooks/useSheetFilters'
 import { useSheetViewer } from '@/hooks/useSheetViewer'
 
 import { Music, Zap, Moon, HelpCircle, Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -74,6 +74,23 @@ const TOUR_STEPS: TourStep[] = [
     position: 'bottom'
   }
 ]
+
+// 速度分類標籤（activeClass 需寫完整 class 名稱，Tailwind 才掃描得到）
+const TEMPO_TABS: { id: TempoTab; label: string; Icon: typeof Music; activeClass: string }[] = [
+  { id: 'all', label: '全部', Icon: Music, activeClass: 'bg-[#0d60bfe6]' },
+  { id: 'fast', label: '快歌', Icon: Zap, activeClass: 'bg-[#f8b136e2]' },
+  { id: 'slow', label: '慢歌', Icon: Moon, activeClass: 'bg-[#2fb689e3]' },
+  { id: 'unclassified', label: '未分類', Icon: HelpCircle, activeClass: 'bg-[#64748be6]' },
+]
+
+// 調性標籤樣式
+const KEY_CHIP_CLASS = 'px-3.5 py-1.5 rounded-[20px] border-none text-[13px] cursor-pointer shadow-none'
+const KEY_CHIP_ACTIVE = 'bg-[#f8b136e2] text-white'
+const KEY_CHIP_INACTIVE = 'bg-(--card-bg) text-(--text-secondary)'
+
+// 分頁按鈕樣式（停用時淡化）
+const PAGE_BUTTON_CLASS =
+  'inline-flex items-center gap-1 px-4 py-2 rounded-[10px] border border-(--border-color) bg-(--card-bg) text-[14px] font-semibold text-(--text-primary) cursor-pointer disabled:text-(--text-secondary) disabled:opacity-50 disabled:cursor-not-allowed'
 
 export default function Home() {
   const router = useRouter()
@@ -150,7 +167,7 @@ export default function Home() {
   }
 
   return (
-    <main style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', padding: '32px 20px', color: 'var(--text-primary)', overflowX: 'hidden'}}>
+    <main className="w-full max-w-[1000px] mx-auto px-5 py-8 text-(--text-primary) overflow-x-hidden">
       {/* Header */}
       <Header
         userDisplayName={userDisplayName}
@@ -181,17 +198,10 @@ export default function Home() {
       )}
 
       {/* 搜尋欄 */}
-      <div style={{ position: 'relative', marginBottom: '20px', width: '100%' }}>
-        <Search 
-          size={18} 
-          style={{ 
-            position: 'absolute', 
-            left: '14px', 
-            top: '50%', 
-            transform: 'translateY(-50%)', 
-            color: 'var(--text-secondary)',
-            pointerEvents: 'none'
-          }} 
+      <div className="relative mb-5 w-full">
+        <Search
+          size={18}
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-(--text-secondary) pointer-events-none"
         />
 
         <input
@@ -199,26 +209,7 @@ export default function Home() {
           placeholder="搜尋樂譜名稱或調性 (例如：C, G, Am)..."
           value={searchTerm}
           onChange={(e) => handleSearchChange(e.target.value)}
-          style={{ 
-            width: '100%', 
-            padding: '12px 40px', 
-            fontSize: '15px', 
-            borderRadius: '10px', 
-            border: '1px solid var(--border-color)', 
-            backgroundColor: 'var(--input-bg)', 
-            color: 'var(--text-primary)', 
-            outline: 'none', 
-            boxSizing: 'border-box',
-            transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#2563eb'
-            e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.15)'
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = 'var(--border-color)'
-            e.target.style.boxShadow = 'none'
-          }}
+          className="w-full px-10 py-3 text-[15px] rounded-[10px] border border-(--border-color) bg-(--input-bg) text-(--text-primary) outline-none box-border focus:border-[#2563eb] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)]"
         />
 
         {searchTerm && (
@@ -226,22 +217,7 @@ export default function Home() {
             onClick={() => handleSearchChange('')}
             type="button"
             title="清除搜尋"
-            style={{
-              position: 'absolute',
-              right: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '4px',
-              borderRadius: '50%',
-              color: 'var(--text-secondary)',
-              transition: 'all 0.15s ease'
-            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer inline-flex items-center justify-center p-1 rounded-full text-(--text-secondary)"
           >
             <X size={16} />
           </button>
@@ -249,34 +225,12 @@ export default function Home() {
       </div>
 
       {/* 調性標籤 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="flex items-center gap-2 mb-5 flex-wrap">
+        <div className="flex gap-1.5 flex-wrap items-center">
           {/* 全部按鈕 */}
           <button
             onClick={() => handleKeySelect(null)}
-            style={{
-              padding: '6px 14px',
-              borderRadius: '20px',
-              border: 'none',
-              backgroundColor: selectedKey === null ? '#f8b136e2' : 'var(--card-bg)',
-              color: selectedKey === null ? '#ffffff' : 'var(--text-secondary)',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: 'none'
-            }}
-            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-              if (selectedKey !== null) {
-                e.currentTarget.style.borderColor = 'var(--text-secondary)'
-              }
-            }}
-            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-              if (selectedKey !== null) {
-                e.currentTarget.style.borderColor = 'var(--border-color)'
-              }
-            }}
+            className={`${KEY_CHIP_CLASS} font-semibold ${selectedKey === null ? KEY_CHIP_ACTIVE : KEY_CHIP_INACTIVE}`}
           >
             全部
           </button>
@@ -287,28 +241,7 @@ export default function Home() {
               <button
                 key={key}
                 onClick={() => handleKeySelect(isSelected ? null : key)}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: '20px',
-                  border: 'none',
-                  backgroundColor: isSelected ? '#f8b136e2' : 'var(--card-bg)',
-                  color: isSelected ? '#ffffff' : 'var(--text-secondary)',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: 'none'
-                }}
-                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  if (!isSelected) {
-                    e.currentTarget.style.borderColor = 'var(--text-secondary)'
-                  }
-                }}
-                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  if (!isSelected) {
-                    e.currentTarget.style.borderColor = 'var(--border-color)'
-                  }
-                }}
+                className={`${KEY_CHIP_CLASS} font-bold ${isSelected ? KEY_CHIP_ACTIVE : KEY_CHIP_INACTIVE}`}
               >
                 {key}
               </button>
@@ -318,90 +251,19 @@ export default function Home() {
       </div>
 
       {/* 速度分類標籤 */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px', flexWrap: 'wrap' }}>
-        <button 
-          onClick={() => handleTabSelect('all')} 
-          style={{ 
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 16px', 
-            borderRadius: '20px', 
-            border: 'none', 
-            fontWeight: '700', 
-            fontSize: '14px', 
-            cursor: 'pointer', 
-            backgroundColor: activeTab === 'all' ? '#0d60bfe6' : 'var(--card-bg)', 
-            color: activeTab === 'all' ? 'white' : 'var(--text-secondary)',
-            transition: 'all 0.2s ease',
-          }}
-        >
-          <Music size={15} />
-          <span>全部 ({counts.all})</span>
-        </button>
-
-        <button 
-          onClick={() => handleTabSelect('fast')} 
-          style={{ 
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 16px', 
-            borderRadius: '20px', 
-            border: 'none', 
-            fontWeight: '700', 
-            fontSize: '14px', 
-            cursor: 'pointer', 
-            backgroundColor: activeTab === 'fast' ? '#f8b136e2' : 'var(--card-bg)', 
-            color: activeTab === 'fast' ? 'white' : 'var(--text-secondary)',
-            transition: 'all 0.2s ease',
-          }}
-        >
-          <Zap size={15} />
-          <span>快歌 ({counts.fast})</span>
-        </button>
-
-        <button 
-          onClick={() => handleTabSelect('slow')} 
-          style={{ 
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 16px', 
-            borderRadius: '20px', 
-            border: 'none', 
-            fontWeight: '700', 
-            fontSize: '14px', 
-            cursor: 'pointer', 
-            backgroundColor: activeTab === 'slow' ? '#2fb689e3' : 'var(--card-bg)', 
-            color: activeTab === 'slow' ? 'white' : 'var(--text-secondary)',
-            transition: 'all 0.2s ease',
-          }}
-        >
-          <Moon size={15} />
-          <span>慢歌 ({counts.slow})</span>
-        </button>
-
-        <button 
-          onClick={() => handleTabSelect('unclassified')} 
-          style={{ 
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 16px', 
-            borderRadius: '20px', 
-            border: 'none', 
-            fontWeight: '700', 
-            fontSize: '14px', 
-            cursor: 'pointer', 
-            backgroundColor: activeTab === 'unclassified' ? '#64748be6' : 'var(--card-bg)', 
-            color: activeTab === 'unclassified' ? 'white' : 'var(--text-secondary)',
-            transition: 'all 0.2s ease',
-          }}
-        >
-          <HelpCircle size={15} />
-          <span>未分類 ({counts.unclassified})</span>
-        </button>
+      <div className="flex gap-2.5 mb-6 border-b-2 border-(--border-color) pb-3 flex-wrap">
+        {TEMPO_TABS.map(({ id, label, Icon, activeClass }) => (
+          <button
+            key={id}
+            onClick={() => handleTabSelect(id)}
+            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-[20px] border-none font-bold text-[14px] cursor-pointer ${
+              activeTab === id ? `${activeClass} text-white` : 'bg-(--card-bg) text-(--text-secondary)'
+            }`}
+          >
+            <Icon size={15} />
+            <span>{label} ({counts[id]})</span>
+          </button>
+        ))}
       </div>
 
       {/* 樂譜列表頂部錨點 (用於換頁平滑滾動) */}
@@ -409,14 +271,14 @@ export default function Home() {
 
       {/* 樂譜列表 */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-secondary)' }}>載入樂譜庫中...</div>
+        <div className="text-center py-15 text-(--text-secondary)">載入樂譜庫中...</div>
       ) : paginatedSheets.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px 0', backgroundColor: 'var(--card-bg)', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
-          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>{searchTerm || selectedKey ? '找不到符合條件的樂譜' : '這個分類目前還沒有樂譜！'}</p>
+        <div className="text-center py-15 bg-(--card-bg) rounded-[12px] border border-dashed border-(--border-color)">
+          <p className="text-(--text-secondary) m-0">{searchTerm || selectedKey ? '找不到符合條件的樂譜' : '這個分類目前還沒有樂譜！'}</p>
         </div>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-5">
             {paginatedSheets.map((sheet, index) => (
               <SheetCard
                 key={sheet.id}
@@ -432,52 +294,24 @@ export default function Home() {
 
           {/* 分頁控制列 (Pagination Bar) */}
           {totalPages > 1 && (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '36px', padding: '16px 0' }}>
+            <div className="flex justify-center items-center gap-4 mt-9 py-4">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '8px 16px',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border-color)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: currentPage === 1 ? 'var(--text-secondary)' : 'var(--text-primary)',
-                  opacity: currentPage === 1 ? 0.5 : 1,
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease'
-                }}
+                className={PAGE_BUTTON_CLASS}
               >
                 <ChevronLeft size={18} />
                 <span>上一頁</span>
               </button>
 
-              <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-secondary)' }}>
+              <span className="text-[14px] font-bold text-(--text-secondary)">
                 第 {currentPage} / {totalPages} 頁 (共 {filteredCount} 首)
               </span>
 
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '8px 16px',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border-color)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: currentPage === totalPages ? 'var(--text-secondary)' : 'var(--text-primary)',
-                  opacity: currentPage === totalPages ? 0.5 : 1,
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease'
-                }}
+                className={PAGE_BUTTON_CLASS}
               >
                 <span>下一頁</span>
                 <ChevronRight size={18} />

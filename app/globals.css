@@ -95,6 +95,8 @@
 }
 
 @theme inline {
+  /* 間距單位固定 4px：html 字級為 18px，避免 Tailwind 間距隨之放大（p-3 = 12px） */
+  --spacing: 4px;
   --color-background: var(--background);
   --color-foreground: var(--text-primary);
   --font-sans: var(--font-geist-sans);
