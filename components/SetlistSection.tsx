@@ -1,7 +1,7 @@
 'use client'
 
 import { Sheet } from '@/types'
-import { ListMusic, Trash2, Maximize2, ChevronUp, ChevronDown, RotateCcw } from 'lucide-react'
+import { ListMusic, Trash2, Maximize2, ChevronUp, ChevronDown, RotateCcw, Users } from 'lucide-react'
 
 // 歌曲列右側的小方形按鈕
 const trackButtonClass =
@@ -16,6 +16,7 @@ interface SetlistSectionProps {
   onMoveTrack: (index: number, direction: 'up' | 'down') => void
   onRemoveTrack: (id: number) => void
   onClearSetlist: () => void
+  onShareToTeam?: () => void
 }
 
 export function SetlistSection({
@@ -24,13 +25,14 @@ export function SetlistSection({
   onMoveTrack,
   onRemoveTrack,
   onClearSetlist,
+  onShareToTeam,
 }: SetlistSectionProps) {
   if (setlist.length === 0) return null
 
   return (
     <div className="rounded-[16px] bg-(--card-bg) border border-(--border-color) shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-6 mb-8 transition-all duration-200">
-      {/* 標題與清空按鈕 */}
-      <div className="flex justify-between items-center mb-5">
+      {/* 標題與操作按鈕 */}
+      <div className="flex justify-between items-center mb-5 flex-wrap gap-3">
         <div className="flex items-center gap-2">
           <ListMusic size={22} className="text-(--text-primary)" />
           <h2 className="m-0 text-[20px] font-bold text-(--text-primary)">
@@ -38,14 +40,27 @@ export function SetlistSection({
           </h2>
         </div>
 
-        {/* 一鍵清空按鈕 */}
-        <button
-          onClick={onClearSetlist}
-          className="inline-flex items-center gap-1.5 h-[34px] px-3 rounded-[8px] text-[13px] font-medium text-(--text-secondary) bg-transparent border border-(--border-color) cursor-pointer transition-all duration-200 hover:text-[#ef4444] hover:border-[rgba(239,68,68,0.3)] hover:bg-[rgba(239,68,68,0.05)]"
-        >
-          <RotateCcw size={14} />
-          <span>一鍵清空</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* 分享為團隊歌單 */}
+          {onShareToTeam && (
+            <button
+              onClick={onShareToTeam}
+              className="inline-flex items-center gap-1.5 h-[34px] px-3 rounded-[8px] text-[13px] font-medium text-(--text-secondary) bg-transparent border border-(--border-color) cursor-pointer transition-all duration-200 hover:text-[#2563eb] hover:border-[rgba(37,99,235,0.3)] hover:bg-[rgba(37,99,235,0.05)]"
+            >
+              <Users size={14} />
+              <span>分享為團隊歌單</span>
+            </button>
+          )}
+
+          {/* 一鍵清空按鈕 */}
+          <button
+            onClick={onClearSetlist}
+            className="inline-flex items-center gap-1.5 h-[34px] px-3 rounded-[8px] text-[13px] font-medium text-(--text-secondary) bg-transparent border border-(--border-color) cursor-pointer transition-all duration-200 hover:text-[#ef4444] hover:border-[rgba(239,68,68,0.3)] hover:bg-[rgba(239,68,68,0.05)]"
+          >
+            <RotateCcw size={14} />
+            <span>一鍵清空</span>
+          </button>
+        </div>
       </div>
 
       {/* 歌單列表 */}

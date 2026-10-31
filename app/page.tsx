@@ -19,6 +19,7 @@ import { useUserProfile } from '@/hooks/useUserProfile'
 import { useSetlist } from '@/hooks/useSetlist'
 import { useSheetFilters, TempoTab } from '@/hooks/useSheetFilters'
 import { useSheetViewer } from '@/hooks/useSheetViewer'
+import { createTeamSetlist, defaultSetlistTitle, nextSundayString } from '@/utils/teamSetlists'
 
 import { Music, Zap, Moon, HelpCircle, Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -152,6 +153,23 @@ export default function Home() {
     }
   }
 
+  // 將個人歌單複製為新的團隊歌單（預設下一個主日），並前往該歌單頁面調整
+  const handleShareToTeam = async () => {
+    if (setlist.length === 0) return
+    try {
+      const serviceDate = nextSundayString()
+      const id = await createTeamSetlist(supabase, {
+        title: defaultSetlistTitle(serviceDate),
+        serviceDate,
+        sheetIds: setlist.map((sheet) => sheet.id),
+      })
+      toast.success('已建立團隊歌單，可在此修改名稱與日期')
+      router.push(`/team/${id}`)
+    } catch (err) {
+      toast.error('分享失敗：' + (err as Error).message)
+    }
+  }
+
   const handleAddToSetlist = (sheet: Sheet) => {
     if (!addToSetlist(sheet)) {
       toast.info('此樂譜已經在歌單中了！')
@@ -194,6 +212,7 @@ export default function Home() {
           onMoveTrack={moveSetlistTrack}
           onRemoveTrack={removeFromSetlist}
           onClearSetlist={clearSetlist}
+          onShareToTeam={handleShareToTeam}
         />
       )}
 

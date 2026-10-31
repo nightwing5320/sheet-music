@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Settings, ListMusic, Plus, LogOut, Piano, Rocket, ShieldCheck, HelpCircle } from 'lucide-react'
+import { Settings, ListMusic, Plus, LogOut, Piano, Rocket, ShieldCheck, HelpCircle, Users } from 'lucide-react'
 
 // 將基礎樣式放在 Component 外面
 const baseButtonClass =
@@ -87,6 +87,12 @@ export function Header({
           <ListMusic size={18} />
           <span>當日歌單 ({setlistCount})</span>
         </button>
+
+        {/* 團隊共用歌單 */}
+        <Link href="/team" className={secondaryButtonClass}>
+          <Users size={18} />
+          <span>團隊歌單</span>
+        </Link>
 
         {/* 上傳樂譜 */}
         <Link id="tour-upload-btn" href="/upload" className={primaryButtonClass}>
