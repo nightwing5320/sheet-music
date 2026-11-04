@@ -10,6 +10,9 @@ const toDateString = (date: Date) => {
 
 export const todayString = () => toDateString(new Date())
 
+// 已選定的過去日期（手動輸入年份到一半時的 0202-11-01 這類值不算）
+export const isPastDate = (value: string) => value >= '2000' && value < todayString()
+
 // 下一個主日（今天若是星期日則為今天）
 export const nextSundayString = () => {
   const date = new Date()

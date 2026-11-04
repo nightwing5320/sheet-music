@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useEffect, useState } from 'react'
+import { use, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
@@ -8,7 +8,7 @@ import { useToast } from '@/components/Toast'
 import { SheetViewerModal } from '@/components/SheetViewerModal'
 import { useSheetViewer } from '@/hooks/useSheetViewer'
 import { Sheet, TeamSetlist } from '@/types'
-import { formatServiceDate } from '@/utils/teamSetlists'
+import { formatServiceDate, isPastDate, todayString } from '@/utils/teamSetlists'
 import { backLinkClass, cardClass, inputClass, labelClass, submitButtonClass, loadingTextClass } from '@/utils/ui'
 import {
   ArrowLeft,
@@ -41,7 +41,14 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
   const [library, setLibrary] = useState<Sheet[]>([])
   const [loading, setLoading] = useState(true)
   const [title, setTitle] = useState('')
+  // 輸入中的日期（可能尚未完整），有效後才儲存
+  const [serviceDate, setServiceDate] = useState('')
   const [search, setSearch] = useState('')
+
+  // 歌曲修改依序處理；confirmedSongsRef 為最後確認存進資料庫的歌曲
+  const songQueueRef = useRef<Promise<boolean>>(Promise.resolve(true))
+  const pendingSongChangesRef = useRef(0)
+  const confirmedSongsRef = useRef<number[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,6 +67,8 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
         const loaded = setlistResult.data as TeamSetlist
         setSetlist(loaded)
         setTitle(loaded.title)
+        setServiceDate(loaded.service_date ?? '')
+        confirmedSongsRef.current = loaded.sheet_ids
         setLibrary((sheetsResult.data ?? []) as Sheet[])
       } catch (err) {
         toast.error('無法載入團隊歌單：' + (err as Error).message)
@@ -80,11 +89,11 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
 
   const viewer = useSheetViewer(songs)
 
-  // 儲存變更（樂觀更新，失敗時還原）
-  const saveChanges = async (changes: Partial<Pick<TeamSetlist, 'title' | 'service_date' | 'sheet_ids'>>) => {
-    if (!setlist) return
-    const previous = setlist
-    setSetlist({ ...setlist, ...changes })
+  // 儲存名稱或日期（樂觀更新，失敗時還原）
+  const saveChanges = async (changes: Partial<Pick<TeamSetlist, 'title' | 'service_date'>>) => {
+    if (!setlist) return false
+    const { title: previousTitle, service_date: previousDate } = setlist
+    setSetlist((prev) => prev && { ...prev, ...changes })
 
     const { error } = await supabase
       .from('team_setlists')
@@ -92,13 +101,53 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
       .eq('id', setlist.id)
 
     if (error) {
-      setSetlist(previous)
+      setSetlist((prev) => prev && { ...prev, title: previousTitle, service_date: previousDate })
       toast.error('儲存失敗：' + error.message)
+      return false
     }
+    return true
   }
 
-  const saveSongs = (sheetIds: number[]) => saveChanges({ sheet_ids: sheetIds })
-  const songIds = songs.map((sheet) => sheet.id)
+  // 多人可同時編輯：先取得最新歌單再套用修改，避免蓋掉別人剛加入的歌曲
+  const updateSongs = (change: (sheetIds: number[]) => number[]) => {
+    if (!setlist) return
+    const setlistId = setlist.id
+    setSetlist((prev) => prev && { ...prev, sheet_ids: change(prev.sheet_ids) })
+    pendingSongChangesRef.current += 1
+
+    const saveSongChange = async () => {
+      let saved = true
+      try {
+        const { data, error: fetchError } = await supabase
+          .from('team_setlists')
+          .select('sheet_ids')
+          .eq('id', setlistId)
+          .single()
+        if (fetchError) throw fetchError
+
+        const sheetIds = change(data.sheet_ids as number[])
+        const { error } = await supabase
+          .from('team_setlists')
+          .update({ sheet_ids: sheetIds, updated_at: new Date().toISOString() })
+          .eq('id', setlistId)
+        if (error) throw error
+
+        confirmedSongsRef.current = sheetIds
+      } catch (err) {
+        saved = false
+        toast.error('儲存失敗：' + (err as Error).message)
+      }
+
+      // 全部處理完後，畫面改用資料庫的結果（包含別人的修改；失敗的修改會還原）
+      pendingSongChangesRef.current -= 1
+      if (pendingSongChangesRef.current === 0) {
+        setSetlist((prev) => prev && { ...prev, sheet_ids: confirmedSongsRef.current })
+      }
+      return saved
+    }
+
+    songQueueRef.current = songQueueRef.current.then(saveSongChange)
+  }
 
   const handleTitleBlur = () => {
     const trimmed = title.trim()
@@ -110,25 +159,54 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
     saveChanges({ title: trimmed })
   }
 
+  // 只能選今天以後：聚會日期已過的歌單會被自動刪除
+  const handleDateChange = (value: string) => {
+    if (isPastDate(value)) {
+      toast.info('聚會日期不能選過去的日期')
+      return
+    }
+    setServiceDate(value)
+    if (setlist && value >= todayString() && value !== setlist.service_date) saveChanges({ service_date: value })
+  }
+
+  const handleDateBlur = () => {
+    if (!setlist) return
+    if (serviceDate && serviceDate < todayString()) {
+      toast.info('聚會日期不能選過去的日期')
+      setServiceDate(setlist.service_date ?? '')
+    } else if (!serviceDate && setlist.service_date) {
+      saveChanges({ service_date: null })
+    }
+  }
+
   const addSong = (sheet: Sheet) => {
-    saveSongs([...songIds, sheet.id])
+    updateSongs((sheetIds) => (sheetIds.includes(sheet.id) ? sheetIds : [...sheetIds, sheet.id]))
     setSearch('')
   }
 
-  const removeSong = (sheetId: number) => saveSongs(songIds.filter((songId) => songId !== sheetId))
+  const removeSong = (sheetId: number) => updateSongs((sheetIds) => sheetIds.filter((songId) => songId !== sheetId))
 
-  const moveSong = (index: number, direction: 'up' | 'down') => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1
-    if (targetIndex < 0 || targetIndex >= songIds.length) return
-    const reordered = [...songIds]
-    ;[reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]]
-    saveSongs(reordered)
+  // 與畫面上相鄰的歌曲交換（略過樂譜已被刪除的項目）
+  const moveSong = (sheetId: number, direction: 'up' | 'down') => {
+    updateSongs((sheetIds) => {
+      const visible = sheetIds.filter((songId) => sheetsById.has(songId))
+      const neighbor = visible[visible.indexOf(sheetId) + (direction === 'up' ? -1 : 1)]
+      if (neighbor === undefined) return sheetIds
+      return sheetIds.map((songId) => (songId === sheetId ? neighbor : songId === neighbor ? sheetId : songId))
+    })
   }
 
   // 變更都會即時儲存；這裡補存尚未失焦的名稱後回到列表
   const handleSave = async () => {
     const trimmed = title.trim()
-    if (setlist && trimmed && trimmed !== setlist.title) await saveChanges({ title: trimmed })
+    if (setlist && trimmed && trimmed !== setlist.title && !(await saveChanges({ title: trimmed }))) return
+
+    // 等歌曲修改處理完；失敗時留在原頁（錯誤已顯示），再按一次即可離開
+    if (!(await songQueueRef.current)) {
+      songQueueRef.current = Promise.resolve(true)
+      return
+    }
+
     toast.success('已儲存團隊歌單')
     router.push('/team')
   }
@@ -148,7 +226,7 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
   const term = search.trim().toLowerCase()
   const searchResults = term
     ? library
-        .filter((sheet) => !songIds.includes(sheet.id))
+        .filter((sheet) => !setlist?.sheet_ids.includes(sheet.id))
         .filter((sheet) => sheet.title.toLowerCase().includes(term) || (sheet.artist?.toLowerCase().includes(term) ?? false))
         .slice(0, MAX_SEARCH_RESULTS)
     : []
@@ -187,8 +265,10 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
             </label>
             <input
               type="date"
-              value={setlist.service_date ?? ''}
-              onChange={(e) => saveChanges({ service_date: e.target.value || null })}
+              value={serviceDate}
+              min={todayString()}
+              onChange={(e) => handleDateChange(e.target.value)}
+              onBlur={handleDateBlur}
               className="px-3 py-2.5 rounded-[8px] border border-(--border-color) bg-(--card-bg) text-(--text-primary) box-border text-[15px]"
             />
           </div>
@@ -239,11 +319,11 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
                 </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <button onClick={() => moveSong(index, 'up')} disabled={index === 0} title="向上移動" className={moveButtonClass}>
+                  <button onClick={() => moveSong(sheet.id, 'up')} disabled={index === 0} title="向上移動" className={moveButtonClass}>
                     <ChevronUp size={16} />
                   </button>
                   <button
-                    onClick={() => moveSong(index, 'down')}
+                    onClick={() => moveSong(sheet.id, 'down')}
                     disabled={index === songs.length - 1}
                     title="向下移動"
                     className={moveButtonClass}

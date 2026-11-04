@@ -55,7 +55,7 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     targetSelector: '#tour-theme-toggle',
-    title: '切換深淺色模式',
+    title: '切換主題',
     description: '依個人喜好隨時切換不同主題',
     position: 'bottom'
   },

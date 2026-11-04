@@ -12,6 +12,7 @@ import {
   createTeamSetlist,
   defaultSetlistTitle,
   formatServiceDate,
+  isPastDate,
   todayString,
 } from '@/utils/teamSetlists'
 import {
@@ -27,7 +28,15 @@ import {
 import { ArrowLeft, Users, Plus, CalendarDays, Music, ChevronRight, Maximize2 } from 'lucide-react'
 
 // 單一歌單卡片：點擊進入編輯，右側可直接放大檢視整份歌單
-function SetlistRow({ setlist, onView }: { setlist: TeamSetlist; onView: (setlist: TeamSetlist) => void }) {
+function SetlistRow({
+  setlist,
+  songCount,
+  onView,
+}: {
+  setlist: TeamSetlist
+  songCount: number
+  onView: (setlist: TeamSetlist) => void
+}) {
   return (
     <div className="flex items-center gap-2 pr-3 rounded-[12px] bg-(--card-bg) border border-(--border-color) transition-all duration-200 hover:border-(--text-secondary)">
       <Link
@@ -43,13 +52,13 @@ function SetlistRow({ setlist, onView }: { setlist: TeamSetlist; onView: (setlis
             </span>
             <span className="inline-flex items-center gap-1">
               <Music size={14} />
-              {setlist.sheet_ids.length} 首
+              {songCount} 首
             </span>
           </div>
         </div>
       </Link>
 
-      {setlist.sheet_ids.length > 0 && (
+      {songCount > 0 && (
         <button
           onClick={() => onView(setlist)}
           className="inline-flex items-center gap-1 h-[34px] px-2.5 shrink-0 rounded-[8px] border border-(--border-color) bg-transparent text-(--text-secondary) text-[13px] font-medium cursor-pointer transition-all duration-200 hover:text-[#2563eb] hover:border-[rgba(37,99,235,0.3)] hover:bg-[rgba(37,99,235,0.05)]"
@@ -72,6 +81,7 @@ export default function TeamSetlistsPage() {
   const supabase = createClient()
 
   const [setlists, setSetlists] = useState<TeamSetlist[]>([])
+  const [existingSheetIds, setExistingSheetIds] = useState<Set<number>>(new Set())
   const [loading, setLoading] = useState(true)
   const [serviceDate, setServiceDate] = useState(todayString)
   const [title, setTitle] = useState(() => defaultSetlistTitle(todayString()))
@@ -90,13 +100,15 @@ export default function TeamSetlistsPage() {
           .lt('service_date', todayString())
         if (cleanupError) console.error('Failed to delete past team setlists:', cleanupError)
 
-        const { data, error } = await supabase
-          .from('team_setlists')
-          .select('*')
-          .order('service_date', { ascending: true, nullsFirst: false })
+        const [setlistsResult, sheetsResult] = await Promise.all([
+          supabase.from('team_setlists').select('*').order('service_date', { ascending: true, nullsFirst: false }),
+          supabase.from('sheets').select('id'),
+        ])
 
-        if (error) throw error
-        setSetlists((data ?? []) as TeamSetlist[])
+        if (setlistsResult.error) throw setlistsResult.error
+        if (sheetsResult.error) throw sheetsResult.error
+        setSetlists((setlistsResult.data ?? []) as TeamSetlist[])
+        setExistingSheetIds(new Set((sheetsResult.data ?? []).map((sheet) => sheet.id as number)))
       } catch (err) {
         toast.error('載入團隊歌單失敗：' + (err as Error).message)
       } finally {
@@ -109,6 +121,10 @@ export default function TeamSetlistsPage() {
 
   // 日期改變時，若名稱仍是預設格式則一併更新
   const handleDateChange = (value: string) => {
+    if (isPastDate(value)) {
+      toast.info('聚會日期不能選過去的日期')
+      return
+    }
     if (title === defaultSetlistTitle(serviceDate) && value) setTitle(defaultSetlistTitle(value))
     setServiceDate(value)
   }
@@ -117,6 +133,10 @@ export default function TeamSetlistsPage() {
     e.preventDefault()
     if (!title.trim()) {
       toast.info('請填寫歌單名稱！')
+      return
+    }
+    if (serviceDate && serviceDate < todayString()) {
+      toast.info('聚會日期不能選過去的日期')
       return
     }
 
@@ -175,6 +195,7 @@ export default function TeamSetlistsPage() {
         <Users size={26} className="text-(--text-primary)" />
         <h1 className={pageTitleClass}>團隊歌單</h1>
       </div>
+      <p className="-mt-3 mb-6 text-[14px] text-(--text-secondary)">這是與整個團隊共用的聚會歌單，大家都能查看、加入歌曲及調整順序</p>
 
       {/* 新增歌單 */}
       <form onSubmit={handleCreate} className={`${cardClass} mb-8 flex flex-col gap-4`}>
@@ -200,6 +221,7 @@ export default function TeamSetlistsPage() {
             <input
               type="date"
               value={serviceDate}
+              min={today}
               onChange={(e) => handleDateChange(e.target.value)}
               className={`${inputClass} text-[15px] w-full min-w-0 appearance-none`}
             />
@@ -221,7 +243,13 @@ export default function TeamSetlistsPage() {
       ) : (
         <div className="flex flex-col gap-2.5">
           {upcoming.map((s) => (
-            <SetlistRow key={s.id} setlist={s} onView={handleView} />
+            <SetlistRow
+              key={s.id}
+              setlist={s}
+              // 已從樂譜庫刪除的歌不計入
+              songCount={s.sheet_ids.filter((sheetId) => existingSheetIds.has(sheetId)).length}
+              onView={handleView}
+            />
           ))}
         </div>
       )}
