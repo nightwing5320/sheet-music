@@ -173,9 +173,9 @@ export function SheetAnnotator({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="fixed top-[70px] min-[680px]:top-4 h-[38px] bg-[rgba(15,23,42,0.92)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.2)] px-3.5 rounded-[30px] flex items-center gap-2.5 z-[10005] shadow-[0_10px_30px_rgba(0,0,0,0.5)] text-white cursor-grab select-none touch-none box-border"
+      className="fixed top-4 h-[38px] bg-[rgba(15,23,42,0.92)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.2)] px-3.5 rounded-[30px] flex items-center gap-2.5 z-[10005] shadow-[0_10px_30px_rgba(0,0,0,0.5)] text-white cursor-grab select-none touch-none box-border"
       style={{
-        // 工具列可拖曳，位置為即時計算值；預設與「筆記」按鈕同高（窄螢幕放在按鈕下方，避免擋住按鈕）
+        // 工具列可拖曳，位置為即時計算值；預設與「筆記」按鈕同高
         left: toolbarPos ? `${toolbarPos.x}px` : '50%',
         top: toolbarPos ? `${toolbarPos.y}px` : undefined,
         transform: toolbarPos ? 'none' : 'translateX(-50%)',

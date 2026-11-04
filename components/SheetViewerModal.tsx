@@ -247,7 +247,10 @@ export function SheetViewerModal({
           className="fixed top-4 left-1/2 -translate-x-1/2 flex items-center gap-2.5 bg-[rgba(30,41,59,0.92)] border border-[rgba(255,255,255,0.2)] text-white px-3.5 py-2 rounded-[20px] text-[12px] font-medium z-[10003] backdrop-blur-[12px] shadow-[0_8px_20px_rgba(0,0,0,0.35)] w-max whitespace-normal text-center leading-[1.4] max-w-[calc(100vw-32px)] box-border"
         >
           <Info size={14} className="text-[#3b82f6] shrink-0" />
-          <span>雙指縮放 ｜ 單指移動 ｜ 點按“筆記”可用觸控筆在譜上劃記</span>
+          <span>
+            雙指縮放 ｜ 單指移動
+            <span className="max-[679px]:hidden"> ｜ 點按“筆記”可用觸控筆在譜上劃記</span>
+          </span>
 
           <div className="flex items-center gap-2 ml-1.5 border-l border-[rgba(255,255,255,0.2)] pl-2">
             <button
@@ -286,7 +289,8 @@ export function SheetViewerModal({
             if (!isEditing) handleResetZoom()
           }}
           className={`inline-flex items-center gap-1.5 h-[38px] px-3.5 rounded-[10px] border border-[rgba(255,255,255,0.18)] text-white font-semibold cursor-pointer text-[13px] backdrop-blur-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.3)] ${
-            isEditing ? 'bg-[#059669]' : 'bg-[rgba(15,23,42,0.85)]'
+            // 筆記需要觸控筆，手機（窄螢幕）不顯示；已畫的筆記仍會顯示
+            isEditing ? 'bg-[#059669]' : 'bg-[rgba(15,23,42,0.85)] max-[679px]:hidden'
           }`}
         >
           {isEditing ? (
