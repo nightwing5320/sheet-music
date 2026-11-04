@@ -30,7 +30,7 @@ export const formatServiceDate = (value: string | null) => {
 // 預設歌單名稱，例如「11/1 主日歌單」
 export const defaultSetlistTitle = (serviceDate: string) => {
   const [, month, day] = serviceDate.split('-').map(Number)
-  return `${month}/${day} 主日歌單`
+  return `${month}/${day} 聚會歌單`
 }
 
 // 建立團隊歌單，回傳新歌單 id（失敗時丟出錯誤）
