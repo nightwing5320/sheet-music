@@ -12,7 +12,6 @@ import {
   createTeamSetlist,
   defaultSetlistTitle,
   formatServiceDate,
-  nextSundayString,
   todayString,
 } from '@/utils/teamSetlists'
 import {
@@ -74,8 +73,8 @@ export default function TeamSetlistsPage() {
 
   const [setlists, setSetlists] = useState<TeamSetlist[]>([])
   const [loading, setLoading] = useState(true)
-  const [serviceDate, setServiceDate] = useState(nextSundayString)
-  const [title, setTitle] = useState(() => defaultSetlistTitle(nextSundayString()))
+  const [serviceDate, setServiceDate] = useState(todayString)
+  const [title, setTitle] = useState(() => defaultSetlistTitle(todayString()))
   const [creating, setCreating] = useState(false)
   const [viewingSongs, setViewingSongs] = useState<Sheet[]>([])
 
