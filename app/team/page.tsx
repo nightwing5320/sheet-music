@@ -13,6 +13,7 @@ import {
   defaultSetlistTitle,
   formatServiceDate,
   isPastDate,
+  openDatePicker,
   todayString,
 } from '@/utils/teamSetlists'
 import {
@@ -212,7 +213,7 @@ export default function TeamSetlistsPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              placeholder="例如：11/1 主日歌單"
+              placeholder="例如：11/1 聚會歌單"
               className={`${inputClass} text-[15px]`}
             />
           </div>
@@ -223,7 +224,8 @@ export default function TeamSetlistsPage() {
               value={serviceDate}
               min={today}
               onChange={(e) => handleDateChange(e.target.value)}
-              className={`${inputClass} text-[15px] w-full min-w-0 appearance-none`}
+              onClick={openDatePicker}
+              className={`${inputClass} text-[15px] w-full min-w-0 appearance-none cursor-pointer`}
             />
           </div>
         </div>

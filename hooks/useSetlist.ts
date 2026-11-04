@@ -15,6 +15,32 @@ export function useSetlist(supabase: SupabaseClient) {
   const setlistLoadedRef = useRef(false)
 
   useEffect(() => {
+    // 歌單存的是樂譜複本：對照樂譜庫，移除已刪除的樂譜並更新名稱、調性等資料
+    const refreshSetlist = async (saved: Sheet[]) => {
+      const savedIds = saved.map((sheet) => sheet.id)
+      if (savedIds.length === 0) return
+
+      const { data, error } = await supabase
+        .from('sheets')
+        .select('id, title, artist, tempo, file_url, image_urls, created_at')
+        .in('id', savedIds)
+
+      if (error) {
+        console.error('Failed to refresh setlist:', error)
+        return
+      }
+
+      const latest = new Map((data as Sheet[]).map((sheet) => [sheet.id, sheet]))
+      // 載入期間才加入的歌曲不在 savedIds 內，維持原樣
+      setSetlist((prev) =>
+        prev.flatMap((sheet) => {
+          if (!savedIds.includes(sheet.id)) return [sheet]
+          const current = latest.get(sheet.id)
+          return current ? [current] : []
+        })
+      )
+    }
+
     const fetchCloudSetlist = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser()
@@ -33,6 +59,8 @@ export function useSetlist(supabase: SupabaseClient) {
           }
 
           setlistLoadedRef.current = true
+
+          if (profile.setlist && Array.isArray(profile.setlist)) await refreshSetlist(profile.setlist)
         }
       } catch (err) {
         console.error('Error fetching cloud setlist:', err)

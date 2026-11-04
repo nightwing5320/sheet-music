@@ -8,7 +8,8 @@ import { useToast } from '@/components/Toast'
 import { SheetViewerModal } from '@/components/SheetViewerModal'
 import { useSheetViewer } from '@/hooks/useSheetViewer'
 import { Sheet, TeamSetlist } from '@/types'
-import { formatServiceDate, isPastDate, todayString } from '@/utils/teamSetlists'
+import { formatServiceDate, isPastDate, openDatePicker, todayString } from '@/utils/teamSetlists'
+import { keepScrollPosition } from '@/utils/keepScrollPosition'
 import { backLinkClass, cardClass, inputClass, labelClass, submitButtonClass, loadingTextClass } from '@/utils/ui'
 import {
   ArrowLeft,
@@ -49,6 +50,7 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
   const songQueueRef = useRef<Promise<boolean>>(Promise.resolve(true))
   const pendingSongChangesRef = useRef(0)
   const confirmedSongsRef = useRef<number[]>([])
+  const addSongCardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -180,8 +182,11 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
   }
 
   const addSong = (sheet: Sheet) => {
-    updateSongs((sheetIds) => (sheetIds.includes(sheet.id) ? sheetIds : [...sheetIds, sheet.id]))
-    setSearch('')
+    // 歌曲列表在搜尋區上方，加入後變高時畫面維持不動
+    keepScrollPosition(addSongCardRef.current, () => {
+      updateSongs((sheetIds) => (sheetIds.includes(sheet.id) ? sheetIds : [...sheetIds, sheet.id]))
+      setSearch('')
+    })
   }
 
   const removeSong = (sheetId: number) => updateSongs((sheetIds) => sheetIds.filter((songId) => songId !== sheetId))
@@ -236,7 +241,7 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <main className="w-full max-w-[640px] mx-auto my-10 p-6 text-(--text-primary)">
+    <main className="w-full max-w-[640px] mx-auto my-10 p-6 text-(--text-primary) [overflow-anchor:none]">
       <Link href="/team" className={backLinkClass}>
         <ArrowLeft size={16} />
         <span>所有團隊歌單</span>
@@ -269,7 +274,8 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
               min={todayString()}
               onChange={(e) => handleDateChange(e.target.value)}
               onBlur={handleDateBlur}
-              className="px-3 py-2.5 rounded-[8px] border border-(--border-color) bg-(--card-bg) text-(--text-primary) box-border text-[15px]"
+              onClick={openDatePicker}
+              className="cursor-pointer px-3 py-2.5 rounded-[8px] border border-(--border-color) bg-(--card-bg) text-(--text-primary) box-border text-[15px]"
             />
           </div>
           <button
@@ -352,7 +358,7 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
       </div>
 
       {/* 加入歌曲 */}
-      <div className={cardClass}>
+      <div ref={addSongCardRef} className={cardClass}>
         <div className="flex items-center gap-2 mb-4">
           <Plus size={20} className="text-(--text-primary)" />
           <h2 className="m-0 text-[18px] font-bold">加入歌曲</h2>

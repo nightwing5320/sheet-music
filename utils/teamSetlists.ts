@@ -1,4 +1,5 @@
 // utils/teamSetlists.ts
+import type React from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 // 以本地時間格式化為 YYYY-MM-DD（避免 toISOString 轉成 UTC 而差一天）
@@ -13,11 +14,13 @@ export const todayString = () => toDateString(new Date())
 // 已選定的過去日期（手動輸入年份到一半時的 0202-11-01 這類值不算）
 export const isPastDate = (value: string) => value >= '2000' && value < todayString()
 
-// 下一個主日（今天若是星期日則為今天）
-export const nextSundayString = () => {
-  const date = new Date()
-  date.setDate(date.getDate() + ((7 - date.getDay()) % 7))
-  return toDateString(date)
+// 點日期欄任何地方都打開行事曆（部分瀏覽器預設只有小圖示能點）
+export const openDatePicker = (e: React.MouseEvent<HTMLInputElement>) => {
+  try {
+    e.currentTarget.showPicker()
+  } catch {
+    // 不支援時維持瀏覽器預設行為
+  }
 }
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
@@ -30,7 +33,7 @@ export const formatServiceDate = (value: string | null) => {
   return `${month}/${day}（${WEEKDAYS[date.getDay()]}）`
 }
 
-// 預設歌單名稱，例如「11/1 主日歌單」
+// 預設歌單名稱，例如「11/1 聚會歌單」
 export const defaultSetlistTitle = (serviceDate: string) => {
   const [, month, day] = serviceDate.split('-').map(Number)
   return `${month}/${day} 聚會歌單`

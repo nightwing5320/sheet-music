@@ -19,7 +19,8 @@ import { useUserProfile } from '@/hooks/useUserProfile'
 import { useSetlist } from '@/hooks/useSetlist'
 import { useSheetFilters, TempoTab } from '@/hooks/useSheetFilters'
 import { useSheetViewer } from '@/hooks/useSheetViewer'
-import { createTeamSetlist, defaultSetlistTitle, nextSundayString } from '@/utils/teamSetlists'
+import { createTeamSetlist, defaultSetlistTitle } from '@/utils/teamSetlists'
+import { keepScrollPosition } from '@/utils/keepScrollPosition'
 
 import { Music, Zap, Moon, HelpCircle, Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -162,17 +163,16 @@ export default function Home() {
     }
   }
 
-  // 將個人歌單複製為新的團隊歌單（預設下一個主日），並前往該歌單頁面調整
-  const handleShareToTeam = async () => {
+  // 將個人歌單複製為新的團隊歌單，並前往該歌單頁面調整
+  const handleShareToTeam = async (serviceDate: string) => {
     if (setlist.length === 0) return
     try {
-      const serviceDate = nextSundayString()
       const id = await createTeamSetlist(supabase, {
         title: defaultSetlistTitle(serviceDate),
         serviceDate,
         sheetIds: setlist.map((sheet) => sheet.id),
       })
-      toast.success('已建立團隊歌單，可在此修改名稱與日期')
+      toast.success('已建立團隊歌單，可在此修改名稱與歌曲')
       router.push(`/team/${id}`)
     } catch (err) {
       toast.error('分享失敗：' + (err as Error).message)
@@ -180,11 +180,16 @@ export default function Home() {
   }
 
   const handleAddToSetlist = (sheet: Sheet) => {
-    if (!addToSetlist(sheet)) {
+    if (isInSetlist(sheet.id)) {
       toast.info('此樂譜已經在歌單中了！')
       return
     }
-    setIsSetlistOpen(true)
+
+    // 歌單在樂譜列表上方，加入後變高時畫面維持不動
+    keepScrollPosition(listTopRef.current, () => {
+      addToSetlist(sheet)
+      setIsSetlistOpen(true)
+    })
   }
 
   const handlePageChange = (newPage: number) => {
@@ -194,7 +199,7 @@ export default function Home() {
   }
 
   return (
-    <main className="w-full max-w-[1000px] mx-auto px-5 py-8 text-(--text-primary) overflow-x-hidden">
+    <main className="w-full max-w-[1000px] mx-auto px-5 py-8 text-(--text-primary) overflow-x-hidden [overflow-anchor:none]">
       {/* Header */}
       <Header
         userDisplayName={userDisplayName}
