@@ -29,6 +29,7 @@ export function SheetAnnotator({
 }: SheetAnnotatorProps) {
   // 可拖曳工具列的位置狀態
   const [toolbarPos, setToolbarPos] = useState<{ x: number; y: number } | null>(null)
+  const toolbarRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
   const dragStartRef = useRef({ x: 0, y: 0, initialX: 0, initialY: 0 })
 
@@ -43,14 +44,13 @@ export function SheetAnnotator({
 
   // 滑鼠 / 觸控 拖曳開始
   const handleStartDrag = (clientX: number, clientY: number) => {
-    const currentX = toolbarPos ? toolbarPos.x : (window.innerWidth / 2 - 160)
-    const currentY = toolbarPos ? toolbarPos.y : 70
+    const rect = toolbarRef.current?.getBoundingClientRect()
 
     dragStartRef.current = {
       x: clientX,
       y: clientY,
-      initialX: currentX,
-      initialY: currentY,
+      initialX: rect?.left ?? 0,
+      initialY: rect?.top ?? 0,
     }
     isDraggingRef.current = true
   }
@@ -168,15 +168,16 @@ export function SheetAnnotator({
   // 整合 Portal 工具列
   const toolbarContent = isEditing ? (
     <div
+      ref={toolbarRef}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="fixed bg-[rgba(15,23,42,0.92)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.2)] px-3.5 py-1.5 rounded-[30px] flex items-center gap-2.5 z-[10005] shadow-[0_10px_30px_rgba(0,0,0,0.5)] text-white cursor-grab select-none touch-none box-border"
+      className="fixed top-[70px] min-[680px]:top-4 h-[38px] bg-[rgba(15,23,42,0.92)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.2)] px-3.5 rounded-[30px] flex items-center gap-2.5 z-[10005] shadow-[0_10px_30px_rgba(0,0,0,0.5)] text-white cursor-grab select-none touch-none box-border"
       style={{
-        // 工具列可拖曳，位置為即時計算值
+        // 工具列可拖曳，位置為即時計算值；預設與「筆記」按鈕同高（窄螢幕放在按鈕下方，避免擋住按鈕）
         left: toolbarPos ? `${toolbarPos.x}px` : '50%',
-        top: toolbarPos ? `${toolbarPos.y}px` : '70px',
+        top: toolbarPos ? `${toolbarPos.y}px` : undefined,
         transform: toolbarPos ? 'none' : 'translateX(-50%)',
       }}
     >
