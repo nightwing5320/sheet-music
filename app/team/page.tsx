@@ -184,8 +184,8 @@ export default function TeamSetlistsPage() {
           <h2 className="m-0 text-[18px] font-bold">新增團隊歌單</h2>
         </div>
 
-        <div className="grid grid-cols-[1fr_auto] gap-3 max-[480px]:grid-cols-1">
-          <div>
+        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,11rem)] gap-3 max-[480px]:grid-cols-1">
+          <div className="min-w-0">
             <label className={labelClass}>歌單名稱</label>
             <input
               type="text"
@@ -196,13 +196,13 @@ export default function TeamSetlistsPage() {
               className={`${inputClass} text-[15px]`}
             />
           </div>
-          <div>
+          <div className="min-w-0">
             <label className={labelClass}>聚會日期</label>
             <input
               type="date"
               value={serviceDate}
               onChange={(e) => handleDateChange(e.target.value)}
-              className={`${inputClass} text-[15px]`}
+              className={`${inputClass} text-[15px] w-full min-w-0 appearance-none`}
             />
           </div>
         </div>
