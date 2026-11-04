@@ -20,7 +20,6 @@ import { useSetlist } from '@/hooks/useSetlist'
 import { useSheetFilters, TempoTab } from '@/hooks/useSheetFilters'
 import { useSheetViewer } from '@/hooks/useSheetViewer'
 import { createTeamSetlist, defaultSetlistTitle } from '@/utils/teamSetlists'
-import { keepScrollPosition } from '@/utils/keepScrollPosition'
 
 import { Music, Zap, Moon, HelpCircle, Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -180,16 +179,11 @@ export default function Home() {
   }
 
   const handleAddToSetlist = (sheet: Sheet) => {
-    if (isInSetlist(sheet.id)) {
+    if (!addToSetlist(sheet)) {
       toast.info('此樂譜已經在歌單中了！')
       return
     }
-
-    // 歌單在樂譜列表上方，加入後變高時畫面維持不動
-    keepScrollPosition(listTopRef.current, () => {
-      addToSetlist(sheet)
-      setIsSetlistOpen(true)
-    })
+    setIsSetlistOpen(true)
   }
 
   const handlePageChange = (newPage: number) => {
@@ -199,7 +193,7 @@ export default function Home() {
   }
 
   return (
-    <main className="w-full max-w-[1000px] mx-auto px-5 py-8 text-(--text-primary) overflow-x-hidden [overflow-anchor:none]">
+    <main className="w-full max-w-[1000px] mx-auto px-5 py-8 text-(--text-primary) overflow-x-hidden">
       {/* Header */}
       <Header
         userDisplayName={userDisplayName}
