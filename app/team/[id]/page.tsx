@@ -254,6 +254,9 @@ export default function TeamSetlistPage({ params }: { params: Promise<{ id: stri
             onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
             className={`${inputClass} text-[18px] font-bold`}
           />
+          {setlist.created_by_name && (
+            <p className="mt-1.5 mb-0 text-[13px] text-(--text-secondary)">建立者：{setlist.created_by_name}</p>
+          )}
         </div>
         <div className="flex items-end justify-between gap-3 flex-wrap">
           <div>

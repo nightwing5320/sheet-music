@@ -46,7 +46,7 @@ function SetlistRow({
       >
         <div className="min-w-0">
           <div className="text-[16px] font-bold truncate">{setlist.title}</div>
-          <div className="flex items-center gap-3 mt-0.5 text-[13px] text-(--text-secondary)">
+          <div className="flex items-center flex-wrap gap-x-3 mt-0.5 text-[13px] text-(--text-secondary)">
             <span className="inline-flex items-center gap-1">
               <CalendarDays size={14} />
               {formatServiceDate(setlist.service_date)}
@@ -55,6 +55,7 @@ function SetlistRow({
               <Music size={14} />
               {songCount} 首
             </span>
+            {setlist.created_by_name && <span>建立者：{setlist.created_by_name}</span>}
           </div>
         </div>
       </Link>

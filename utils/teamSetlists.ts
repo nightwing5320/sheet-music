@@ -39,6 +39,15 @@ export const defaultSetlistTitle = (serviceDate: string) => {
   return `${month}/${day} 聚會歌單`
 }
 
+// 目前登入者的顯示名稱（與首頁問候語相同的順序）
+async function getCreatorName(supabase: SupabaseClient) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
+  return profile?.display_name || user.user_metadata?.display_name || user.email?.split('@')[0] || null
+}
+
 // 建立團隊歌單，回傳新歌單 id（失敗時丟出錯誤）
 export async function createTeamSetlist(
   supabase: SupabaseClient,
@@ -46,7 +55,12 @@ export async function createTeamSetlist(
 ) {
   const { data, error } = await supabase
     .from('team_setlists')
-    .insert({ title, service_date: serviceDate, sheet_ids: sheetIds })
+    .insert({
+      title,
+      service_date: serviceDate,
+      sheet_ids: sheetIds,
+      created_by_name: await getCreatorName(supabase),
+    })
     .select('id')
     .single()
 

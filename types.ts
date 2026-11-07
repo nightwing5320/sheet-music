@@ -15,6 +15,7 @@ export interface TeamSetlist {
   title: string
   service_date: string | null // YYYY-MM-DD
   sheet_ids: number[]
+  created_by_name: string | null // 建立者的顯示名稱（舊歌單沒有）
   created_at: string
   updated_at: string
 }
