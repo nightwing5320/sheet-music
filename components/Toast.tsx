@@ -11,10 +11,11 @@ interface ToastItem {
   message: string
 }
 
+// duration：顯示幾毫秒，不填則依類型使用預設值
 interface ToastApi {
-  success: (message: string) => void
-  error: (message: string) => void
-  info: (message: string) => void
+  success: (message: string, duration?: number) => void
+  error: (message: string, duration?: number) => void
+  info: (message: string, duration?: number) => void
 }
 
 const ToastContext = createContext<ToastApi | null>(null)
@@ -34,16 +35,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts((prev) => prev.filter((toast) => toast.id !== id))
   }, [])
 
-  const show = useCallback((type: ToastType, message: string) => {
+  const show = useCallback((type: ToastType, message: string, duration?: number) => {
     const id = nextIdRef.current++
     setToasts((prev) => [...prev.slice(-2), { id, type, message }]) // 最多同時顯示 3 則
-    setTimeout(() => dismiss(id), type === 'error' ? 5000 : 3000)
+    setTimeout(() => dismiss(id), duration ?? (type === 'error' ? 5000 : 3000))
   }, [dismiss])
 
   const [api] = useState<ToastApi>(() => ({
-    success: (message) => show('success', message),
-    error: (message) => show('error', message),
-    info: (message) => show('info', message),
+    success: (message, duration) => show('success', message, duration),
+    error: (message, duration) => show('error', message, duration),
+    info: (message, duration) => show('info', message, duration),
   }))
 
   return (

@@ -27,6 +27,8 @@ export const dynamic = 'force-dynamic'
 
 // 導覽內容有新增步驟時更新版本號，讓所有人重新看一次導覽（v2：新增「團隊歌單」）
 const TOUR_SEEN_KEY = 'has_seen_spotlight_tour_v2'
+// 新功能提示只跳一次（第一次使用的人會看導覽，不另外提示）
+const FEATURE_NOTICE_KEY = 'seen_feature_notice_feedback_v2'
 
 const TOUR_STEPS: TourStep[] = [
   {
@@ -44,7 +46,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     targetSelector: '#tour-account-btn',
     title: '帳號選單',
-    description: '點擊可進入個人設定（修改名稱與密碼）及登出',
+    description: '點擊可進入個人設定（修改名稱與密碼）、回報問題或建議，以及登出',
     position: 'bottom'
   },
   {
@@ -139,6 +141,21 @@ export default function Home() {
       return () => clearTimeout(timer)
     }
   }, [])
+
+  useEffect(() => {
+    if (localStorage.getItem(FEATURE_NOTICE_KEY)) return
+    if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+      localStorage.setItem(FEATURE_NOTICE_KEY, '1')
+      return
+    }
+
+    // 真的顯示後才記錄，避免還沒顯示就離開頁面而錯過
+    const timer = setTimeout(() => {
+      localStorage.setItem(FEATURE_NOTICE_KEY, '1')
+      toast.info('新功能！可以在右上角「帳號」選單回報問題或建議了', 8000)
+    }, 800)
+    return () => clearTimeout(timer)
+  }, [toast])
 
   const handleCloseTour = () => {
     setShowTour(false)
