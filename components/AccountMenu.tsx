@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ChevronDown, LogOut, Settings, ShieldCheck, UserCircle } from 'lucide-react'
+import { ChevronDown, LogOut, MessageSquareWarning, Settings, ShieldCheck, UserCircle } from 'lucide-react'
 
 // 選單項目共用樣式
 const menuItemClass =
@@ -14,7 +14,7 @@ interface AccountMenuProps {
   onLogout: () => void
 }
 
-// 頁首右側的帳號選單：個人設定、管理員後台、登出
+// 頁首右側的帳號選單：個人設定、回報問題、管理員後台、登出
 export function AccountMenu({ buttonClassName, isAdmin, onLogout }: AccountMenuProps) {
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -66,6 +66,16 @@ export function AccountMenu({ buttonClassName, isAdmin, onLogout }: AccountMenuP
           >
             <Settings size={17} />
             <span>個人設定</span>
+          </Link>
+
+          <Link
+            href="/feedback"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className={`${menuItemClass} text-(--text-primary) hover:bg-[rgba(100,116,139,0.1)]`}
+          >
+            <MessageSquareWarning size={17} />
+            <span>回報問題</span>
           </Link>
 
           {isAdmin && (
