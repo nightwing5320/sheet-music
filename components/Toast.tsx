@@ -27,7 +27,6 @@ const TOAST_STYLES: Record<ToastType, { color: string; Icon: typeof Info }> = {
 }
 
 // 取代 alert()：畫面上方的輕量提示，不會阻擋操作，切換頁面時仍會保留
-// 顏色與主題明暗相反（淺色主題為深底、深色主題為淺底），比較顯眼
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([])
   const nextIdRef = useRef(0)
@@ -61,7 +60,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <div
               key={toast.id}
               role={toast.type === 'error' ? 'alert' : 'status'}
-              className="flex items-center gap-2.5 px-3.5 py-3 rounded-[12px] bg-(--text-primary) border border-transparent border-l-4 text-(--background) shadow-[0_8px_24px_rgba(0,0,0,0.25)] text-[14px] font-semibold pointer-events-auto animate-[toast-in_0.2s_ease-out]"
+              className="flex items-center gap-2.5 px-3.5 py-3 rounded-[12px] bg-(--card-bg) border border-(--border-color) border-l-4 text-(--text-primary) shadow-[0_8px_24px_rgba(0,0,0,0.12)] text-[14px] font-semibold pointer-events-auto animate-[toast-in_0.2s_ease-out]"
               style={{ borderLeftColor: color }}
             >
               <Icon size={18} className="shrink-0" style={{ color }} />
@@ -70,7 +69,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 type="button"
                 onClick={() => dismiss(toast.id)}
                 aria-label="關閉提示"
-                className="bg-transparent border-none cursor-pointer p-0.5 inline-flex text-(--background) opacity-70 hover:opacity-100"
+                className="bg-transparent border-none cursor-pointer p-0.5 inline-flex text-(--text-secondary)"
               >
                 <X size={16} />
               </button>
