@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, ReactNode } from 'react'
+import React, { useEffect, useLayoutEffect, useState, useRef, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Sheet } from '@/types'
 import { useHydrated } from '@/utils/useHydrated'
@@ -11,7 +11,20 @@ export interface PathData {
   d: string
   color: string
   strokeWidth: number
+  // 'image'：座標相對於樂譜圖片（換裝置、轉向都不會跑掉）。
+  // 舊筆記沒有此欄位，座標相對於整個檢視區，維持原本的顯示方式
+  space?: 'image'
 }
+
+// 圖片在外框中的位置與大小（版面座標，不受縮放影響）
+interface ImageBox {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+const round = (value: number) => Math.round(value * 10) / 10
 
 interface SheetAnnotatorProps {
   sheet?: Sheet
@@ -34,11 +47,41 @@ export function SheetAnnotator({
   const dragStartRef = useRef({ x: 0, y: 0, initialX: 0, initialY: 0 })
 
   // 塗鴉繪圖狀態
-  const [isDrawing, setIsDrawing] = useState(false)
-  const [currentPath, setCurrentPath] = useState('')
   const [color, setColor] = useState('#ef4444')
   const [strokeWidth, setStrokeWidth] = useState(4)
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement | null>(null)
+  const [imageBox, setImageBox] = useState<ImageBox | null>(null)
+
+  // 書寫中的筆畫直接更新 DOM，不經過 React 重新渲染，寫快也跟得上
+  const livePathRef = useRef<SVGPathElement>(null)
+  const strokeRef = useRef<{ pointerId: number; d: string } | null>(null)
+
+  // 量出圖片的位置，讓筆記圖層剛好蓋在圖片上（圖片載入、換頁、視窗大小改變時重新計算）
+  useEffect(() => {
+    const wrapper = wrapperRef.current
+    const img = wrapper?.querySelector('img')
+    if (!wrapper || !img) return
+
+    const measure = () => {
+      if (!img.offsetWidth || !img.offsetHeight) return
+      setImageBox({ left: img.offsetLeft, top: img.offsetTop, width: img.offsetWidth, height: img.offsetHeight })
+    }
+
+    const observer = new ResizeObserver(measure)
+    observer.observe(img)
+    observer.observe(wrapper)
+    img.addEventListener('load', measure)
+    return () => {
+      observer.disconnect()
+      img.removeEventListener('load', measure)
+    }
+  }, [])
+
+  // 筆畫存進 paths 後，清掉書寫中的暫時筆畫
+  useLayoutEffect(() => {
+    if (!strokeRef.current) livePathRef.current?.setAttribute('d', '')
+  }, [paths])
 
   const mounted = useHydrated()
 
@@ -110,51 +153,45 @@ export function SheetAnnotator({
     handleEndDrag()
   }
 
-  // 塗鴉繪圖事件
-  const getCoordinates = (e: React.PointerEvent) => {
-    if (!svgRef.current) return null
-    const rect = svgRef.current.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 1000
-    const y = ((e.clientY - rect.top) / rect.height) * 1000
-    return { x, y }
-  }
+  // 塗鴉繪圖事件（只接受觸控筆與滑鼠，手指留給縮放與翻頁）
+  const isPencilOrMouse = (e: React.PointerEvent) => e.pointerType === 'pen' || e.pointerType === 'mouse'
 
-  const isPencilOrMouse = (e: React.PointerEvent) => {
-    return e.pointerType === 'pen' || e.pointerType === 'mouse'
-  }
+  const toPoint = (rect: DOMRect, clientX: number, clientY: number) =>
+    `${round(((clientX - rect.left) / rect.width) * 1000)} ${round(((clientY - rect.top) / rect.height) * 1000)}`
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (!isEditing || !isPencilOrMouse(e)) return
+  const handlePointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!isEditing || !isPencilOrMouse(e) || !svgRef.current) return
     e.preventDefault()
+    e.currentTarget.setPointerCapture(e.pointerId)
 
-    setIsDrawing(true)
-    const coords = getCoordinates(e)
-    if (!coords) return
-    setCurrentPath(`M ${coords.x} ${coords.y}`)
+    const point = toPoint(svgRef.current.getBoundingClientRect(), e.clientX, e.clientY)
+    strokeRef.current = { pointerId: e.pointerId, d: `M ${point} L ${point}` }
+    livePathRef.current?.setAttribute('d', strokeRef.current.d)
   }
 
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDrawing || !isEditing || !isPencilOrMouse(e)) return
+  const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    const stroke = strokeRef.current
+    if (!stroke || stroke.pointerId !== e.pointerId || !svgRef.current) return
 
-    const coords = getCoordinates(e)
-    if (!coords) return
-    setCurrentPath((prev) => `${prev} L ${coords.x} ${coords.y}`)
-  }
-
-  const handlePointerUp = () => {
-    if (!isDrawing) return
-    setIsDrawing(false)
-
-    if (currentPath) {
-      const newPath: PathData = {
-        id: Date.now().toString(),
-        d: currentPath,
-        color,
-        strokeWidth,
-      }
-      onChangePaths([...paths, newPath])
-      setCurrentPath('')
+    // 瀏覽器會把快速移動的多個點合併成一個事件，取出全部的點，線條才不會斷成直線
+    const native = e.nativeEvent
+    const events = native.getCoalescedEvents?.() ?? []
+    const rect = svgRef.current.getBoundingClientRect()
+    for (const point of events.length > 0 ? events : [native]) {
+      stroke.d += ` L ${toPoint(rect, point.clientX, point.clientY)}`
     }
+    livePathRef.current?.setAttribute('d', stroke.d)
+  }
+
+  const handlePointerEnd = (e: React.PointerEvent<SVGSVGElement>) => {
+    const stroke = strokeRef.current
+    if (!stroke || stroke.pointerId !== e.pointerId) return
+    strokeRef.current = null
+
+    onChangePaths([
+      ...paths,
+      { id: Date.now().toString(), d: stroke.d, color, strokeWidth, space: 'image' },
+    ])
   }
 
   const handleUndo = () => {
@@ -253,43 +290,45 @@ export function SheetAnnotator({
     <>
       {mounted && toolbarContent && createPortal(toolbarContent, document.body)}
 
-      <div className="relative inline-block max-w-full max-h-full w-full h-full">
+      <div ref={wrapperRef} className="relative inline-block max-w-full max-h-full w-full h-full">
         {children}
 
+        {/* 舊筆記：座標相對於整個檢視區 */}
         <svg
-          ref={svgRef}
           viewBox="0 0 1000 1000"
           preserveAspectRatio="none"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          className={`absolute inset-0 w-full h-full touch-none ${
-            isEditing ? 'cursor-crosshair [pointer-events:all]' : 'cursor-default pointer-events-none'
-          }`}
+          className="absolute inset-0 w-full h-full pointer-events-none"
         >
-          {paths.map((p) => (
-            <path
-              key={p.id}
-              d={p.d}
-              stroke={p.color}
-              strokeWidth={p.strokeWidth}
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          ))}
-
-          {currentPath && (
-            <path
-              d={currentPath}
-              stroke={color}
-              strokeWidth={strokeWidth}
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          )}
+          {paths
+            .filter((p) => p.space !== 'image')
+            .map((p) => (
+              <path key={p.id} d={p.d} stroke={p.color} strokeWidth={p.strokeWidth} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            ))}
         </svg>
+
+        {/* 筆記圖層：剛好蓋在圖片上（位置為量測值，需用 inline style） */}
+        {imageBox && (
+          <svg
+            ref={svgRef}
+            viewBox="0 0 1000 1000"
+            preserveAspectRatio="none"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerEnd}
+            onPointerCancel={handlePointerEnd}
+            className={`absolute touch-none ${
+              isEditing ? 'cursor-crosshair [pointer-events:all]' : 'cursor-default pointer-events-none'
+            }`}
+            style={{ left: imageBox.left, top: imageBox.top, width: imageBox.width, height: imageBox.height }}
+          >
+            {paths
+              .filter((p) => p.space === 'image')
+              .map((p) => (
+                <path key={p.id} d={p.d} stroke={p.color} strokeWidth={p.strokeWidth} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              ))}
+            <path ref={livePathRef} stroke={color} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
       </div>
     </>
   )
